@@ -1,0 +1,6 @@
+<resources>
+    <color name="setup_actions">#000000</color>
+    <color name="setup_sub_actions">#DDDDDD</color>
+    <color name="selected_background">#ffaa3f</color>
+    <color name="default_background">#3d3d3d</color>
+</resources>

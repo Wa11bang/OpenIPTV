@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="@style/Theme.Leanback" />
+
+    <style name="Theme" parent="Theme.Leanback.GuidedStep">
+    </style>
+
+    <style name="Theme.Setup">
+        <item name="guidedActionsBackground">@color/setup_actions</item>
+        <item name="guidedActionsBackgroundDark">@color/setup_sub_actions</item>
+    </style>
+
+
+</resources>
