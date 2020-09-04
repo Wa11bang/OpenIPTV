@@ -38,32 +38,31 @@ public class SetupFragment extends GuidedStepSupportFragment {
 
 
         GuidedAction usernameForm = new GuidedAction.Builder(getActivity())
-                .title("Username")
+                .title("")
                 .description("Enter a Username")
                 .editable(true)
                 .build();
 
         GuidedAction passwordForm = new GuidedAction.Builder(getActivity())
-                .title("Password")
+                .title("")
                 .description("Enter a Password")
-                .descriptionEditable(true)
-                .editable(false)
+                .editable(true)
                 .build();
 
         GuidedAction hostnameForm = new GuidedAction.Builder(getActivity())
-                .title("Hostname")
+                .title("")
                 .description("Enter a Hostname")
                 .editable(true)
                 .build();
 
         GuidedAction portForm = new GuidedAction.Builder(getActivity())
-                .title("Port")
+                .title("")
                 .description("Enter a Port")
                 .editable(true)
                 .build();
 
         GuidedAction clientNameForm = new GuidedAction.Builder(getActivity())
-                .title("Client Name")
+                .title("")
                 .description("Enter a Client Name")
                 .editable(true)
                 .build();
@@ -82,8 +81,12 @@ public class SetupFragment extends GuidedStepSupportFragment {
 
     }
 
-
-
+    //TODO
+    //Set account variables
+    @Override
+    public long onGuidedActionEditedAndProceed(GuidedAction formResults) {
+        return super.onGuidedActionEditedAndProceed(formResults);
+    }
 
 
 }
