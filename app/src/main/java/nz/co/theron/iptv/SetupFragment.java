@@ -1,6 +1,7 @@
 package nz.co.theron.iptv;
 
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.style.TtsSpan;
 import android.widget.EditText;
 
@@ -45,6 +46,7 @@ public class SetupFragment extends GuidedStepSupportFragment {
 
         GuidedAction passwordForm = new GuidedAction.Builder(getActivity())
                 .title("")
+                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .description("Enter a Password")
                 .editable(true)
                 .build();
