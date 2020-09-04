@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.tv.TvInputInfo;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -35,6 +36,11 @@ public class SetupActivity extends FragmentActivity {
 
 
 
+    }
+
+    public int getTest()
+    {
+        return 10;
     }
 
     public static abstract class BaseGuidedStepFragment extends GuidedStepSupportFragment {
@@ -77,6 +83,7 @@ public class SetupActivity extends FragmentActivity {
                     .title("Button")
                     .description("Button action")
                     .editable(false)
+                    .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                     .build();
 
             actions.add(action);
