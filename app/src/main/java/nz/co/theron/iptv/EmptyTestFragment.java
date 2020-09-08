@@ -1,5 +1,6 @@
 package nz.co.theron.iptv;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -10,6 +11,7 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //
@@ -28,10 +30,28 @@ public class EmptyTestFragment extends GuidedStepSupportFragment {
 
 
 
-
+    //TODO Remove in final
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
+        DatabaseActions databaseActions = new DatabaseActions(getContext());
 
+        //get the data and append to a list
+
+
+        Cursor accountList = databaseActions.getAccounts();
+
+        ArrayList<String> listData = new ArrayList<>();
+        while(accountList.moveToNext()){
+            //get the value from the database in column 1
+            //then add it to the ArrayList
+            listData.add(accountList.getString(1));
+        }
+
+
+
+        for (int i = 0; i < accountList.getCount(); i++) {
+            Log.i("Account_List", listData.get(i));
+        }
     }
 
 

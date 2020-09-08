@@ -21,8 +21,6 @@ import androidx.leanback.widget.GuidedActionsStylist;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.text.InputType.TYPE_CLASS_NUMBER;
-import static nz.co.theron.iptv.SetupActivity.BaseGuidedStepFragment.mAccountManager;
 
 public class SetupFragment extends GuidedStepSupportFragment {
 
@@ -137,6 +135,13 @@ public class SetupFragment extends GuidedStepSupportFragment {
                 }
 
                 if (emptyField == false ){
+
+
+                    TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
+
+                    DatabaseActions databaseActions= new DatabaseActions(getContext());
+                    databaseActions.addAccount(newAccount);
+                    databaseActions.close();
 
                     GuidedStepSupportFragment fragment = new EmptyTestFragment();
                     fragment.setArguments(getArguments());

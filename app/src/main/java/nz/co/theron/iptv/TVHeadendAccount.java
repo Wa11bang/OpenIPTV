@@ -1,6 +1,10 @@
 package nz.co.theron.iptv;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Bundle;
+
 
 public class TVHeadendAccount {
     private String username;
@@ -8,15 +12,6 @@ public class TVHeadendAccount {
     private String hostname;
     private String port;
     private String clientName;
-
-    public TVHeadendAccount(String username, String password, String hostname, String port, String clientName){
-
-        this.setUsername(username);
-        this.setPassword(password);
-        this.setHostname(hostname);
-        this.setPort(port);
-        this.setClientName(clientName);
-    }
 
     public TVHeadendAccount(Bundle bundle){
         this.setUsername(bundle.getString("username"));
