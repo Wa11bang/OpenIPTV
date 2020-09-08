@@ -1,9 +1,12 @@
 package nz.co.theron.iptv;
 
+import android.accounts.Account;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.style.TtsSpan;
+import android.util.Log;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -12,11 +15,25 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 import androidx.leanback.widget.GuidedActionEditText;
+import androidx.leanback.widget.GuidedActionsStylist;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static android.text.InputType.TYPE_CLASS_NUMBER;
+import static nz.co.theron.iptv.SetupActivity.BaseGuidedStepFragment.mAccountManager;
+
 public class SetupFragment extends GuidedStepSupportFragment {
+
+    ArrayList<String> accountDetails;
+
+    final Long USERNAME = 0L;
+    final Long PASSWORD = 1L;
+    final Long HOSTNAME = 2L;
+    final Long PORT = 3L;
+    final Long CLIENT = 4L;
+
 
     @NonNull
     @Override
@@ -30,16 +47,13 @@ public class SetupFragment extends GuidedStepSupportFragment {
     }
 
 
-
-
-
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
 
 
-
         GuidedAction usernameForm = new GuidedAction.Builder(getActivity())
                 .title("")
+                .id(USERNAME)
                 .description("Enter a Username")
                 .editable(true)
                 .build();
@@ -48,24 +62,29 @@ public class SetupFragment extends GuidedStepSupportFragment {
                 .title("")
                 .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .description("Enter a Password")
+                .id(PASSWORD)
                 .editable(true)
                 .build();
 
         GuidedAction hostnameForm = new GuidedAction.Builder(getActivity())
                 .title("")
                 .description("Enter a Hostname")
+                .id(HOSTNAME)
                 .editable(true)
                 .build();
 
         GuidedAction portForm = new GuidedAction.Builder(getActivity())
                 .title("")
+                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_NUMBER)
                 .description("Enter a Port")
+                .id(PORT)
                 .editable(true)
                 .build();
 
         GuidedAction clientNameForm = new GuidedAction.Builder(getActivity())
                 .title("")
                 .description("Enter a Client Name")
+                .id(CLIENT)
                 .editable(true)
                 .build();
 
@@ -75,10 +94,12 @@ public class SetupFragment extends GuidedStepSupportFragment {
         actions.add(portForm);
         actions.add(clientNameForm);
 
+        GuidedAction finishButton = new GuidedAction.Builder(getActivity())
+                .title("Next")
+                .editable(false)
+                .build();
 
-
-
-
+        actions.add(finishButton);
 
 
     }
@@ -90,5 +111,40 @@ public class SetupFragment extends GuidedStepSupportFragment {
         return super.onGuidedActionEditedAndProceed(formResults);
     }
 
+    @Override
+    public void onGuidedActionClicked(GuidedAction action) {
+        if (action.getTitle().toString().equals("Next")) {
 
+
+
+                Bundle newAccountDetails = new Bundle(5);
+
+                newAccountDetails.putString("username", findActionById(USERNAME).getTitle().toString());
+                newAccountDetails.putString("password", findActionById(PASSWORD).getTitle().toString());
+                newAccountDetails.putString("hostname", findActionById(HOSTNAME).getTitle().toString());
+                newAccountDetails.putString("port", findActionById(PORT).getTitle().toString());
+                newAccountDetails.putString("clientName", findActionById(CLIENT).getTitle().toString());
+
+                Boolean emptyField = false;
+
+                for (Long i = 0L; i < 5; i++){
+                    if (findActionById(i).getTitle().equals("")){
+                        emptyField = true;
+                        Toast.makeText(getContext(),findActionById(i).getDescription().toString(),Toast.LENGTH_SHORT).show();
+                        break;
+
+                    }
+                }
+
+                if (emptyField == false ){
+
+                    GuidedStepSupportFragment fragment = new EmptyTestFragment();
+                    fragment.setArguments(getArguments());
+                    add(getFragmentManager(), fragment);
+                }
+
+
+
+        }
+    }
 }
