@@ -1,17 +1,18 @@
-import android.content.Context;
-import androidx.test.core.app.ApplicationProvider;
+import android.os.Build;
+
+import com.openiptv.code.SetupActivity;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-
-import nz.co.theron.iptv.SetupActivity;
+import org.robolectric.annotation.Config;
 
 import static com.google.common.truth.Truth.assertThat;
 
+@Config(sdk = Build.VERSION_CODES.O_MR1)
 @RunWith(RobolectricTestRunner.class)
 public class DemoTest {
     private static final int FAKE_TEST = 10;
-    private Context context = ApplicationProvider.getApplicationContext();
 
     @Test
     public void readStringFromContext_LocalizedString() {
