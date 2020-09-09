@@ -1,4 +1,4 @@
-package nz.co.theron.iptv;
+package com.openiptv.code;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
