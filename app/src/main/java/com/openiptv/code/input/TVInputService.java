@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.SubtitleView;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
+import com.openiptv.code.epg.Program;
 import com.openiptv.code.player.TVPlayer;
 
 import static com.openiptv.code.epg.EPGService.isSetupComplete;
@@ -89,6 +90,7 @@ public class TVInputService extends TvInputService {
 
         @Override
         public void onRelease() {
+            Log.d(TAG, "TVSession Released");
             mPlayer.stop();
         }
 
@@ -105,7 +107,7 @@ public class TVInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
-            mPlayer.prepare();
+            mPlayer.prepare(Channel.getChannelIdFromChannelUri(mContext, channelUri));
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(mContext, channelUri));
 
@@ -118,6 +120,20 @@ public class TVInputService extends TvInputService {
         @Override
         public void onSetCaptionEnabled(boolean enabled) {
 
+        }
+
+        @Override
+        public void onTimeShiftPlay(Uri recordedProgramUri) {
+            // Start Playback of a Recorded Program
+            Log.d(TAG, "Session onTimeShiftPlay " + recordedProgramUri.toString());
+
+            // Notify we are busy tuning
+            notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
+            Log.d(TAG, "Android has request to tune to channel: " + recordedProgramUri.getPath());
+
+            mPlayer.start();
+            notifyContentAllowed();
+            notifyVideoAvailable();
         }
     }
 }

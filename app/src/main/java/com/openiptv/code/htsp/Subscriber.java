@@ -13,19 +13,8 @@ public class Subscriber implements MessageListener {
     private static final String TAG = Subscriber.class.getSimpleName();
 
     private static final int INVALID_SUBSCRIPTION_ID = -1;
-    private static final int INVALID_START_TIME = -1;
-    private static final int STATS_INTERVAL = 10000;
     private static final int DEFAULT_TIMESHIFT_PERIOD = 0;
-
-    // Copy of TvInputManager.TIME_SHIFT_INVALID_TIME, available on M+ Only.
-    public static final long INVALID_TIMESHIFT_TIME = -9223372036854775808L;
-
-    private static final Set<String> HANDLED_METHODS = new HashSet<>(Arrays.asList(new String[]{
-            "subscriptionStart", "subscriptionStatus", "subscriptionStop",
-            "queueStatus", "signalStatus", "timeshiftStatus", "muxpkt",
-            "subscriptionSkip", "subscriptionSpeed",
-            // "subscriptionGrace"
-    }));
+    private static final Set<String> HANDLED_METHODS = new HashSet<>(Arrays.asList("subscriptionStart", "subscriptionStatus", "subscriptionStop", "queueStatus", "signalStatus", "timeshiftStatus", "muxpkt", "subscriptionSkip", "subscriptionSpeed"));
 
     /**
      * A listener for Subscription events
@@ -66,6 +55,11 @@ public class Subscriber implements MessageListener {
             return;
         }
         mListeners.remove(listener);
+    }
+
+    public boolean getIsSubscribed()
+    {
+        return mIsSubscribed;
     }
 
     public int getSubscriptionId() {

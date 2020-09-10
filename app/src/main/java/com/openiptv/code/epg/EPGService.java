@@ -42,8 +42,8 @@ public class EPGService extends Service {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 Constants.ACCOUNT, Context.MODE_PRIVATE);
 
-        Log.d("EPG", "Setup complete: " + sharedPreferences.getBoolean("SETUP-COMPLETE", false));
-        return sharedPreferences.getBoolean("SETUP-COMPLETE", false);
+        Log.d("EPG", "Setup complete: " + sharedPreferences.getBoolean("SETUP", false));
+        return sharedPreferences.getBoolean("SETUP", false);
     }
 
     public static void setSetupComplete(Context context, boolean isSetupComplete) {
@@ -51,7 +51,7 @@ public class EPGService extends Service {
                 Constants.ACCOUNT, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("SETUP-COMPLETE", isSetupComplete);
+        editor.putBoolean("SETUP", isSetupComplete);
         editor.apply();
     }
 }

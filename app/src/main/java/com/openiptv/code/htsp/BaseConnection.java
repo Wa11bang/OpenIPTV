@@ -55,6 +55,11 @@ public class BaseConnection {
         connectionThread.interrupt();
     }
 
+    public HTSPMessageDispatcher getHtspMessageDispatcher()
+    {
+        return htspMessageDispatcher;
+    }
+
     public boolean addMessageListener(MessageListener listener)
     {
         htspMessageDispatcher.addMessageListener(listener);
