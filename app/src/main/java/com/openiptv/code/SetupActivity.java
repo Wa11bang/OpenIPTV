@@ -24,7 +24,6 @@ import java.util.List;
 public class SetupActivity extends FragmentActivity {
     private static final String TAG = SetupActivity.class.getName();
 
-    DatabaseActions mDatabaseActions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,5 +1,6 @@
 package com.openiptv.code;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -86,12 +87,16 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
+        /**
+         * If add new account is selected start account setup fragment
+         * Else, if the skip button is pressed continue without account
+         */
         if (action.getTitle().toString().equals("Add new Account")) {
             GuidedStepSupportFragment fragment = new SetupNewAccountFragment();
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
         } else if (action.getTitle().toString().equals("Skip")) {
-            GuidedStepSupportFragment fragment = new EmptyTestFragment();
+            GuidedStepSupportFragment fragment = new EmptyTestFragment_copy();
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
         }
@@ -99,9 +104,23 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
 
     @Override
     public boolean onSubGuidedActionClicked(GuidedAction action) {
-        Log.i("Account_Id", String.valueOf(action.getId()));
+        DatabaseActions databaseActions = new DatabaseActions(getContext());
 
-        //TODO select account, end setup
+        Cursor accountSelected = databaseActions.getAccountByID(String.valueOf(action.getId()));
+        Bundle accountDetails = new Bundle(6);
+        accountSelected.moveToFirst();
+        accountDetails.putString("id", accountSelected.getString(0));
+        accountDetails.putString("username", accountSelected.getString(1));
+        accountDetails.putString("password", accountSelected.getString(2));
+        accountDetails.putString("hostname", accountSelected.getString(3));
+        accountDetails.putString("port", accountSelected.getString(4));
+        accountDetails.putString("clientName", accountSelected.getString(5));
+
+        Intent intent = new Intent();
+
+        intent.setClass(getActivity(), MainActivity.class);
+        intent.putExtra("CurrentAccount", accountDetails);
+        startActivity(intent);
 
         return super.onSubGuidedActionClicked(action);
     }

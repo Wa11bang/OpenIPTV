@@ -1,6 +1,7 @@
 package com.openiptv.code;
 
 import android.accounts.Account;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.style.TtsSpan;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
     ArrayList<String> accountDetails;
+    SelectedBundle selectedBundle;
 
     final Long USERNAME = 0L;
     final Long PASSWORD = 1L;
@@ -117,6 +119,14 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         return super.onGuidedActionEditedAndProceed(formResults);
     }
 
+    public interface  SelectedBundle{
+        void onBundleSelect(Bundle bundle);
+    }
+
+    public void setOnBundleSelected(SelectedBundle selectedBundle) {
+        this.selectedBundle = selectedBundle;
+    }
+
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         if (action.getTitle().toString().equals("Next")) {
@@ -144,21 +154,28 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
                 if (emptyField == false ){
 
-
                     TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
+                    addAccountToDatabase(newAccount);
 
-                    DatabaseActions databaseActions= new DatabaseActions(getContext());
-                    databaseActions.addAccount(newAccount);
-                    databaseActions.close();
-
-                    GuidedStepSupportFragment fragment = new EmptyTestFragment();
-                    fragment.setArguments(getArguments());
-                    add(getFragmentManager(), fragment);
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(), MainActivity.class);
+                    intent.putExtra("CurrentAccount", newAccountDetails);
+                    startActivity(intent);
                 }
 
 
 
         }
 
+    }
+
+    /**
+     * Takes a TVHeadend Account and adds it to the database.
+     * @param account
+     */
+    public void addAccountToDatabase(TVHeadendAccount account){
+        DatabaseActions databaseActions= new DatabaseActions(getContext());
+        databaseActions.addAccount(account);
+        databaseActions.close();
     }
 }

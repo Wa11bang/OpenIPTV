@@ -2,8 +2,8 @@ package com.openiptv.code;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 //
-public class EmptyTestFragment extends GuidedStepSupportFragment {
+public class EmptyTestFragment_copy extends GuidedStepSupportFragment {
     @NonNull
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
@@ -54,7 +54,11 @@ public class EmptyTestFragment extends GuidedStepSupportFragment {
         }
     }
 
-
+    @Override
+    public void onStop() {
+        super.onStop();
+        Toast.makeText(getContext(),"On Stop Found",Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
