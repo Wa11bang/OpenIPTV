@@ -18,6 +18,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
     private final MessageDispatcher messageDispatcher;
     private final ConnectionInfo connectionInfo;
     private Connection connection;
+    private boolean fullSync = false;
 
     public Authenticator(MessageDispatcher dispatcher, ConnectionInfo connectionInfo)
     {
@@ -112,6 +113,11 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
         }
     }
 
+    public void fullSync()
+    {
+        fullSync = true;
+    }
+
     public void sendEnableAsyncMessage()
     {
         long epgMaxTime = 0L;
@@ -119,7 +125,14 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
 
         enableAsyncMetadataRequest.put("method", "enableAsyncMetadata");
         enableAsyncMetadataRequest.put("epg", 1);
-        epgMaxTime = epgMaxTime + (System.currentTimeMillis() / 1000L);
+
+        if(fullSync) {
+            Log.d(TAG, "Full sync enabled");
+            epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);
+        }
+        else {
+            epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);
+        }
         enableAsyncMetadataRequest.put("epgMaxTime", epgMaxTime);
 
         try {

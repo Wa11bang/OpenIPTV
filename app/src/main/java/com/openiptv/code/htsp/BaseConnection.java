@@ -9,6 +9,7 @@ public class BaseConnection {
     private final HTSPSerializer htspSerializer;
     private final Connection connection;
     private Thread connectionThread;
+    private Authenticator authenticator;
     private static final String TAG = BaseConnection.class.getSimpleName();
 
     public BaseConnection(ConnectionInfo connectionInfo) {
@@ -18,13 +19,18 @@ public class BaseConnection {
         htspMessageDispatcher = new HTSPMessageDispatcher();
         socketIOHandler = new SocketIOHandler(htspSerializer, htspMessageDispatcher);
 
-        Authenticator authenticator = new Authenticator(htspMessageDispatcher, connectionInfo);
+        authenticator = new Authenticator(htspMessageDispatcher, connectionInfo);
 
         connection = new Connection(connectionInfo, socketIOHandler);
         connection.addConnectionListener(authenticator);
 
         htspMessageDispatcher.setConnection(connection);
         htspMessageDispatcher.addMessageListener(authenticator);
+    }
+
+    public void fullSync()
+    {
+        authenticator.fullSync();
     }
 
     public void start() {
