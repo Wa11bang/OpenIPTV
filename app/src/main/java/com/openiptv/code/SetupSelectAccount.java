@@ -96,9 +96,13 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
         } else if (action.getTitle().toString().equals("Skip")) {
-            GuidedStepSupportFragment fragment = new EmptyTestFragment_copy();
-            fragment.setArguments(getArguments());
-            add(getFragmentManager(), fragment);
+
+            //TODO Change intent to the correct activity
+            Intent intent = new Intent();
+
+            intent.setClass(getActivity(), MainActivity.class);
+            startActivity(intent);
+            startActivity(intent);
         }
     }
 
@@ -118,6 +122,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
 
         Intent intent = new Intent();
 
+        //TODO Change intent to the correct activity
         intent.setClass(getActivity(), MainActivity.class);
         intent.putExtra("CurrentAccount", accountDetails);
         startActivity(intent);
