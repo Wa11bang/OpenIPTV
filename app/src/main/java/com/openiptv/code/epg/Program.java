@@ -186,4 +186,9 @@ public class Program {
         }
         return null;
     }
+
+    public static Uri getUri(Context context, Program program)
+    {
+        return getUri(context, program.getChannelId(), program.getEventId());
+    }
 }

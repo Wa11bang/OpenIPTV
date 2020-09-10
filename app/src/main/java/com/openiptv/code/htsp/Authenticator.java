@@ -128,7 +128,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
 
         if(fullSync) {
             Log.d(TAG, "Full sync enabled");
-            epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);
+            epgMaxTime = 691200 + (System.currentTimeMillis() / 1000L);
         }
         else {
             epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);

@@ -26,6 +26,8 @@ import com.openiptv.code.htsp.ConnectionInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.openiptv.code.epg.EPGService.setSetupComplete;
+
 public class SetupActivity extends FragmentActivity {
     private static final String TAG = SetupActivity.class.getName();
 
@@ -260,6 +262,9 @@ public class SetupActivity extends FragmentActivity {
         public void onGuidedActionClicked(GuidedAction action) {
             if (action.getId() == ACTION_ID_COMPLETE) {
 
+                setSetupComplete(getActivity(), true);
+
+                Log.d(TAG, "Exiting Setup!");
                 Intent intent = new Intent(getActivity(), EPGService.class);
                 getActivity().startService(intent);
 

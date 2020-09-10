@@ -2,6 +2,7 @@ package com.openiptv.code.input;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
@@ -13,8 +14,11 @@ import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.SubtitleView;
+import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
 import com.openiptv.code.player.TVPlayer;
+
+import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 
 public class TVInputService extends TvInputService {
@@ -49,7 +53,9 @@ public class TVInputService extends TvInputService {
     public void onCreate() {
         super.onCreate();
 
-        //getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
+        if(isSetupComplete(this)) {
+            getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
+        }
         mCaptioningManager = (CaptioningManager) getSystemService(Context.CAPTIONING_SERVICE);
     }
 
@@ -101,7 +107,7 @@ public class TVInputService extends TvInputService {
         public boolean onTune(Uri channelUri) {
             mPlayer.prepare();
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
-            Log.d(TAG, "Tuning!");
+            Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(mContext, channelUri));
 
             mPlayer.start();
             notifyContentAllowed();

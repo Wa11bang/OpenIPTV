@@ -12,6 +12,9 @@ import android.util.Log;
 import com.openiptv.code.Constants;
 import com.openiptv.code.htsp.HTSPMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.openiptv.code.Constants.NULL_CHANNEL;
 
 public class Channel {
@@ -38,6 +41,8 @@ public class Channel {
         this.channelNumber = message.getInteger(Constants.CHANNEL_NUMBER);
         this.channelMinorNumber = message.getInteger(Constants.CHANNEL_NUMBER_MINOR);
         this.channelName = message.getString(Constants.CHANNEL_NAME);
+
+        generateContentValues();
     }
 
     public int getChannelId() {
@@ -91,6 +96,11 @@ public class Channel {
         return null;
     }
 
+    public static Uri getUri(Context context, Channel channel)
+    {
+        return getUri(context, channel.getChannelId());
+    }
+
     public static long getTvProviderId(int channelId, Context context) {
         ContentResolver resolver = context.getContentResolver();
         Uri channelsUri = buildChannelsUri();
@@ -119,5 +129,25 @@ public class Channel {
     public static Uri buildChannelsUri()
     {
         return TvContract.buildChannelsUriForInput(TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS)));
+    }
+
+    public static Integer getChannelIdFromChannelUri(Context context, Uri channelUri) {
+        ContentResolver resolver = context.getContentResolver();
+
+        String[] projection = {TvContract.Channels._ID, TvContract.Channels.COLUMN_SERVICE_ID};
+        List<Integer> channelIds = new ArrayList<>();
+
+        try (Cursor cursor = resolver.query(channelUri, projection, null,null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                channelIds.add(cursor.getInt(1));
+            }
+        }
+
+        if(channelIds.size() == 1)
+        {
+            return channelIds.get(0);
+        }
+
+        return null;
     }
 }
