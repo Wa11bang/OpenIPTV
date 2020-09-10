@@ -87,7 +87,7 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
             // Move onto the next step
-            GuidedStepSupportFragment fragment = new SetupFragment();
+            GuidedStepSupportFragment fragment = new SetupNewAccountFragment();
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
         }

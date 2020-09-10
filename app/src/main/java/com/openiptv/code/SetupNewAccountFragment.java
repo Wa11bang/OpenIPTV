@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SetupFragment extends GuidedStepSupportFragment {
+public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
     ArrayList<String> accountDetails;
 
