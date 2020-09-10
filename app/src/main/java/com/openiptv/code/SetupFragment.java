@@ -86,24 +86,35 @@ public class SetupFragment extends GuidedStepSupportFragment {
                 .editable(true)
                 .build();
 
-        actions.add(usernameForm);
-        actions.add(passwordForm);
-        actions.add(hostnameForm);
-        actions.add(portForm);
-        actions.add(clientNameForm);
+
 
         GuidedAction finishButton = new GuidedAction.Builder(getActivity())
                 .title("Next")
                 .editable(false)
                 .build();
 
+
+
+        GuidedAction skipButton = new GuidedAction.Builder(getActivity())
+                .title("Skip")
+                .editable(false)
+                .build();
+
+        actions.add(usernameForm);
+        actions.add(passwordForm);
+        actions.add(hostnameForm);
+        actions.add(portForm);
+        actions.add(clientNameForm);
         actions.add(finishButton);
+        actions.add(skipButton);
 
 
     }
 
-    //TODO
-    //Set account variables
+
+
+    //TODO in the Final setup fragment add the account to the database
+    // to avoid duplication of accounts by pressing back and then next.
     @Override
     public long onGuidedActionEditedAndProceed(GuidedAction formResults) {
         return super.onGuidedActionEditedAndProceed(formResults);
@@ -150,6 +161,11 @@ public class SetupFragment extends GuidedStepSupportFragment {
 
 
 
+        }
+        else if (action.getTitle().toString().equals("Skip")){
+            GuidedStepSupportFragment fragment = new EmptyTestFragment();
+            fragment.setArguments(getArguments());
+            add(getFragmentManager(), fragment);
         }
     }
 }
