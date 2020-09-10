@@ -95,10 +95,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
 
 
-        GuidedAction skipButton = new GuidedAction.Builder(getActivity())
-                .title("Skip")
-                .editable(false)
-                .build();
+
 
         actions.add(usernameForm);
         actions.add(passwordForm);
@@ -106,7 +103,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         actions.add(portForm);
         actions.add(clientNameForm);
         actions.add(finishButton);
-        actions.add(skipButton);
+
 
 
     }
@@ -162,10 +159,6 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
 
         }
-        else if (action.getTitle().toString().equals("Skip")){
-            GuidedStepSupportFragment fragment = new EmptyTestFragment();
-            fragment.setArguments(getArguments());
-            add(getFragmentManager(), fragment);
-        }
+
     }
 }

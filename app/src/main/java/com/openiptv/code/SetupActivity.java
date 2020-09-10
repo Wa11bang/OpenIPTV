@@ -76,7 +76,7 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             GuidedAction action = new GuidedAction.Builder(getActivity())
-                    .title("Add Account")
+                    .title("Select Account")
                     .description("Click to start")
                     .editable(false)
                     .build();
@@ -87,7 +87,7 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
             // Move onto the next step
-            GuidedStepSupportFragment fragment = new SetupNewAccountFragment();
+            GuidedStepSupportFragment fragment = new SetupSelectAccount();
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
         }
