@@ -1,6 +1,8 @@
 package com.openiptv.code.epg;
 
+import android.content.ComponentName;
 import android.content.ContentProviderOperation;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.media.tv.TvContract;
@@ -40,8 +42,6 @@ public class EPGCaptureTask implements MessageListener {
     public EPGCaptureTask(Context context, boolean fullSync)
     {
         this(context);
-        this.fullSync = fullSync;
-        connection.fullSync();
     }
 
     public EPGCaptureTask(Context context)
@@ -113,6 +113,57 @@ public class EPGCaptureTask implements MessageListener {
         }
     }
 
+    public void captureRecordedPrograms(HTSPMessage message)
+    {
+        ContentValues values = new ContentValues();
+
+        values.put(TvContract.RecordedPrograms.COLUMN_INPUT_ID, TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS)));
+        values.put(TvContract.RecordedPrograms.COLUMN_INTERNAL_PROVIDER_DATA, String.valueOf(message.getInteger("id")));
+
+        values.put(TvContract.RecordedPrograms.COLUMN_CHANNEL_ID, Channel.getTvProviderId(message.getInteger("channel"), context));
+
+        if (message.containsKey("title")) {
+            values.put(TvContract.RecordedPrograms.COLUMN_TITLE, message.getString("title"));
+        }
+
+        if (message.containsKey("start")) {
+            values.put(TvContract.RecordedPrograms.COLUMN_START_TIME_UTC_MILLIS, message.getLong("start") * 1000);
+        }
+
+        if (message.containsKey("stop")) {
+            values.put(TvContract.RecordedPrograms.COLUMN_END_TIME_UTC_MILLIS, message.getLong("stop") * 1000);
+        }
+
+        HTSPMessage[] files = message.getHtspMessageArray("files", null);
+        if (files != null) {
+            long recordingStart = -1;
+            long recordingStop = -1;
+
+            for (HTSPMessage file : files) {
+                long fileStart = file.getLong("start", -1);
+                long fileStop = file.getLong("stop", -1);
+
+                if (fileStart > 0 && fileStop > 0) {
+                    if (recordingStart == -1 || fileStart < recordingStart) {
+                        recordingStart = fileStart;
+                    }
+                    if (recordingStop == -1 || fileStop < recordingStop) {
+                        recordingStop = fileStop;
+                    }
+                }
+            }
+
+            if (recordingStart > 0 && recordingStop > 0) {
+                long duration = recordingStop - recordingStart;
+                values.put(TvContract.RecordedPrograms.COLUMN_RECORDING_DURATION_MILLIS, duration * 1000);
+            }
+        }
+        values.put(TvContract.RecordedPrograms.COLUMN_RECORDING_DATA_URI, String.valueOf(message.getInteger("id")));
+
+        Log.d(TAG, "Aded Recording ID: " + message.getInteger("id"));
+        context.getContentResolver().insert(TvContract.RecordedPrograms.CONTENT_URI, values);
+    }
+
     public void initialCompleted(HTSPMessage message)
     {
         Log.d(TAG, "Initial Sync Complete");
@@ -137,6 +188,12 @@ public class EPGCaptureTask implements MessageListener {
                 case "eventAdd":
                 {
                     capturePrograms(message);
+                    break;
+                }
+                case "dvrEntryAdd":
+                {
+                    Log.d(TAG, "Aded Recording ueduh9eh9ue");
+                    captureRecordedPrograms(message);
                     break;
                 }
                 case "eventUpdate":

@@ -90,6 +90,23 @@ public class Subscriber implements MessageListener {
         mIsSubscribed = true;
     }
 
+    public void skip(long time) {
+        Log.i(TAG, "Requesting skip for channel " + mChannelId);
+
+        HTSPMessage subscriptionSkipRequest = new HTSPMessage();
+
+        subscriptionSkipRequest.put("method", "subscriptionSkip");
+        subscriptionSkipRequest.put("subscriptionId", mSubscriptionId);
+        subscriptionSkipRequest.put("time", time);
+        subscriptionSkipRequest.put("absolute", 1);
+
+        try {
+            mDispatcher.sendMessage(subscriptionSkipRequest);
+        } catch (HTSPNotConnectedException e) {
+            // Ignore: If we're not connected, TVHeadend has already unsubscribed us
+        }
+    }
+
     public void unsubscribe() {
         Log.i(TAG, "Requesting unsubscription from channel " + mChannelId);
         mIsSubscribed = false;

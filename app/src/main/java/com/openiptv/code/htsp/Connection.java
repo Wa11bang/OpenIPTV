@@ -145,7 +145,7 @@ public class Connection implements Runnable {
         Iterator<SelectionKey> keyIterator = selectionKeySet.iterator();
 
         while (keyIterator.hasNext()) {
-            System.out.println("Has keys");
+            //System.out.println("Has keys");
             SelectionKey selectionKey = keyIterator.next();
             keyIterator.remove();
 
@@ -154,17 +154,17 @@ public class Connection implements Runnable {
             }
 
             if (selectionKey.isConnectable()) {
-                System.out.println("Connectable");
+                //System.out.println("Connectable");
                 handleConnect(selectionKey);
             }
 
             if (selectionKey.isReadable()) {
-                System.out.println("Readable");
+                //System.out.println("Readable");
                 handleRead(selectionKey);
             }
 
             if (selectionKey.isWritable()) {
-                System.out.println("Writable");
+                //System.out.println("Writable");
                 handleWrite(selectionKey);
             }
 
@@ -204,12 +204,12 @@ public class Connection implements Runnable {
 
     public void handleRead(SelectionKey selectionKey)
     {
-        System.out.println("processReadableSelectionKey()");
+        //System.out.println("processReadableSelectionKey()");
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
         if (currentState != ConnectionState.CLOSED || currentState != ConnectionState.FAILED) {
             if (!socketIOHandler.read(socketChannel)) {
-                System.out.println("Failed to process readable selection key");
+                //System.out.println("Failed to process readable selection key");
                 setState(ConnectionState.FAILED);
             }
         }
@@ -217,7 +217,7 @@ public class Connection implements Runnable {
 
     public void handleWrite(SelectionKey selectionKey)
     {
-        System.out.println("processWritableSelectionKey()");
+        //System.out.println("processWritableSelectionKey()");
 
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
@@ -239,7 +239,7 @@ public class Connection implements Runnable {
             try {
                 if (socketChannel != null && socketChannel.isConnected() && !socketChannel.isConnectionPending()) {
                     try {
-                        System.out.println("Write has been triggered!");
+                        //System.out.println("Write has been triggered!");
                         socketChannel.register(channelSelector, SelectionKey.OP_WRITE);
                         channelSelector.wakeup();
                     } catch (ClosedChannelException e) {
@@ -263,7 +263,7 @@ public class Connection implements Runnable {
             Handler handler = listener.getHandler();
             if (handler == null) {
                 listener.onConnectionStateChange(state);
-                Log.d(TAG, "Polling Listeners");
+                //Log.d(TAG, "Polling Listeners");
             } else {
                 handler.post(new Runnable() {
                     @Override
