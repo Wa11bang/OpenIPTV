@@ -3,7 +3,6 @@ package com.openiptv.code;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -46,7 +45,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
         ArrayList<String> accountId = new ArrayList<>();
 
         accountList.moveToFirst();
-        if (accountList.getCount()!= 0) {
+        if (accountList.getCount() != 0) {
             do {
                 //get the value from the database in id column
                 //then add it to the ArrayList
@@ -54,13 +53,20 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             } while (accountList.moveToNext());
         }
 
-
         List<GuidedAction> availableAccounts = new ArrayList<>();
-        for (int i = 0; i < accountClientNames.size(); i++) {
+        if (accountClientNames.size() > 0) {
 
+            for (int i = 0; i < accountClientNames.size(); i++) {
+
+                availableAccounts.add(new GuidedAction.Builder(getActivity())
+                        .title(accountClientNames.get(i))
+                        .id(Long.parseLong(accountId.get(i)))
+                        .build());
+            }
+        } else {
             availableAccounts.add(new GuidedAction.Builder(getActivity())
-                    .title(accountClientNames.get(i))
-                    .id(Long.parseLong(accountId.get(i)))
+                    .title("No Accounts, Add One!")
+                    .editable(false)
                     .build());
         }
 
@@ -86,6 +92,11 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
         actions.add(skipButton);
     }
 
+    public void addNewAccountFragmentStarter() {
+        GuidedStepSupportFragment fragment = new SetupNewAccountFragment();
+        fragment.setArguments(getArguments());
+        add(getFragmentManager(), fragment);
+    }
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
@@ -94,9 +105,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
          * Else, if the skip button is pressed continue without account
          */
         if (action.getTitle().toString().equals("Add new Account")) {
-            GuidedStepSupportFragment fragment = new SetupNewAccountFragment();
-            fragment.setArguments(getArguments());
-            add(getFragmentManager(), fragment);
+            addNewAccountFragmentStarter();
         } else if (action.getTitle().toString().equals("Skip")) {
 
             //TODO Change intent to the correct activity
@@ -110,25 +119,30 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
 
     @Override
     public boolean onSubGuidedActionClicked(GuidedAction action) {
-        DatabaseActions databaseActions = new DatabaseActions(getContext());
+        if (action.getTitle().equals("No Accounts, Add One!")) {
+            addNewAccountFragmentStarter();
+        } else {
+            DatabaseActions databaseActions = new DatabaseActions(getContext());
 
-        Cursor accountSelected = databaseActions.getAccountByID(String.valueOf(action.getId()));
-        Bundle accountDetails = new Bundle(6);
-        accountSelected.moveToFirst();
-        accountDetails.putString("id", accountSelected.getString(0));
-        accountDetails.putString("username", accountSelected.getString(1));
-        accountDetails.putString("password", accountSelected.getString(2));
-        accountDetails.putString("hostname", accountSelected.getString(3));
-        accountDetails.putString("port", accountSelected.getString(4));
-        accountDetails.putString("clientName", accountSelected.getString(5));
+            Cursor accountSelected = databaseActions.getAccountByID(String.valueOf(action.getId()));
+            Bundle accountDetails = new Bundle(6);
+            accountSelected.moveToFirst();
+            accountDetails.putString("id", accountSelected.getString(0));
+            accountDetails.putString("username", accountSelected.getString(1));
+            accountDetails.putString("password", accountSelected.getString(2));
+            accountDetails.putString("hostname", accountSelected.getString(3));
+            accountDetails.putString("port", accountSelected.getString(4));
+            accountDetails.putString("clientName", accountSelected.getString(5));
 
-        Intent intent = new Intent();
+            Intent intent = new Intent();
 
-        //TODO Change intent to the correct activity
-        intent.setClass(getActivity(), MainActivity.class);
-        intent.putExtra("CurrentAccount", accountDetails);
-        startActivity(intent);
+            //TODO Change intent to the correct activity
+            intent.setClass(getActivity(), MainActivity.class);
+            intent.putExtra("CurrentAccount", accountDetails);
+            startActivity(intent);
 
+
+        }
         return super.onSubGuidedActionClicked(action);
     }
 }
