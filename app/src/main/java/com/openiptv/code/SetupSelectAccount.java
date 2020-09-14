@@ -46,11 +46,13 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
         ArrayList<String> accountId = new ArrayList<>();
 
         accountList.moveToFirst();
-        do {
-            //get the value from the database in id column
-            //then add it to the ArrayList
-            accountId.add(accountList.getString(0));
-        } while (accountList.moveToNext());
+        if (accountList.getCount()!= 0) {
+            do {
+                //get the value from the database in id column
+                //then add it to the ArrayList
+                accountId.add(accountList.getString(0));
+            } while (accountList.moveToNext());
+        }
 
 
         List<GuidedAction> availableAccounts = new ArrayList<>();
