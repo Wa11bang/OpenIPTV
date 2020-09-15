@@ -4,20 +4,15 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.media.tv.companionlibrary.model.Channel;
-import com.google.android.media.tv.companionlibrary.model.Program;
-import com.google.android.media.tv.companionlibrary.sync.EpgSyncJobService;
-import com.google.android.media.tv.companionlibrary.xmltv.XmlTvParser;
 import com.openiptv.code.Constants;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import static com.openiptv.code.Constants.DEBUG;
 
 public class EPGService extends Service {
     private EPGCaptureTask epgCaptureTask;
@@ -26,7 +21,9 @@ public class EPGService extends Service {
     public void onCreate()
     {
         super.onCreate();
-        Log.d("EPGService", "called!");
+        if(DEBUG) {
+            Log.d("EPGService", "called!");
+        }
         if(isSetupComplete(this)) {
             epgCaptureTask = new EPGCaptureTask(this);
         }
@@ -44,6 +41,7 @@ public class EPGService extends Service {
         return null;
     }
 
+    // TODO: use utils class methods
     public static boolean isSetupComplete(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 Constants.ACCOUNT, Context.MODE_PRIVATE);
@@ -51,7 +49,7 @@ public class EPGService extends Service {
         Log.d("EPG", "Setup complete: " + sharedPreferences.getBoolean("SETUP", false));
         return sharedPreferences.getBoolean("SETUP", false);
     }
-
+    // TODO: use utils class methods
     public static void setSetupComplete(Context context, boolean isSetupComplete) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 Constants.ACCOUNT, Context.MODE_PRIVATE);

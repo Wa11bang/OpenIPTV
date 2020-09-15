@@ -39,12 +39,12 @@ public class EPGCaptureTask implements MessageListener {
             Log.d(TAG, "Started EPGCaptureTask");
         }
 
-
+        // Create a new BaseConnection
         connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "MetaCapture", "23"));
 
         // Link ourselves to the BaseConnection to listen for when we have received HTSP Messages.
-        connection.addMessageListener(this);
         // The base connection has an instance of a HTSPMessageDispatcher
+        connection.addMessageListener(this);
 
         // Start HTSP Connection
         connection.start();
@@ -153,7 +153,7 @@ public class EPGCaptureTask implements MessageListener {
     @Override
     public void onMessage(HTSPMessage message) {
         if(DEBUG) {
-            Log.d(TAG, "received method: " + message.getString("method"));
+            Log.d(TAG, "Received method: " + message.getString("method"));
         }
         if(message.getString("method") != null && EPG_METHODS.contains(message.getString("method")))
         {

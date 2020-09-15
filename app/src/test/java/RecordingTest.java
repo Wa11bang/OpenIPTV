@@ -1,8 +1,5 @@
 import android.os.Build;
-import android.util.Log;
 
-import com.openiptv.code.SetupActivity;
-import com.openiptv.code.htsp.Authenticator;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -62,6 +59,7 @@ public class RecordingTest {
         description        str   optional   Recording description, if no eventId (Added in version 5)
         configName         str   optional   DVR configuration name or UUID
         enabled            u32   optional   Enabled flag (Added in version 23).
+
         Reply message fields:
 
         success            u32   required   1 if entry was added, 0 otherwise
@@ -99,23 +97,20 @@ public class RecordingTest {
         addRecordingMessage.put("seq", uniqueSequenceNumber);
 
 
-        MessageListener listener = new MessageListener() {
-            @Override
-            public void onMessage(HTSPMessage message) {
-                if(message.containsKey("seq") && message.getInteger("seq") == uniqueSequenceNumber)
-                {
-                    System.out.println("Received Response - SEQ: " + uniqueSequenceNumber);
+        MessageListener listener = message -> {
+            if(message.containsKey("seq") && message.getInteger("seq") == uniqueSequenceNumber)
+            {
+                System.out.println("Received Response - SEQ: " + uniqueSequenceNumber);
 
-                    // Successfully updated value
-                    result[0] = true;
+                // Successfully updated value
+                result[0] = true;
 
-                    // Set result
-                    result[1] = message.getInteger("success") == 1;
+                // Set result
+                result[1] = message.getInteger("success") == 1;
 
-                    // Set ID used for deletion
-                    recordingId = message.getInteger("id");
-                    System.out.println("Setting recording ID to " + recordingId);
-                }
+                // Set ID used for deletion
+                recordingId = message.getInteger("id");
+                System.out.println("Setting recording ID to " + recordingId);
             }
         };
 
@@ -150,19 +145,16 @@ public class RecordingTest {
         removeRecordingMessage.put("seq", uniqueSequenceNumber);
 
 
-        MessageListener listener = new MessageListener() {
-            @Override
-            public void onMessage(HTSPMessage message) {
-                if(message.containsKey("seq") && message.getInteger("seq") == uniqueSequenceNumber)
-                {
-                    System.out.println("Received Response - SEQ: " + uniqueSequenceNumber);
+        MessageListener listener = message -> {
+            if(message.containsKey("seq") && message.getInteger("seq") == uniqueSequenceNumber)
+            {
+                System.out.println("Received Response - SEQ: " + uniqueSequenceNumber);
 
-                    // Successfully updated value
-                    result[0] = true;
+                // Successfully updated value
+                result[0] = true;
 
-                    // Set result
-                    result[1] = message.getInteger("success") == 1;
-                }
+                // Set result
+                result[1] = message.getInteger("success") == 1;
             }
         };
 
@@ -181,19 +173,90 @@ public class RecordingTest {
         assertThat(result[1]).isEqualTo(EXPECTED_RESULT_2);
     }
 
-    /*@Test
+    @Test
     public void addRecordingToServerInvalid() {
         HTSPMessage addRecordingMessage = new HTSPMessage();
 
+        int uniqueSequenceNumber = new Random().nextInt(50) + 1;
+        final boolean[] result = new boolean[2];
+
+        addRecordingMessage.put("method", "addDvrEntry");
+        addRecordingMessage.put("channelId", 50);
+        addRecordingMessage.put("start", System.currentTimeMillis()/1000 + RECORDING_OFFSET);
+        addRecordingMessage.put("stop", System.currentTimeMillis()/1000 + (RECORDING_OFFSET*2));
+        addRecordingMessage.put("title", "Add Recording Unit Test - Invalid");
+
+        // Used to quickly filter through incoming messages
+        addRecordingMessage.put("seq", uniqueSequenceNumber);
+
+
+        MessageListener listener = message -> {
+            if(message.containsKey("seq") && message.getInteger("seq") == uniqueSequenceNumber)
+            {
+                System.out.println("Received Response - SEQ: " + uniqueSequenceNumber);
+
+                // Successfully updated value
+                result[0] = true;
+
+                // Set result
+                result[1] = message.getInteger("success") == 1;
+            }
+        };
+
+        connection.addMessageListener(listener);
+
+        try {
+            connection.getHTSPMessageDispatcher().sendMessage(addRecordingMessage);
+        } catch (HTSPNotConnectedException e) {
+            // Ignore - We will always be connecting in the case of this test
+        }
+
+        // Wait till have received the response message
+        await().until(() -> result[0]);
+
         // ...then the result should be the expected one.
-        assertThat(result).isEqualTo(FAKE_TEST);
+        assertThat(result[1]).isEqualTo(EXPECTED_RESULT_3);
     }
 
     @Test
     public void removeRecordingFromServerInvalid() {
         HTSPMessage removeRecordingMessage = new HTSPMessage();
 
+        int uniqueSequenceNumber = new Random().nextInt(50) + 1;
+        final boolean[] result = new boolean[2];
+
+        removeRecordingMessage.put("method", "deleteDvrEntry");
+        removeRecordingMessage.put("id", 50);
+
+        // Used to quickly filter through incoming messages
+        removeRecordingMessage.put("seq", uniqueSequenceNumber);
+
+
+        MessageListener listener = message -> {
+            if(message.containsKey("seq") && message.getInteger("seq") == uniqueSequenceNumber)
+            {
+                System.out.println("Received Response - SEQ: " + uniqueSequenceNumber);
+
+                // Successfully updated value
+                result[0] = true;
+
+                // Set result
+                result[1] = message.getInteger("success") == 1;
+            }
+        };
+
+        connection.addMessageListener(listener);
+
+        try {
+            connection.getHTSPMessageDispatcher().sendMessage(removeRecordingMessage);
+        } catch (HTSPNotConnectedException e) {
+            // Ignore - We will always be connecting in the case of this test
+        }
+
+        // Wait till have received the response message
+        await().until(() -> result[0]);
+
         // ...then the result should be the expected one.
-        assertThat(result).isEqualTo(FAKE_TEST);
-    }*/
+        assertThat(result[1]).isEqualTo(EXPECTED_RESULT_4);
+    }
 }

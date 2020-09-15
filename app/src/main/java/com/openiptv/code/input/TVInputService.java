@@ -147,6 +147,7 @@ public class TVInputService extends TvInputService {
         }
     }
 
+    // TODO: Not use some shady code from the interwebs
     private void startMyOwnForeground(){
         String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
         String channelName = "My Background Service";
