@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -32,10 +31,26 @@
     <string name="details_fragment_action_2" translatable="false">Action 2</string>
     <string name="item_1" translatable="false">Item 1</string>
     <string name="item_2" translatable="false">Item 2</string>
-
+    <string name="setup_activity_welcome" translatable="false">Welcome to OpenIPTV</string>
+    <string name="setup_activity_description" translatable="false">Choose select an account to start</string>
+    <string name="setup_activity_select_account" translatable="false">Select Account</string>
+    <string name="setup_activity_select_account_description" translatable="false">Click to start</string>
+    <string name="setup_new_account_fragment_title" translatable="false">Create an Account</string>
+    <string name="setup_new_account_fragment_description" translatable="false">Enter TVHeadend Credentials</string>
+    <string name="setup_new_account_fragment_username" translatable="false">Enter a Username</string>
+    <string name="setup_new_account_fragment_password" translatable="false">Enter a Password</string>
+    <string name="setup_new_account_fragment_hostname" translatable="false">Enter a Hostname</string>
     <string name="sync_error_canceled">User canceled sync</string>
     <string name="sync_error_no_data">No programs or channels found. Check your connection.</string>
     <string name="sync_error_other">Error code %1$d</string>
-
     <string name="account_label">OpenIPTV</string>
+    <string name="setup_new_account_fragment_port">Enter a Port</string>
+    <string name="setup_new_account_fragment_client">Enter a Client Name</string>
+    <string name="setup_new_account_fragment_next">Next</string>
+    <string name="setup_select_account_title">Select an Account</string>
+    <string name="setup_select_account_description">Or add a new one</string>
+    <string name="setup_select_account_no_accounts_message">No Accounts, Add One!</string>
+    <string name="setup_select_account_available_accounts">Available Accounts</string>
+    <string name="setup_select_account_add_new_account">Add new Account</string>
+    <string name="setup_select_account_skip">Skip</string>
 </resources>

@@ -19,8 +19,8 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                "Select an Account",
-                "Or add a new one",
+                getString(R.string.setup_select_account_title),
+                getString(R.string.setup_select_account_description),
                 getString(R.string.account_label),
                 ContextCompat.getDrawable(getActivity(), R.drawable.setup_logo2));
     }
@@ -65,13 +65,13 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             }
         } else {
             availableAccounts.add(new GuidedAction.Builder(getActivity())
-                    .title("No Accounts, Add One!")
+                    .title(R.string.setup_select_account_no_accounts_message)
                     .editable(false)
                     .build());
         }
 
         GuidedAction accountSelector = new GuidedAction.Builder(getActivity())
-                .title("Available Accounts")
+                .title(R.string.setup_select_account_available_accounts)
                 .description("")
                 .editable(false)
                 .subActions(availableAccounts)
@@ -79,12 +79,12 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
         actions.add(accountSelector);
 
         GuidedAction addNewAccount = new GuidedAction.Builder(getActivity())
-                .title("Add new Account")
+                .title(R.string.setup_select_account_add_new_account)
                 .editable(false)
                 .build();
 
         GuidedAction skipButton = new GuidedAction.Builder(getActivity())
-                .title("Skip")
+                .title(R.string.setup_select_account_skip)
                 .editable(false)
                 .build();
 
@@ -104,22 +104,20 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
          * If add new account is selected start account setup fragment
          * Else, if the skip button is pressed continue without account
          */
-        if (action.getTitle().toString().equals("Add new Account")) {
+        if (action.getTitle().toString().equals(getString(R.string.setup_select_account_add_new_account))) {
             addNewAccountFragmentStarter();
-        } else if (action.getTitle().toString().equals("Skip")) {
+        } else if (action.getTitle().toString().equals(getString(R.string.setup_select_account_skip))) {
 
             //TODO Change intent to the correct activity
             Intent intent = new Intent();
-
             intent.setClass(getActivity(), MainActivity.class);
-            startActivity(intent);
             startActivity(intent);
         }
     }
 
     @Override
     public boolean onSubGuidedActionClicked(GuidedAction action) {
-        if (action.getTitle().equals("No Accounts, Add One!")) {
+        if (action.getTitle().equals(getString(R.string.setup_select_account_no_accounts_message))) {
             addNewAccountFragmentStarter();
         } else {
             DatabaseActions databaseActions = new DatabaseActions(getContext());

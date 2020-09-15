@@ -34,8 +34,6 @@ public class SetupActivity extends FragmentActivity {
         GuidedStepSupportFragment.addAsRoot(this, fragment, android.R.id.content);
 
 
-
-
     }
 
     public static abstract class BaseGuidedStepFragment extends GuidedStepSupportFragment {
@@ -66,8 +64,8 @@ public class SetupActivity extends FragmentActivity {
         public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
             return new GuidanceStylist.Guidance(
-                    "Welcome Title",
-                    "A short description of the application",
+                    getString(R.string.setup_activity_welcome),
+                    getString(R.string.setup_activity_description),
                     getString(R.string.account_label),
                     ContextCompat.getDrawable(getActivity(), R.drawable.setup_logo2));
         }
@@ -75,8 +73,8 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             GuidedAction action = new GuidedAction.Builder(getActivity())
-                    .title("Select Account")
-                    .description("Click to start")
+                    .title(getString(R.string.setup_activity_select_account))
+                    .description(getString(R.string.setup_activity_select_account_description))
                     .editable(false)
                     .build();
 

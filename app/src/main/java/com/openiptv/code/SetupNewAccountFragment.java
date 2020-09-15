@@ -40,8 +40,8 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                "Create an Account",
-                "Enter TVHeadend Credentials",
+                getString(R.string.setup_new_account_fragment_title),
+                getString(R.string.setup_new_account_fragment_description),
                 getString(R.string.account_label),
                 ContextCompat.getDrawable(getActivity(), R.drawable.setup_logo2));
     }
@@ -54,7 +54,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         GuidedAction usernameForm = new GuidedAction.Builder(getActivity())
                 .title("")
                 .id(USERNAME)
-                .description("Enter a Username")
+                .description(getString(R.string.setup_new_account_fragment_username))
                 .editable(true)
                 .build();
 
@@ -62,14 +62,14 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                 .title("")
                 .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                .description("Enter a Password")
+                .description(R.string.setup_new_account_fragment_password)
                 .id(PASSWORD)
                 .editable(true)
                 .build();
 
         GuidedAction hostnameForm = new GuidedAction.Builder(getActivity())
                 .title("")
-                .description("Enter a Hostname")
+                .description(R.string.setup_new_account_fragment_hostname)
                 .id(HOSTNAME)
                 .editable(true)
                 .build();
@@ -77,27 +77,23 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         GuidedAction portForm = new GuidedAction.Builder(getActivity())
                 .title("")
                 .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_NUMBER)
-                .description("Enter a Port")
+                .description(R.string.setup_new_account_fragment_port)
                 .id(PORT)
                 .editable(true)
                 .build();
 
         GuidedAction clientNameForm = new GuidedAction.Builder(getActivity())
                 .title("")
-                .description("Enter a Client Name")
+                .description(R.string.setup_new_account_fragment_client)
                 .id(CLIENT)
                 .editable(true)
                 .build();
 
 
-
         GuidedAction finishButton = new GuidedAction.Builder(getActivity())
-                .title("Next")
+                .title(R.string.setup_new_account_fragment_next)
                 .editable(false)
                 .build();
-
-
-
 
 
         actions.add(usernameForm);
@@ -108,9 +104,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         actions.add(finishButton);
 
 
-
     }
-
 
 
     //TODO in the Final setup fragment add the account to the database
@@ -120,7 +114,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         return super.onGuidedActionEditedAndProceed(formResults);
     }
 
-    public interface  SelectedBundle{
+    public interface SelectedBundle {
         void onBundleSelect(Bundle bundle);
     }
 
@@ -130,11 +124,21 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
-        if (action.getTitle().toString().equals("Next")) {
+        if (action.getTitle().toString().equals(getString(R.string.setup_new_account_fragment_next))) {
 
+            Bundle newAccountDetails = new Bundle(5);
 
+            Boolean emptyField = false;
 
-                Bundle newAccountDetails = new Bundle(5);
+            for (Long i = 0L; i < 5; i++) {
+                if (findActionById(i).getTitle().equals("")) {
+                    emptyField = true;
+                    Toast.makeText(getContext(), findActionById(i).getDescription().toString(), Toast.LENGTH_SHORT).show();
+                    break;
+                }
+            }
+
+            if (emptyField == false) {
 
                 newAccountDetails.putString("username", findActionById(USERNAME).getTitle().toString());
                 newAccountDetails.putString("password", findActionById(PASSWORD).getTitle().toString());
@@ -142,28 +146,14 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                 newAccountDetails.putString("port", findActionById(PORT).getTitle().toString());
                 newAccountDetails.putString("clientName", findActionById(CLIENT).getTitle().toString());
 
-                Boolean emptyField = false;
+                TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
+                addAccountToDatabase(newAccount);
 
-                for (Long i = 0L; i < 5; i++){
-                    if (findActionById(i).getTitle().equals("")){
-                        emptyField = true;
-                        Toast.makeText(getContext(),findActionById(i).getDescription().toString(),Toast.LENGTH_SHORT).show();
-                        break;
-
-                    }
-                }
-
-                if (emptyField == false ){
-
-                    TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
-                    addAccountToDatabase(newAccount);
-
-                    Intent intent = new Intent();
-                    intent.setClass(getActivity(), MainActivity.class);
-                    intent.putExtra("CurrentAccount", newAccountDetails);
-                    startActivity(intent);
-                }
-
+                Intent intent = new Intent();
+                intent.setClass(getActivity(), MainActivity.class);
+                intent.putExtra("CurrentAccount", newAccountDetails);
+                startActivity(intent);
+            }
 
 
         }
@@ -172,10 +162,11 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
     /**
      * Takes a TVHeadend Account and adds it to the database.
+     *
      * @param account
      */
-    public void addAccountToDatabase(TVHeadendAccount account){
-        DatabaseActions databaseActions= new DatabaseActions(getContext());
+    public void addAccountToDatabase(TVHeadendAccount account) {
+        DatabaseActions databaseActions = new DatabaseActions(getContext());
         databaseActions.addAccount(account);
         databaseActions.close();
     }
