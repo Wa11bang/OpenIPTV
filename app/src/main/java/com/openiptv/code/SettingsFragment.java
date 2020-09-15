@@ -27,13 +27,20 @@ import java.util.Stack;
  */
 
 public class SettingsFragment extends LeanbackSettingsFragment implements DialogPreference.TargetFragment {
-    private static final Stack<Fragment> fragments = new Stack<Fragment>();
+    private static final String TAG = SettingsFragment.class.getName();
+
+
+
+    private PreferenceFragment preferenceFragment;
+
 
 
     @Override
     public void onPreferenceStartInitialScreen() {
-        startPreferenceFragment(buildPreferenceFragment(R.xml.preferences, null));
+        preferenceFragment = buildPreferenceFragment(null);
+        startPreferenceFragment(preferenceFragment);
     }
+
 
 
     @Override
@@ -42,68 +49,72 @@ public class SettingsFragment extends LeanbackSettingsFragment implements Dialog
     }
 
 
+
     @Override
     public boolean onPreferenceStartScreen(PreferenceFragment preferenceFragment, PreferenceScreen preferenceScreen) {
-        PreferenceFragment frag = buildPreferenceFragment(R.xml.preferences, preferenceScreen.getKey());
-        startPreferenceFragment(frag);
+        PreferenceFragment fragment = buildPreferenceFragment(preferenceScreen.getKey());
+
+
+
+        startPreferenceFragment(fragment);
+
+
+
         return true;
     }
 
 
-    @Override
-    public Preference findPreference(CharSequence prefKey) {
-        return ((PreferenceFragment) fragments.peek()).findPreference(prefKey);
-    }
+
+    private PreferenceFragment buildPreferenceFragment(String root) {
+        PreferenceFragment fragment = new CustomLeanbackPreferenceFragment();
 
 
-    private PreferenceFragment buildPreferenceFragment(int preferenceResId, String root) {
-        PreferenceFragment fragment = new PrefFragment();
+
         Bundle args = new Bundle();
-        args.putInt("preferenceResource", preferenceResId);
-        args.putString("root", root);
+        args.putString(PreferenceFragment.ARG_PREFERENCE_ROOT, root);
         fragment.setArguments(args);
+
+
+
         return fragment;
     }
 
-    public static class PrefFragment extends LeanbackPreferenceFragment {
+
+
+    @Override
+    public Preference findPreference(CharSequence charSequence) {
+        return preferenceFragment.findPreference(charSequence);
+    }
+
+
+
+    public static class CustomLeanbackPreferenceFragment extends LeanbackPreferenceFragment {
+
 
 
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
-            String root = getArguments().getString("root", null);
-            int prefResId = getArguments().getInt("preferenceResource");
+            getPreferenceManager().setSharedPreferencesName(Constants.PREFERENCES_NAME);
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_PRIVATE);
+
+
+
+            String root = getArguments().getString(PreferenceFragment.ARG_PREFERENCE_ROOT, null);
+
+
+
             if (root == null) {
-                addPreferencesFromResource(prefResId);
+                addPreferencesFromResource(R.xml.preferences);
             } else {
-                setPreferencesFromResource(prefResId, root);
+                setPreferencesFromResource(R.xml.preferences, root);
             }
         }
+
 
 
         @Override
         public boolean onPreferenceTreeClick(Preference preference) {
-            final String[] keys = {"prefs_wifi_connect_wps", "prefs_date", "prefs_time",
-                    "prefs_date_time_use_timezone", "app_banner_sample_app", "pref_force_stop",
-                    "pref_uninstall", "pref_more_info"};
-            if (Arrays.asList(keys).contains(preference.getKey())) {
-                Toast.makeText(getActivity(), "Implement your own action handler.", Toast.LENGTH_SHORT).show();
-                return true;
-            }
             return super.onPreferenceTreeClick(preference);
-        }
-
-
-        @Override
-        public void onAttach(Context context) {
-            fragments.push(this);
-            super.onAttach(context);
-        }
-
-
-        @Override
-        public void onDetach() {
-            fragments.pop();
-            super.onDetach();
         }
     }
 }
