@@ -146,7 +146,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             return 0;
         }
 
-        // If the buffer is empty, block until we have at least 1 byte
+        // IOException gets handled by calling method somehow. Catching the IOException leads to problems
+        // that cause unnecessary handling.
+
+        // If the buffer is empty, block until we have at least 1 byte of data
         while (mIsOpen && mBuffer.remaining() == 0) {
             try {
                 if (DEBUG)
@@ -213,7 +216,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         serializeMessageToBuffer(message);
     }
 
-    // HtspDataSource Methods
+    // HTSPDataSource Methods
     public void release() {
         if (connection != null) {
             connection = null;
@@ -242,13 +245,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             mBuffer.put(outputStream.toByteArray());
 
             mBuffer.flip();
-        } catch (IOException e) {
-            // Ignore?
-        } catch (BufferOverflowException e) {
+        } catch (IOException | BufferOverflowException e) {
             // Ignore
         } finally {
             mLock.unlock();
-            // Ignore
         }
     }
 }

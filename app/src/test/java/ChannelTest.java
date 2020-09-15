@@ -1,49 +1,46 @@
-import android.content.Context;
-import android.media.tv.TvContract;
-import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import com.openiptv.code.SetupActivity;
 import com.openiptv.code.epg.Channel;
+import com.openiptv.code.htsp.HTSPMessage;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.openiptv.code.Constants.DEBUG;
 
 @Config(sdk = Build.VERSION_CODES.O_MR1)
 @RunWith(RobolectricTestRunner.class)
 public class ChannelTest {
-    private static final int FAKE_TEST = 10;
-    private static final boolean EXISTS = false;
     private static final String TAG = ChannelTest.class.getSimpleName();
+    private static final Channel RESULT_CHANNEL = new Channel(177477477, 100, 4, "TestChannel");
 
     @Test
-    public void addTestChannelToGuide() {
-        Context context = RuntimeEnvironment.systemContext;
-        Channel channel = new Channel(177477477, 100, 4, "TestChannel");
-        context.getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.getContentValues());
+    public void testChannelContentValueParse() {
+        HTSPMessage testChannelInput = new HTSPMessage();
+        testChannelInput.put("channelId", 177477477);
+        testChannelInput.put("channelName", "TestChannel");
+        testChannelInput.put("channelNumber", 100);
+        testChannelInput.put("channelNumberMinor", 4);
 
-        Uri channelUri = Channel.getUri(context, channel);
-        boolean result = false;
-
-        if (channelUri == null) {
-            result = false;
-            context.getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.getContentValues());
-        }
-        else {
-            result = true;
-            Log.d(TAG, "Channel already exists");
-        }
+        Channel channel = new Channel(testChannelInput);
 
         // ...then the result should be the expected one.
-        assertThat(result).isEqualTo(EXISTS);
+        assertThat(channel.getContentValues()).isEqualTo(RESULT_CHANNEL.getContentValues());
+    }
+
+    @Test
+    public void testChannelContentValueParseInvalid() {
+        HTSPMessage testChannelInput = new HTSPMessage();
+        testChannelInput.put("channelId", 177477478);
+        testChannelInput.put("channelName", "TestChannel");
+        testChannelInput.put("channelNumber", 100);
+        testChannelInput.put("channelNumberMinor", 4);
+
+        Channel channel = new Channel(testChannelInput);
+
+        // ...then the result should be the expected one.
+        assertThat(channel.getContentValues()).isNotEqualTo(RESULT_CHANNEL.getContentValues());
     }
 }
