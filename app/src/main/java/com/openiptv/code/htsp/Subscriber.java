@@ -4,17 +4,14 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static com.openiptv.code.Constants.FALLBACK_SUBSCRIPTION_ID;
+import static com.openiptv.code.Constants.SUBSCRIPTION_METHODS;
+
 public class Subscriber implements MessageListener {
     private static final String TAG = Subscriber.class.getSimpleName();
-
-    private static final int INVALID_SUBSCRIPTION_ID = -1;
-    private static final int DEFAULT_TIMESHIFT_PERIOD = 0;
-    private static final Set<String> HANDLED_METHODS = new HashSet<>(Arrays.asList("subscriptionStart", "subscriptionStatus", "subscriptionStop", "queueStatus", "signalStatus", "timeshiftStatus", "muxpkt", "subscriptionSkip", "subscriptionSpeed"));
 
     /**
      * A listener for Subscription events
@@ -67,10 +64,10 @@ public class Subscriber implements MessageListener {
     }
 
     public void subscribe(long channelId) throws HTSPNotConnectedException {
-        subscribe(channelId, null, DEFAULT_TIMESHIFT_PERIOD);
+        subscribe(channelId, null);
     }
 
-    public void subscribe(long channelId, String profile, int timeshiftPeriod) throws HTSPNotConnectedException {
+    public void subscribe(long channelId, String profile) throws HTSPNotConnectedException {
         Log.i(TAG, "Requesting subscription to channel " + mChannelId);
 
         if (!mIsSubscribed) {
@@ -84,7 +81,7 @@ public class Subscriber implements MessageListener {
         subscribeRequest.put("method", "subscribe");
         subscribeRequest.put("subscriptionId", mSubscriptionId);
         subscribeRequest.put("channelId", channelId);
-        subscribeRequest.put("timeshiftPeriod", timeshiftPeriod);
+        subscribeRequest.put("profile", profile);
 
         mDispatcher.sendMessage(subscribeRequest);
         mIsSubscribed = true;
@@ -103,7 +100,7 @@ public class Subscriber implements MessageListener {
         try {
             mDispatcher.sendMessage(subscriptionSkipRequest);
         } catch (HTSPNotConnectedException e) {
-            // Ignore: If we're not connected, TVHeadend has already unsubscribed us
+            // Ignore
         }
     }
 
@@ -127,8 +124,8 @@ public class Subscriber implements MessageListener {
     public void onMessage(@NonNull HTSPMessage message) {
         final String method = message.getString("method", null);
 
-        if (HANDLED_METHODS.contains(method)) {
-            final int subscriptionId = message.getInteger("subscriptionId", INVALID_SUBSCRIPTION_ID);
+        if (SUBSCRIPTION_METHODS.contains(method)) {
+            final int subscriptionId = message.getInteger("subscriptionId", FALLBACK_SUBSCRIPTION_ID);
 
             if (subscriptionId != mSubscriptionId) {
                 return;

@@ -28,11 +28,6 @@ public class BaseConnection {
         htspMessageDispatcher.addMessageListener(authenticator);
     }
 
-    public void fullSync()
-    {
-        authenticator.fullSync();
-    }
-
     public void start() {
         if (connectionThread != null) {
             Log.w(TAG, "BaseConnection has already started");
@@ -55,9 +50,13 @@ public class BaseConnection {
         connectionThread.interrupt();
     }
 
-    public HTSPMessageDispatcher getHtspMessageDispatcher()
+    public HTSPMessageDispatcher getHTSPMessageDispatcher()
     {
         return htspMessageDispatcher;
+    }
+
+    public Authenticator getAuthenticator() {
+        return authenticator;
     }
 
     public boolean addMessageListener(MessageListener listener)

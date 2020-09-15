@@ -28,8 +28,14 @@ public class EPGService extends Service {
         super.onCreate();
         Log.d("EPGService", "called!");
         if(isSetupComplete(this)) {
-            epgCaptureTask = new EPGCaptureTask(this, true);
+            epgCaptureTask = new EPGCaptureTask(this);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        epgCaptureTask.stop();
     }
 
     @Nullable

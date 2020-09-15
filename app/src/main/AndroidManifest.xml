@@ -35,6 +35,7 @@
 
     <uses-permission android:name="com.google.android.assistant.READ_HOTWORD_STATE" />
     <uses-permission android:name="com.google.android.assistant.WRITE_HOTWORD_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
     <uses-feature
@@ -52,10 +53,10 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/android_48dp"
+        android:icon="@drawable/standard"
         android:label="@string/app_name"
         android:theme="@style/Theme.Leanback"
-        android:banner="@drawable/android_48dp"
+        android:banner="@drawable/standard"
         android:usesCleartextTraffic="true">
         <activity android:name="com.openiptv.code.MainActivity">
             <intent-filter>

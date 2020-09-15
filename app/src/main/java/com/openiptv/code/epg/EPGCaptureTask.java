@@ -1,8 +1,6 @@
 package com.openiptv.code.epg;
 
-import android.content.ComponentName;
 import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.media.tv.TvContract;
@@ -18,30 +16,21 @@ import com.openiptv.code.htsp.HTSPMessage;
 import com.openiptv.code.htsp.MessageListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import static com.openiptv.code.Constants.DEBUG;
+import static com.openiptv.code.Constants.EPG_METHODS;
 
 public class EPGCaptureTask implements MessageListener {
     private static final String TAG = EPGCaptureTask.class.getSimpleName();
-    private static final HashSet<String> METHODS = new HashSet<>(Arrays.asList("channelAdd", "eventAdd", "channelUpdate", "eventUpdate", "initialSyncCompleted", "dvrEntryAdd", "dvrEntryUpdate"));
 
-    private boolean fullSync;
     private Context context;
     private BaseConnection connection;
-    private ConnectionInfo connectionInfo;
     private Set<Listener> syncListeners;
 
     public interface Listener
     {
         void onSyncComplete();
-    }
-
-    public EPGCaptureTask(Context context, boolean fullSync)
-    {
-        this(context);
     }
 
     public EPGCaptureTask(Context context)
@@ -50,7 +39,8 @@ public class EPGCaptureTask implements MessageListener {
             Log.d(TAG, "Started EPGCaptureTask");
         }
 
-        connection = new BaseConnection(new ConnectionInfo("10.0.0.57", 9982, "development", "development", "MetaCapture", "23"));
+
+        connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "MetaCapture", "23"));
 
         // Link ourselves to the BaseConnection to listen for when we have received HTSP Messages.
         connection.addMessageListener(this);
@@ -65,8 +55,16 @@ public class EPGCaptureTask implements MessageListener {
 
     public void addSyncListener(Listener listener)
     {
-        Log.d(TAG, "Added sync listener");
+        if(DEBUG) {
+            Log.d(TAG, "Added sync listener");
+        }
         syncListeners.add(listener);
+    }
+
+    public void stop()
+    {
+        syncListeners = null;
+        connection.stop();
     }
 
     public void captureChannels(HTSPMessage channelMessage)
@@ -108,65 +106,44 @@ public class EPGCaptureTask implements MessageListener {
             try {
                 context.getContentResolver().applyBatch(TvContract.AUTHORITY, operations);
             } catch (OperationApplicationException | RemoteException e) {
-                e.printStackTrace();
+                Log.d(TAG, "ERROR: " + e.toString()); // Ignored
             }
         }
     }
 
     public void captureRecordedPrograms(HTSPMessage message)
     {
-        ContentValues values = new ContentValues();
+        RecordedProgram recordedProgram = new RecordedProgram(context, message);
+        Uri recordedProgramUri = RecordedProgram.getUri(context, recordedProgram);
 
-        values.put(TvContract.RecordedPrograms.COLUMN_INPUT_ID, TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS)));
-        values.put(TvContract.RecordedPrograms.COLUMN_INTERNAL_PROVIDER_DATA, String.valueOf(message.getInteger("id")));
-
-        values.put(TvContract.RecordedPrograms.COLUMN_CHANNEL_ID, Channel.getTvProviderId(message.getInteger("channel"), context));
-
-        if (message.containsKey("title")) {
-            values.put(TvContract.RecordedPrograms.COLUMN_TITLE, message.getString("title"));
-        }
-
-        if (message.containsKey("start")) {
-            values.put(TvContract.RecordedPrograms.COLUMN_START_TIME_UTC_MILLIS, message.getLong("start") * 1000);
-        }
-
-        if (message.containsKey("stop")) {
-            values.put(TvContract.RecordedPrograms.COLUMN_END_TIME_UTC_MILLIS, message.getLong("stop") * 1000);
-        }
-
-        HTSPMessage[] files = message.getHtspMessageArray("files", null);
-        if (files != null) {
-            long recordingStart = -1;
-            long recordingStop = -1;
-
-            for (HTSPMessage file : files) {
-                long fileStart = file.getLong("start", -1);
-                long fileStop = file.getLong("stop", -1);
-
-                if (fileStart > 0 && fileStop > 0) {
-                    if (recordingStart == -1 || fileStart < recordingStart) {
-                        recordingStart = fileStart;
-                    }
-                    if (recordingStop == -1 || fileStop < recordingStop) {
-                        recordingStop = fileStop;
-                    }
-                }
+        if (recordedProgramUri == null) {
+            context.getContentResolver().insert(TvContract.RecordedPrograms.CONTENT_URI, recordedProgram.getContentValues());
+            if(DEBUG)
+            {
+                Log.d(TAG, "Adding recorded program: " +recordedProgram.getTitle());
             }
-
-            if (recordingStart > 0 && recordingStop > 0) {
-                long duration = recordingStop - recordingStart;
-                values.put(TvContract.RecordedPrograms.COLUMN_RECORDING_DURATION_MILLIS, duration * 1000);
+        } else {
+            if(DEBUG)
+            {
+                Log.d(TAG, "Updating Recorded Program - " + recordedProgram.getTitle());
+            }
+            ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+            operations.add(ContentProviderOperation.newUpdate(recordedProgramUri)
+                    .withValues(recordedProgram.getContentValues())
+                    .build());
+            try {
+                context.getContentResolver().applyBatch(TvContract.AUTHORITY, operations);
+            } catch (OperationApplicationException | RemoteException e) {
+                Log.d(TAG, "ERROR: " + e.toString()); // Ignored
             }
         }
-        values.put(TvContract.RecordedPrograms.COLUMN_RECORDING_DATA_URI, String.valueOf(message.getInteger("id")));
-
-        Log.d(TAG, "Aded Recording ID: " + message.getInteger("id"));
-        context.getContentResolver().insert(TvContract.RecordedPrograms.CONTENT_URI, values);
     }
 
-    public void initialCompleted(HTSPMessage message)
+    public void initialCompleted()
     {
-        Log.d(TAG, "Initial Sync Complete");
+        if(DEBUG) {
+            Log.d(TAG, "Initial Sync Complete");
+        }
         for(Listener l : syncListeners)
         {
             l.onSyncComplete();
@@ -175,37 +152,31 @@ public class EPGCaptureTask implements MessageListener {
 
     @Override
     public void onMessage(HTSPMessage message) {
-        Log.d(TAG, "received method: " + message.getString("method"));
-        if(message.getString("method") != null && METHODS.contains(message.getString("method")))
+        if(DEBUG) {
+            Log.d(TAG, "received method: " + message.getString("method"));
+        }
+        if(message.getString("method") != null && EPG_METHODS.contains(message.getString("method")))
         {
             switch (message.getString("method"))
             {
                 case "channelAdd":
-                {
+                case "channelUpdate": {
                     captureChannels(message);
                     break;
                 }
                 case "eventAdd":
-                {
+                case "eventUpdate": {
                     capturePrograms(message);
                     break;
                 }
                 case "dvrEntryAdd":
-                {
-                    Log.d(TAG, "Aded Recording ueduh9eh9ue");
+                case "dvrEntryUpdate": {
                     captureRecordedPrograms(message);
-                    break;
-                }
-                case "eventUpdate":
-                {
-                    Log.d(TAG, "Updating Event" + message.getString("title"));
-                    capturePrograms(message);
                     break;
                 }
                 case "initialSyncCompleted":
                 {
-                    Log.d(TAG, "got initial compeleted");
-                    initialCompleted(message);
+                    initialCompleted();
                     break;
                 }
             }

@@ -16,6 +16,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        Intent intent = new Intent(this, TVInputService.class);
+        startService(intent);
+
         Intent i;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -24,9 +27,6 @@ public class MainActivity extends Activity {
             i = new Intent(Intent.ACTION_VIEW, TvContract.Channels.CONTENT_URI);
             i.setData(TvContract.buildChannelsUriForInput(TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS))));
         }
-
-        Intent intent = new Intent(this, TVInputService.class);
-        startService(intent);
 
         startActivity(i);
 

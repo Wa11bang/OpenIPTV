@@ -76,7 +76,7 @@ public class SetupActivity extends FragmentActivity {
                     "Welcome Title",
                     "A short description of the application",
                     getString(R.string.account_label),
-                    ContextCompat.getDrawable(getActivity(), R.drawable.setup_logo2));
+                    ContextCompat.getDrawable(getActivity(), R.drawable.standard));
         }
 
         @Override
@@ -241,7 +241,7 @@ public class SetupActivity extends FragmentActivity {
 
             return new GuidanceStylist.Guidance(
                     "Completed",
-                    "Compelte body",
+                    "Complete body",
                     getString(R.string.account_label),
                     null);
         }
@@ -250,8 +250,8 @@ public class SetupActivity extends FragmentActivity {
         public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             GuidedAction action = new GuidedAction.Builder(getActivity())
                     .id(ACTION_ID_COMPLETE)
-                    .title("complete title")
-                    .description("complete body")
+                    .title("Complete title")
+                    .description("Complete body")
                     .editable(false)
                     .build();
 
