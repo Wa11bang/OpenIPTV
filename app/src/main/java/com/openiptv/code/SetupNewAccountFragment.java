@@ -60,6 +60,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
         GuidedAction passwordForm = new GuidedAction.Builder(getActivity())
                 .title("")
+                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .description("Enter a Password")
                 .id(PASSWORD)
