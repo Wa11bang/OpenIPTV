@@ -51,6 +51,8 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.11.8'
     implementation "com.google.android.exoplayer:exoplayer-hls:2.11.8"
     implementation 'com.google.android.libraries.tv:companionlibrary:0.4.1'
+    implementation "androidx.leanback:leanback-preference:1.0.0"
+
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:4.3'
