@@ -35,6 +35,8 @@
 
     <uses-permission android:name="com.google.android.assistant.READ_HOTWORD_STATE" />
     <uses-permission android:name="com.google.android.assistant.WRITE_HOTWORD_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 
     <uses-feature
         android:name="android.hardware.touchscreen"
@@ -51,12 +53,12 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/android_48dp"
+        android:icon="@drawable/standard"
         android:label="@string/app_name"
         android:theme="@style/Theme.Leanback"
-        android:banner="@drawable/android_48dp"
+        android:banner="@drawable/standard"
         android:usesCleartextTraffic="true">
-        <activity android:name="com.openiptv.code.SettingsActivity">
+        <activity android:name="com.openiptv.code.preferencestest.PreferenceActivity" android:theme="@style/Theme.Preferences">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
@@ -64,10 +66,39 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name=".SetupActivity"
             android:exported="true"
             android:label="@string/app_name">
         </activity>
 
+        <service
+            android:name=".input.TVInputService"
+            android:label="@string/rich_input_label"
+            android:permission="android.permission.BIND_TV_INPUT">
+            <!-- Required filter used by the system to launch our account service. -->
+            <intent-filter>
+                <action android:name="android.media.tv.TvInputService" />
+            </intent-filter>
+            <!-- An XML file which describes this input. This provides pointers to the
+            RichTvInputSetupActivity to the system/TV app. -->
+            <meta-data
+                android:name="android.media.tv.input"
+                android:resource="@xml/richtvinputservice" />
+        </service>
+
+        <!-- used to get channel and program data -->
+        <service
+            android:name=".epg.EPGService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="true" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
