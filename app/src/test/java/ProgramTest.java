@@ -1,3 +1,5 @@
+import android.media.tv.TvContract;
+import android.net.Uri;
 import android.os.Build;
 
 import com.openiptv.code.epg.Program;
@@ -50,6 +52,10 @@ public class ProgramTest {
 
         Program program = new Program(getApplicationContext(), testProgramInput);
 
+        // Get Program URI - Check to see if added successfully
+        Uri programUri = getApplicationContext().getContentResolver().insert(TvContract.Programs.CONTENT_URI, program.getContentValues());
+        assertThat(programUri).isNotNull();
+
         // ...then the result should be the expected one.
         assertThat(program.getContentValues()).isEqualTo(RESULT_PROGRAM.getContentValues());
     }
@@ -68,6 +74,10 @@ public class ProgramTest {
         testProgramInput.put(PROGRAM_IMAGE, null);
 
         Program program = new Program(getApplicationContext(), testProgramInput);
+
+        // Get Program URI - Check to see if added successfully
+        Uri programUri = getApplicationContext().getContentResolver().insert(TvContract.Programs.CONTENT_URI, program.getContentValues());
+        assertThat(programUri).isNotNull();
 
         // ...then the result should be the expected one.
         assertThat(program.getContentValues()).isNotEqualTo(RESULT_PROGRAM.getContentValues());

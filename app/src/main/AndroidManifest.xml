@@ -58,7 +58,7 @@
         android:theme="@style/Theme.Leanback"
         android:banner="@drawable/standard"
         android:usesCleartextTraffic="true">
-        <activity android:name="com.openiptv.code.MainActivity">
+        <activity android:name="com.openiptv.code.preferencestest.PreferenceActivity" android:theme="@style/Theme.Preferences">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />

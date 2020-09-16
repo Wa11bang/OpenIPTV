@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -133,8 +134,17 @@ public class Connection implements Runnable {
             e.printStackTrace();
         }
 
-        Set<SelectionKey> selectionKeySet = channelSelector.selectedKeys();
-        Iterator<SelectionKey> keyIterator = selectionKeySet.iterator();
+        Iterator<SelectionKey> keyIterator = null;
+
+        try {
+            Set<SelectionKey> selectionKeySet = channelSelector.selectedKeys();
+            keyIterator = selectionKeySet.iterator();
+        } catch (ClosedSelectorException e)
+        {
+            // Connection is basically closed
+            closeConnection();
+            return;
+        }
 
         while (keyIterator.hasNext()) {
             //System.out.println("Has keys");

@@ -126,10 +126,7 @@ public abstract class SourceReader {
     }
 
     protected boolean hasCRC (byte b) {
-        System.out.println("BYTE: " + b);
         int data = b & 0xFF;
-        System.out.println("Data: " + data);
-        System.out.println("Result: " + (data & 0x1));
         return (data & 0x1) == 0;
     }
 }
