@@ -1,6 +1,5 @@
 package com.openiptv.code.htsp;
 
-import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -29,15 +28,8 @@ public class Connection implements Runnable {
 
     public interface ConnectionListener
     {
-        Handler getHandler();
         void setConnection(@NonNull Connection connection);
         void onConnectionStateChange(@NonNull ConnectionState state);
-    }
-
-    public interface IOHandler {
-        boolean hasWriteableData();
-        boolean write(SocketChannel socketChannel);
-        boolean read(SocketChannel socketChannel);
     }
 
     public Connection(ConnectionInfo connectionInfo, SocketIOHandler socketIOHandler)
@@ -65,10 +57,10 @@ public class Connection implements Runnable {
             manageChannel();
         }
 
-        System.out.println("Exited loop!");
+        //System.out.println("Exited loop!");
 
         if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
-            System.out.println("HTSP Connection thread wrapping up without already being closed");
+            //System.out.println("HTSP Connection thread wrapping up without already being closed");
             setState(ConnectionState.FAILED);
         }
 
@@ -98,11 +90,11 @@ public class Connection implements Runnable {
     public void closeConnection()
     {
         if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
-            Log.w(TAG, "Attempting to close while already closed, closing or failed");
+            //Log.w(TAG, "Attempting to close while already closed, closing or failed");
             return;
         }
 
-        Log.i(TAG, "Closing HTSP Connection");
+        //Log.i(TAG, "Closing HTSP Connection");
 
         ccLock.lock();
         try {
@@ -111,7 +103,7 @@ public class Connection implements Runnable {
                     socketChannel.socket().close();
                     socketChannel.close();
                 } catch (IOException e) {
-                    Log.w(TAG, "Failed to close socket channel:", e);
+                    //Log.w(TAG, "Failed to close socket channel:", e);
                 } finally {
                     socketChannel = null;
                 }
@@ -121,7 +113,7 @@ public class Connection implements Runnable {
                 try {
                     channelSelector.close();
                 } catch (IOException e) {
-                    Log.w(TAG, "Failed to close socket channel:", e);
+                    //Log.w(TAG, "Failed to close socket channel:", e);
                 } finally {
                     channelSelector = null;
                 }
@@ -145,26 +137,27 @@ public class Connection implements Runnable {
         Iterator<SelectionKey> keyIterator = selectionKeySet.iterator();
 
         while (keyIterator.hasNext()) {
-            System.out.println("Has keys");
+            //System.out.println("Has keys");
             SelectionKey selectionKey = keyIterator.next();
             keyIterator.remove();
 
             if (!selectionKey.isValid()) {
+                setState(ConnectionState.FAILED);
                 break;
             }
 
-            if (selectionKey.isConnectable()) {
-                System.out.println("Connectable");
+            if (selectionKey.isValid() && selectionKey.isConnectable()) {
+                //System.out.println("Connectable");
                 handleConnect(selectionKey);
             }
 
-            if (selectionKey.isReadable()) {
-                System.out.println("Readable");
+            if (selectionKey.isValid() && selectionKey.isReadable()) {
+                //System.out.println("Readable");
                 handleRead(selectionKey);
             }
 
-            if (selectionKey.isWritable()) {
-                System.out.println("Writable");
+            if (selectionKey.isValid() && selectionKey.isWritable()) {
+                //System.out.println("Writable");
                 handleWrite(selectionKey);
             }
 
@@ -180,6 +173,7 @@ public class Connection implements Runnable {
                     socketChannel.register(channelSelector, SelectionKey.OP_READ);
                 }
             } catch (ClosedChannelException e) {
+                // Expected when a user closes / exits the Live Channels Application
                 e.printStackTrace();
             } finally {
                 ccLock.unlock();
@@ -198,18 +192,18 @@ public class Connection implements Runnable {
             return;
         }
 
-        System.out.println("HTSP Connected");
+        //System.out.println("HTSP Connected");
         setState(ConnectionState.CONNECTED);
     }
 
     public void handleRead(SelectionKey selectionKey)
     {
-        System.out.println("processReadableSelectionKey()");
+        //System.out.println("processReadableSelectionKey()");
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
         if (currentState != ConnectionState.CLOSED || currentState != ConnectionState.FAILED) {
             if (!socketIOHandler.read(socketChannel)) {
-                System.out.println("Failed to process readable selection key");
+                //System.out.println("Failed to process readable selection key");
                 setState(ConnectionState.FAILED);
             }
         }
@@ -217,7 +211,7 @@ public class Connection implements Runnable {
 
     public void handleWrite(SelectionKey selectionKey)
     {
-        System.out.println("processWritableSelectionKey()");
+        //System.out.println("processWritableSelectionKey()");
 
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
@@ -239,7 +233,7 @@ public class Connection implements Runnable {
             try {
                 if (socketChannel != null && socketChannel.isConnected() && !socketChannel.isConnectionPending()) {
                     try {
-                        System.out.println("Write has been triggered!");
+                        //System.out.println("Write has been triggered!");
                         socketChannel.register(channelSelector, SelectionKey.OP_WRITE);
                         channelSelector.wakeup();
                     } catch (ClosedChannelException e) {
@@ -260,18 +254,7 @@ public class Connection implements Runnable {
         }
 
         for (final ConnectionListener listener : connectionListeners) {
-            Handler handler = listener.getHandler();
-            if (handler == null) {
-                listener.onConnectionStateChange(state);
-                Log.d(TAG, "Polling Listeners");
-            } else {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onConnectionStateChange(currentState);
-                    }
-                });
-            }
+            listener.onConnectionStateChange(state);
         }
     }
 

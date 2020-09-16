@@ -1,5 +1,7 @@
 package com.openiptv.code.htsp;
 
+import androidx.annotation.NonNull;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class HTSPSerializer {
         return message;
     }
 
-    public void write(ByteBuffer buffer, HTSPMessage message) {
+    public void write(ByteBuffer buffer, @NonNull HTSPMessage message) {
         // Skip forward 4 bytes to make space for the length field
         buffer.position(4);
 
