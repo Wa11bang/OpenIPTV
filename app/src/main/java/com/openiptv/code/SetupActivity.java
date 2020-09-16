@@ -104,62 +104,65 @@ public class SetupActivity extends FragmentActivity {
     }
 
     public static class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTask.Listener {
-            EPGCaptureTask mEpgSyncTask;
-            BaseConnection connection;
+        EPGCaptureTask mEpgSyncTask;
+        BaseConnection connection;
+        Bundle accountDetails;
 
-            @Override
-            public void onSyncComplete() {
-                Log.d(TAG, "Initial Sync Completed");
+        @Override
+        public void onSyncComplete() {
+            Log.d(TAG, "Initial Sync Completed");
 
-                // Move to the CompletedFragment
-                GuidedStepSupportFragment fragment = new CompletedFragment();
-                fragment.setArguments(getArguments());
-                add(getFragmentManager(), fragment);
-            }
+            // Move to the CompletedFragment
+            GuidedStepSupportFragment fragment = new CompletedFragment();
+            fragment.setArguments(getArguments());
+            add(getFragmentManager(), fragment);
+        }
 
-            @Override
-            public void onStart() {
-                super.onStart();
-                mEpgSyncTask = new EPGCaptureTask(getActivity().getBaseContext());
-                mEpgSyncTask.addSyncListener(this);
-            }
+        @Override
+        public void onStart() {
+            super.onStart();
+            mEpgSyncTask = new EPGCaptureTask(getActivity().getBaseContext(), accountDetails);
+            mEpgSyncTask.addSyncListener(this);
+        }
 
-            @Override
-            public void onStop() {
-                mEpgSyncTask = null;
+        @Override
+        public void onStop() {
+            mEpgSyncTask = null;
 
-                super.onStop();
-            }
+            super.onStop();
+        }
 
-            @Override
-            public GuidedActionsStylist onCreateActionsStylist() {
-                return new GuidedActionsStylist() {
-                    @Override
-                    public int onProvideItemLayoutId() {
-                        return R.layout.setup_progress;
-                    }
-                };
-            }
+        @Override
+        public GuidedActionsStylist onCreateActionsStylist() {
+            return new GuidedActionsStylist() {
+                @Override
+                public int onProvideItemLayoutId() {
+                    return R.layout.setup_progress;
+                }
+            };
+        }
 
-            @NonNull
-            @Override
-            public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        @Override
+        public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
-                return new GuidanceStylist.Guidance(
-                        "title",
-                        "body",
-                        getString(R.string.account_label),
-                        null);
-            }
+            return new GuidanceStylist.Guidance(
+                    "title",
+                    "body",
+                    getString(R.string.account_label),
+                    null);
+        }
 
-            @Override
-            public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
-                GuidedAction action = new GuidedAction.Builder(getActivity())
-                        .title("Progress")
-                        .infoOnly(true)
-                        .build();
-                actions.add(action);
-            }
+        @Override
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
+            GuidedAction action = new GuidedAction.Builder(getActivity())
+                    .title("Progress")
+                    .infoOnly(true)
+                    .build();
+            actions.add(action);
+
+            accountDetails = getArguments();
+        }
     }
 
     public static class AccountFragment extends GuidedStepSupportFragment {
@@ -194,7 +197,6 @@ public class SetupActivity extends FragmentActivity {
                     .title("action3")
                     .description("desc")
                     .build());
-
 
 
             GuidedAction actionWithSubActions = new GuidedAction.Builder(getActivity())

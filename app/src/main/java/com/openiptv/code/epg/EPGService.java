@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ import static com.openiptv.code.Constants.DEBUG;
 
 public class EPGService extends Service {
     private EPGCaptureTask epgCaptureTask;
+    private Bundle accountDetails;
 
     @Override
     public void onCreate()
@@ -25,7 +27,7 @@ public class EPGService extends Service {
             Log.d("EPGService", "called!");
         }
         if(isSetupComplete(this)) {
-            epgCaptureTask = new EPGCaptureTask(this);
+            epgCaptureTask = new EPGCaptureTask(this, accountDetails);
         }
     }
 

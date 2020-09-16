@@ -149,10 +149,11 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                 TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
                 addAccountToDatabase(newAccount);
 
-                Intent intent = new Intent();
-                intent.setClass(getActivity(), MainActivity.class);
-                intent.putExtra("CurrentAccount", newAccountDetails);
-                startActivity(intent);
+                //TODO Fix, currently not working
+                GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
+                fragment.setArguments(newAccountDetails);
+                add(getFragmentManager(), fragment);
+
             }
 
 

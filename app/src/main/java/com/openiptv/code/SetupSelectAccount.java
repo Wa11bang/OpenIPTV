@@ -132,12 +132,13 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             accountDetails.putString("port", accountSelected.getString(4));
             accountDetails.putString("clientName", accountSelected.getString(5));
 
-            Intent intent = new Intent();
 
-            //TODO Change intent to the correct activity
-            intent.setClass(getActivity(), MainActivity.class);
-            intent.putExtra("CurrentAccount", accountDetails);
-            startActivity(intent);
+
+            GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
+            fragment.setArguments(accountDetails);
+            add(getFragmentManager(), fragment);
+
+
 
 
         }
