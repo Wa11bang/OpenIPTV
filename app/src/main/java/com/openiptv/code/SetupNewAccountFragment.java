@@ -107,7 +107,6 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
     }
 
 
-
     @Override
     public long onGuidedActionEditedAndProceed(GuidedAction formResults) {
         return super.onGuidedActionEditedAndProceed(formResults);

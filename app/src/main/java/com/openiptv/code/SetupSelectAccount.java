@@ -124,6 +124,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             accountDetails.putString("port", accountSelected.getString(4));
             accountDetails.putString("clientName", accountSelected.getString(5));
 
+            databaseActions.updateActiveAccount(accountSelected.getString(0));
 
             GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
             fragment.setArguments(accountDetails);

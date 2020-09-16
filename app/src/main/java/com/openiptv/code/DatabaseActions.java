@@ -5,12 +5,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
 public class DatabaseActions extends SQLiteOpenHelper {
 
     private static final String TAG = "DatabaseActions";
+
+    public static Bundle activeAccount;
 
     private static final String TABLE_NAME = "userDatabase";
     private static final String COL1 = "ID";
@@ -41,6 +45,29 @@ public class DatabaseActions extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
+    public void updateActiveAccount(String id) {
+
+
+        Cursor selectedAccount = getAccountByID(id);
+
+        activeAccount = accountToBundle(selectedAccount);
+    }
+
+    public Bundle accountToBundle(Cursor account) {
+        account.moveToFirst();
+        Bundle accountToBundle = new Bundle();
+
+        accountToBundle.putString("id", account.getString(0));
+        accountToBundle.putString("username", account.getString(1));
+        accountToBundle.putString("password", account.getString(2));
+        accountToBundle.putString("hostname", account.getString(3));
+        accountToBundle.putString("port", account.getString(4));
+        accountToBundle.putString("clientName", account.getString(5));
+
+        return accountToBundle;
+
+    }
+
     /**
      * Add and account to the database
      *
@@ -62,6 +89,12 @@ public class DatabaseActions extends SQLiteOpenHelper {
         } catch (Exception e) {
             return false;
         }
+
+        // Get id of just added and set it to active account
+        String query = "SELECT  * FROM " + TABLE_NAME + " ORDER BY " + COL1 + " DESC";
+        Cursor accountIDs = sqLiteDatabase.rawQuery(query, null);
+        activeAccount = accountToBundle(accountIDs);
+
         return true;
     }
 
