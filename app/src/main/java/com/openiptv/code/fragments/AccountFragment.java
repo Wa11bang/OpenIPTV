@@ -25,8 +25,8 @@ public class AccountFragment extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                "View Accounts",
-                "this is accounts",
+                getResources().getString(R.string.AccountFragment_guidance_title),
+                getResources().getString(R.string.AccountFragment_guidance_description),
                 getString(R.string.account_label),
                 ContextCompat.getDrawable(getActivity(), R.drawable.setup_logo2));
     }
@@ -37,27 +37,27 @@ public class AccountFragment extends GuidedStepSupportFragment {
         List<GuidedAction> subActions = new ArrayList<GuidedAction>();
         subActions.add(new GuidedAction.Builder(getActivity())
                 .id(1)
-                .title("action2")
-                .description("desc")
+                .title(getResources().getString(R.string.AccountFragment_subaction_id_1_title))
+                .description(getResources().getString(R.string.AccountFragment_subaction_id_1_description))
                 .build());
 
         subActions.add(new GuidedAction.Builder(getActivity())
                 .id(1)
-                .title("action3")
-                .description("desc")
+                .title(getResources().getString(R.string.AccountFragment_subaction_id_2_title))
+                .description(getResources().getString(R.string.AccountFragment_subaction_id_2_description))
                 .build());
 
 
         GuidedAction actionWithSubActions = new GuidedAction.Builder(getActivity())
-                .title("Button")
-                .description("Button action")
+                .title(getResources().getString(R.string.AccountFragment_actionWithSubaction_title))
+                .description(getResources().getString(R.string.AccountFragment_actionWithSubaction_description))
                 .editable(false)
                 .subActions(subActions)
                 .build();
 
         GuidedAction action2 = new GuidedAction.Builder(getActivity())
-                .title("Button")
-                .description("Button action")
+                .title(getResources().getString(R.string.AccountFragment_action2_title))
+                .description(getResources().getString(R.string.AccountFragment_action2_description))
                 .editable(false)
                 .build();
 
@@ -79,8 +79,8 @@ public class AccountFragment extends GuidedStepSupportFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         // Move onto the next step
-        //GuidedStepSupportFragment fragment = new EmptyFragment();
-        //fragment.setArguments(getArguments());
-        //add(getFragmentManager(), fragment);
+        GuidedStepSupportFragment fragment = new CompletedFragment();
+        fragment.setArguments(getArguments());
+        add(getFragmentManager(), fragment);
     }
 }

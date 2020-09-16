@@ -60,8 +60,8 @@ public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTa
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                "title",
-                "body",
+                getResources().getString(R.string.SyncFragment_guidance_title),
+                getResources().getString(R.string.SyncFragment_guidance_description),
                 getString(R.string.account_label),
                 null);
     }
@@ -69,7 +69,7 @@ public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTa
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         GuidedAction action = new GuidedAction.Builder(getActivity())
-                .title("Progress")
+                .title(getResources().getString(R.string.SyncFragment_action_title))
                 .infoOnly(true)
                 .build();
         actions.add(action);

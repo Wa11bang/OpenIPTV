@@ -28,8 +28,8 @@ public class IntroFragment extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                "Welcome Title",
-                "A short description of the application",
+                getResources().getString(R.string.IntroFragment_guidance_title),
+                getResources().getString(R.string.IntroFragment_guidance_description),
                 getString(R.string.account_label),
                 ContextCompat.getDrawable(getActivity(), R.drawable.standard));
     }
@@ -37,8 +37,8 @@ public class IntroFragment extends GuidedStepSupportFragment {
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         GuidedAction action = new GuidedAction.Builder(getActivity())
-                .title("Button")
-                .description("Button action")
+                .title(getResources().getString(R.string.IntroFragment_action_title))
+                .description(getResources().getString(R.string.IntroFragment_action_description))
                 .editable(false)
                 .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .build();
@@ -49,7 +49,7 @@ public class IntroFragment extends GuidedStepSupportFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         // Move onto the next step
-        GuidedStepSupportFragment fragment = new SyncFragment();
+        GuidedStepSupportFragment fragment = new AccountFragment();
         fragment.setArguments(getArguments());
         add(getFragmentManager(), fragment);
     }

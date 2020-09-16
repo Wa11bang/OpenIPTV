@@ -28,8 +28,8 @@ public class CompletedFragment extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                "Completed",
-                "Complete body",
+                getResources().getString(R.string.CompletedFragment_guidance_title),
+                getResources().getString(R.string.CompletedFragment_guidance_description),
                 getString(R.string.account_label),
                 null);
     }
@@ -38,12 +38,20 @@ public class CompletedFragment extends GuidedStepSupportFragment {
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         GuidedAction action = new GuidedAction.Builder(getActivity())
                 .id(ACTION_ID_COMPLETE)
-                .title("Complete title")
-                .description("Complete body")
+                .title(getResources().getString(R.string.CompletedFragment_action_title))
+                .description(getResources().getString(R.string.CompletedFragment_action_description))
                 .editable(false)
                 .build();
 
         actions.add(action);
+
+        GuidedAction test = new GuidedAction.Builder(getActivity())
+                .id(ACTION_ID_SETTINGS)
+                .title("test button")
+                .description("test desc")
+                .editable(false)
+                .build();
+        actions.add(test);
     }
 
     @Override
@@ -60,6 +68,12 @@ public class CompletedFragment extends GuidedStepSupportFragment {
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
 
+        }
+        else if(action.getId() == ACTION_ID_SETTINGS)
+        {
+            GuidedStepSupportFragment sync = new SyncFragment();
+            sync.setArguments(getArguments());
+            add(getFragmentManager(),sync);
         }
     }
 }
