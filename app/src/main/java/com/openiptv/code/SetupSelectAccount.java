@@ -83,13 +83,8 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
                 .editable(false)
                 .build();
 
-        GuidedAction skipButton = new GuidedAction.Builder(getActivity())
-                .title(R.string.setup_select_account_skip)
-                .editable(false)
-                .build();
-
         actions.add(addNewAccount);
-        actions.add(skipButton);
+
     }
 
     public void addNewAccountFragmentStarter() {
@@ -108,10 +103,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             addNewAccountFragmentStarter();
         } else if (action.getTitle().toString().equals(getString(R.string.setup_select_account_skip))) {
 
-            //TODO Change intent to the correct activity
-            Intent intent = new Intent();
-            intent.setClass(getActivity(), MainActivity.class);
-            startActivity(intent);
+
         }
     }
 
@@ -133,12 +125,9 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             accountDetails.putString("clientName", accountSelected.getString(5));
 
 
-
             GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);
-
-
 
 
         }

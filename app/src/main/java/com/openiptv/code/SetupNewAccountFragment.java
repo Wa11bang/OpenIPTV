@@ -107,8 +107,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
     }
 
 
-    //TODO in the Final setup fragment add the account to the database
-    // to avoid duplication of accounts by pressing back and then next.
+
     @Override
     public long onGuidedActionEditedAndProceed(GuidedAction formResults) {
         return super.onGuidedActionEditedAndProceed(formResults);
@@ -149,7 +148,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                 TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
                 addAccountToDatabase(newAccount);
 
-                //TODO Fix, currently not working
+
                 GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
                 fragment.setArguments(newAccountDetails);
                 add(getFragmentManager(), fragment);
