@@ -40,16 +40,18 @@ public class EPGCaptureTask implements MessageListener {
 
 
         String username = selectedAccount.getString("username");
-        String password= selectedAccount.getString("password");
-        String hostname= selectedAccount.getString("hostname");
-        String port= selectedAccount.getString("port");
-        String clientName= selectedAccount.getString("clientName");
+        String password = selectedAccount.getString("password");
+        String hostname = selectedAccount.getString("hostname");
+        String port = selectedAccount.getString("port");
+        String clientName = selectedAccount.getString("clientName");
 
 
         // Create a new BaseConnection
+        /**
+         *   Test values: "tv.theron.co.nz", "9982", "development", "development", "MetaCapture", "23"));
+         */
         connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName, "23"));
-        // Create a new BaseConnection Backup
-       // connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "MetaCapture", "23"));
+
 
         // Link ourselves to the BaseConnection to listen for when we have received HTSP Messages.
         // The base connection has an instance of a HTSPMessageDispatcher

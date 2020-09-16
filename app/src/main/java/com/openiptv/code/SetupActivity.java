@@ -37,7 +37,6 @@ import static com.openiptv.code.epg.EPGService.setSetupComplete;
 public class SetupActivity extends FragmentActivity {
     private static final String TAG = SetupActivity.class.getName();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +106,7 @@ public class SetupActivity extends FragmentActivity {
         EPGCaptureTask mEpgSyncTask;
         BaseConnection connection;
         Bundle accountDetails;
+
 
         @Override
         public void onSyncComplete() {
