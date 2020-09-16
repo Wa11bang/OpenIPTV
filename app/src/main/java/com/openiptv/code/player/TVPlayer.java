@@ -91,6 +91,20 @@ public class TVPlayer implements Player.EventListener {
         connection.stop();
     }
 
+    public void rewind(float speed)
+    {
+        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if(mDataSource != null)
+            ((HTSPSubscriptionDataSource)mDataSource).rewind(speed);
+    }
+
+    public void seek(long timeMs)
+    {
+        Log.d("SEEEEK", "Got seek in TVPlayer");
+        if(mDataSource != null)
+            ((HTSPSubscriptionDataSource)mDataSource).seek(timeMs);
+    }
+
     @Override
     public void onLoadingChanged(boolean isLoading) {
         if (isLoading && !recording) {

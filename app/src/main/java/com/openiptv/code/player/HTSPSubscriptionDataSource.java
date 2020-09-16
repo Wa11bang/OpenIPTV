@@ -211,6 +211,16 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         mIsOpen = false;
     }
 
+    public void seek(long timeMs)
+    {
+        mSubscriber.skip(timeMs * 1000);
+    }
+
+    public void rewind(float speed)
+    {
+        mSubscriber.rewind(speed/2);
+    }
+
     @Override
     public void onMuxpkt(@NonNull HTSPMessage message) {
         serializeMessageToBuffer(message);

@@ -123,6 +123,7 @@ public class SetupActivity extends FragmentActivity {
 
             @Override
             public void onStop() {
+                mEpgSyncTask.stop();
                 mEpgSyncTask = null;
 
                 super.onStop();

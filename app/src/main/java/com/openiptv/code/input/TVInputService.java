@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.PlaybackParams;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
@@ -38,12 +39,16 @@ public class TVInputService extends TvInputService {
         super.onCreate();
         if(isSetupComplete(this)) {
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
+            createConnection();
         }
-        createConnection();
     }
 
     @Override
     public final Session onCreateSession(String inputId) {
+        if(connection == null)
+        {
+            createConnection();
+        }
         TVSession session = new TVSession(this, inputId, connection);
         session.setOverlayViewEnabled(true);
         return session;
@@ -109,6 +114,7 @@ public class TVInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
+            notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
             player.prepare(channelUri, false);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));
@@ -117,6 +123,21 @@ public class TVInputService extends TvInputService {
             notifyContentAllowed();
             notifyVideoAvailable();
             return true;
+        }
+
+        @Override
+        public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
+            super.onTimeShiftSetPlaybackParams(params);
+
+
+            Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
+            player.rewind(params.getSpeed());
+        }
+
+        @Override
+        public void onTimeShiftSeekTo(long timeMs) {
+            Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
+            player.seek((timeMs - System.currentTimeMillis()));
         }
 
         @Override

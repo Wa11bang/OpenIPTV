@@ -104,6 +104,22 @@ public class Subscriber implements MessageListener {
         }
     }
 
+    public void rewind(float speed) {
+        Log.i(TAG, "Requesting rewind for channel " + mChannelId + ", Speed: " + (speed*100));
+
+        HTSPMessage subscriptionSkipRequest = new HTSPMessage();
+
+        subscriptionSkipRequest.put("method", "subscriptionSpeed");
+        subscriptionSkipRequest.put("subscriptionId", mSubscriptionId);
+        subscriptionSkipRequest.put("speed", (speed*100));
+
+        try {
+            mDispatcher.sendMessage(subscriptionSkipRequest);
+        } catch (HTSPNotConnectedException e) {
+            // Ignore
+        }
+    }
+
     public void unsubscribe() {
         Log.i(TAG, "Requesting unsubscription from channel " + mChannelId);
         mIsSubscribed = false;
