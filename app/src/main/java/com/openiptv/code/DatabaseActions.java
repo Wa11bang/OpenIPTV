@@ -16,6 +16,9 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     public static Bundle activeAccount;
 
+
+
+
     private static final String TABLE_NAME = "userDatabase";
     private static final String COL1 = "ID";
     private static final String COL2 = "username";

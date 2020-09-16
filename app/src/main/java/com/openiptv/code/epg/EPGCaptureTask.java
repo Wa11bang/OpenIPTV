@@ -11,6 +11,7 @@ import android.util.ArraySet;
 import android.util.Log;
 
 import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -39,11 +40,11 @@ public class EPGCaptureTask implements MessageListener {
         }
 
 
-        String username = selectedAccount.getString("username");
-        String password = selectedAccount.getString("password");
-        String hostname = selectedAccount.getString("hostname");
-        String port = selectedAccount.getString("port");
-        String clientName = selectedAccount.getString("clientName");
+        String username = DatabaseActions.activeAccount.getString("username");
+        String password = DatabaseActions.activeAccount.getString("password");
+        String hostname = DatabaseActions.activeAccount.getString("hostname");
+        String port = DatabaseActions.activeAccount.getString("port");
+        String clientName = DatabaseActions.activeAccount.getString("clientName");
 
 
         // Create a new BaseConnection
