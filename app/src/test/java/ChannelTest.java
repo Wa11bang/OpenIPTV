@@ -1,3 +1,5 @@
+import android.media.tv.TvContract;
+import android.net.Uri;
 import android.os.Build;
 
 import com.openiptv.code.epg.Channel;
@@ -8,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
 @Config(sdk = Build.VERSION_CODES.O_MR1)
@@ -26,6 +29,10 @@ public class ChannelTest {
 
         Channel channel = new Channel(testChannelInput);
 
+        // Get Channel URI - Check to see if added successfully
+        Uri channelUri = getApplicationContext().getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.getContentValues());
+        assertThat(channelUri).isNotNull();
+
         // ...then the result should be the expected one.
         assertThat(channel.getContentValues()).isEqualTo(RESULT_CHANNEL.getContentValues());
     }
@@ -39,6 +46,10 @@ public class ChannelTest {
         testChannelInput.put("channelNumberMinor", 4);
 
         Channel channel = new Channel(testChannelInput);
+
+        // Get Channel URI - Check to see if added successfully
+        Uri channelUri = getApplicationContext().getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.getContentValues());
+        assertThat(channelUri).isNotNull();
 
         // ...then the result should be the expected one.
         assertThat(channel.getContentValues()).isNotEqualTo(RESULT_CHANNEL.getContentValues());

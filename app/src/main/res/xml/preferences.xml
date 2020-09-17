@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#050401"
+    android:title="OpenIPTV Settings">
+
+    <androidx.preference.PreferenceCategory android:title="Audio and Video">
+        <SwitchPreference
+
+            android:defaultValue="false"
+            android:dialogTitle="Quick Sync"
+
+            android:key="QUICK_SYNC"
+            android:summary="Synchronises the Guide within only the specified Quick Sync timeframe."
+            android:title="Quick Sync" />
+    </androidx.preference.PreferenceCategory>
+</androidx.preference.PreferenceScreen>
