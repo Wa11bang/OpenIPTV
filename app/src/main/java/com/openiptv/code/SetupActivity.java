@@ -105,7 +105,7 @@ public class SetupActivity extends FragmentActivity {
     public static class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTask.Listener {
         EPGCaptureTask mEpgSyncTask;
         BaseConnection connection;
-        Bundle accountDetails;
+
 
 
         @Override
@@ -121,7 +121,7 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onStart() {
             super.onStart();
-            mEpgSyncTask = new EPGCaptureTask(getActivity().getBaseContext(), accountDetails);
+            mEpgSyncTask = new EPGCaptureTask(getActivity().getBaseContext());
             mEpgSyncTask.addSyncListener(this);
         }
 
@@ -161,7 +161,7 @@ public class SetupActivity extends FragmentActivity {
                     .build();
             actions.add(action);
 
-            accountDetails = getArguments();
+
         }
     }
 

@@ -146,8 +146,13 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
                 TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
                 addAccountToDatabase(newAccount);
+                DatabaseActions databaseActions = new DatabaseActions(getContext());
 
 
+                String accountId = databaseActions.getActiveAccount();
+                databaseActions.setActiveAccount(accountId);
+
+                databaseActions.close();
                 GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
                 fragment.setArguments(newAccountDetails);
                 add(getFragmentManager(), fragment);

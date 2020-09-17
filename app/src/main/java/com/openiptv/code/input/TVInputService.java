@@ -38,6 +38,10 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
+        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+        databaseActions.syncActiveAccount();
+        databaseActions.close();
+
         if (isSetupComplete(this)) {
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
         }

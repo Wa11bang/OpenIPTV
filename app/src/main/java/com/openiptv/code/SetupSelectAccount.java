@@ -84,6 +84,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
                 .build();
 
         actions.add(addNewAccount);
+        databaseActions.close();
 
     }
 
@@ -124,8 +125,9 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             accountDetails.putString("port", accountSelected.getString(4));
             accountDetails.putString("clientName", accountSelected.getString(5));
 
-            databaseActions.updateActiveAccount(accountSelected.getString(0));
+            databaseActions.setActiveAccount(accountSelected.getString(0));
 
+            databaseActions.close();
             GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);

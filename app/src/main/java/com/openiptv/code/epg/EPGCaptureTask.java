@@ -34,7 +34,7 @@ public class EPGCaptureTask implements MessageListener {
         void onSyncComplete();
     }
 
-    public EPGCaptureTask(Context context, Bundle selectedAccount) {
+    public EPGCaptureTask(Context context) {
         if (Constants.DEBUG) {
             Log.d(TAG, "Started EPGCaptureTask");
         }

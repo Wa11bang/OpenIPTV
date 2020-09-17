@@ -11,6 +11,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
 
 
 import static com.openiptv.code.Constants.DEBUG;
@@ -20,14 +21,18 @@ public class EPGService extends Service {
     private Bundle accountDetails;
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
+
+
         super.onCreate();
-        if(DEBUG) {
+        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+        databaseActions.syncActiveAccount();
+        databaseActions.close();
+        if (DEBUG) {
             Log.d("EPGService", "called!");
         }
-        if(isSetupComplete(this)) {
-            epgCaptureTask = new EPGCaptureTask(this, accountDetails);
+        if (isSetupComplete(this)) {
+            epgCaptureTask = new EPGCaptureTask(this);
         }
     }
 
@@ -51,6 +56,7 @@ public class EPGService extends Service {
         Log.d("EPG", "Setup complete: " + sharedPreferences.getBoolean("SETUP", false));
         return sharedPreferences.getBoolean("SETUP", false);
     }
+
     // TODO: use utils class methods
     public static void setSetupComplete(Context context, boolean isSetupComplete) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(

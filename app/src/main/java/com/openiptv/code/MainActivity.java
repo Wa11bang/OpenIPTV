@@ -3,6 +3,7 @@ package com.openiptv.code;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.os.Build;
@@ -16,6 +17,11 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+        String accountId = databaseActions.getActiveAccount();
+        databaseActions.setActiveAccount(accountId);
+        databaseActions.close();
 
         Intent intent = new Intent(this, TVInputService.class);
         startService(intent);
