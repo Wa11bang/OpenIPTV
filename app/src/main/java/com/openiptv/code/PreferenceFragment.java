@@ -1,4 +1,4 @@
-package com.openiptv.code.preferencestest;
+package com.openiptv.code;
 
 import android.os.Bundle;
 

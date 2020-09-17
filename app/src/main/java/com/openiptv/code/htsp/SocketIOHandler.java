@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class SocketIOHandler implements Connection.IOHandler {
+public class SocketIOHandler {
     private final ByteBuffer writeBuffer = ByteBuffer.allocateDirect(1024 * 1024);
     private final ByteBuffer readBuffer = ByteBuffer.allocateDirect(5242880);
     private final HTSPSerializer htspSerializer;
@@ -16,14 +16,12 @@ public class SocketIOHandler implements Connection.IOHandler {
         this.htspMessageDispatcher = htspMessageDispatcher;
     }
 
-    @Override
     public boolean hasWriteableData() {
         return htspMessageDispatcher.hasPendingMessages();
     }
 
-    @Override
     public boolean write(SocketChannel socketChannel) {
-        System.out.println("writing");
+        //System.out.println("writing");
         writeBuffer.clear();
 
         HTSPMessage message = htspMessageDispatcher.getMessage();
@@ -36,7 +34,7 @@ public class SocketIOHandler implements Connection.IOHandler {
 
         try {
             int bytesWritten = socketChannel.write(writeBuffer);
-            System.out.println("Wrote " + bytesWritten + " bytes to SocketChannel");
+            //System.out.println("Wrote " + bytesWritten + " bytes to SocketChannel");
         } catch (IOException e) {
             System.out.println("Failed to write buffer to SocketChannel");
             return false;
@@ -45,14 +43,13 @@ public class SocketIOHandler implements Connection.IOHandler {
         return true;
     }
 
-    @Override
     public boolean read(SocketChannel socketChannel) {
         int bufferStartPosition = readBuffer.position();
         int bytesRead;
 
         try {
             bytesRead = socketChannel.read(readBuffer);
-            System.out.println("Read " + bytesRead + " bytes.");
+            //System.out.println("Read " + bytesRead + " bytes.");
         } catch (IOException e) {
             System.out.println("Failed to read from SocketChannel " + e);
             return false;

@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import static com.openiptv.code.Constants.DEBUG;
+
 public class HTSPMessageDispatcher implements MessageDispatcher {
     private static final String TAG = HTSPMessageDispatcher.class.getSimpleName();
 
@@ -26,7 +28,9 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
             listeners.add(listener);
             return;
         }
-        System.out.println("Listener already exists!");
+        if(DEBUG) {
+            System.out.println("Listener already exists!");
+        }
     }
 
     public void removeMessageListener(MessageListener listener) {
@@ -34,7 +38,9 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
             listeners.remove(listener);
             return;
         }
-        System.out.println("Listener to remove does not exist!");
+        if(DEBUG) {
+            System.out.println("Listener to remove does not exist!");
+        }
     }
 
     public void displayMessageKeys(HTSPMessage message)
@@ -60,7 +66,9 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
             if (connection != null) {
                 connection.setWritePending();
                 pendingMessages.add(message);
-                Log.d(TAG, "Added message to queue");
+                if(DEBUG) {
+                    Log.d(TAG, "Added message to queue");
+                }
                 return;
             }
 
@@ -73,7 +81,12 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     }
 
     public HTSPMessage getMessage() {
-        System.out.println("Dequeueing message for sending");
-        return pendingMessages.remove();
+        if(DEBUG) {
+            System.out.println("Dequeueing message for sending");
+        }
+        if(pendingMessages.size() != 0) {
+            return pendingMessages.remove();
+        }
+        return null;
     }
 }
