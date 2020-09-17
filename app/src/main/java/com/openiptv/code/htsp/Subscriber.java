@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.openiptv.code.Constants.FALLBACK_SUBSCRIPTION_ID;
@@ -26,6 +27,8 @@ public class Subscriber implements MessageListener {
     private final HTSPMessageDispatcher mDispatcher;
     private final Set<Listener> mListeners = new CopyOnWriteArraySet<>();
     private final int mSubscriptionId;
+    private HTSPMessage mTimeshiftStatus;
+    private long mStartTime = -1;
 
 
     private long mChannelId;
@@ -82,9 +85,34 @@ public class Subscriber implements MessageListener {
         subscribeRequest.put("subscriptionId", mSubscriptionId);
         subscribeRequest.put("channelId", channelId);
         subscribeRequest.put("profile", profile);
+        subscribeRequest.put("timeshiftPeriod", (60*60));
 
         mDispatcher.sendMessage(subscribeRequest);
         mIsSubscribed = true;
+    }
+
+    public void setSpeed(int speed) {
+        Log.i(TAG, "Requesting speed " + speed + " for channel " + mChannelId);
+
+        HTSPMessage subscriptionSpeedRequest = new HTSPMessage();
+
+        subscriptionSpeedRequest.put("method", "subscriptionSpeed");
+        subscriptionSpeedRequest.put("subscriptionId", mSubscriptionId);
+        subscriptionSpeedRequest.put("speed", speed);
+
+        try {
+            mDispatcher.sendMessage(subscriptionSpeedRequest);
+        } catch (HTSPNotConnectedException e) {
+            // Ignore
+        }
+    }
+
+    public void pause() {
+        setSpeed(0);
+    }
+
+    public void resume() {
+        setSpeed(100);
     }
 
     public void skip(long time) {
@@ -94,30 +122,41 @@ public class Subscriber implements MessageListener {
 
         subscriptionSkipRequest.put("method", "subscriptionSkip");
         subscriptionSkipRequest.put("subscriptionId", mSubscriptionId);
-        subscriptionSkipRequest.put("time", time);
+        subscriptionSkipRequest.put("time", (time*1000));
         subscriptionSkipRequest.put("absolute", 1);
 
         try {
             mDispatcher.sendMessage(subscriptionSkipRequest);
+            mStartTime = mStartTime + time;
         } catch (HTSPNotConnectedException e) {
             // Ignore
         }
     }
 
-    public void rewind(float speed) {
-        Log.i(TAG, "Requesting rewind for channel " + mChannelId + ", Speed: " + (speed*100));
-
-        HTSPMessage subscriptionSkipRequest = new HTSPMessage();
-
-        subscriptionSkipRequest.put("method", "subscriptionSpeed");
-        subscriptionSkipRequest.put("subscriptionId", mSubscriptionId);
-        subscriptionSkipRequest.put("speed", (speed*100));
-
-        try {
-            mDispatcher.sendMessage(subscriptionSkipRequest);
-        } catch (HTSPNotConnectedException e) {
-            // Ignore
+    public long getTimeshiftOffsetPts() {
+        if (mTimeshiftStatus != null) {
+            return mTimeshiftStatus.getLong("shift") * -1;
         }
+
+        return -1;
+    }
+
+    public long getTimeshiftStartPts() {
+        if (mTimeshiftStatus != null) {
+            return mTimeshiftStatus.getLong("start", -1);
+        }
+
+        return -1;
+    }
+
+    public long getTimeshiftStartTime() {
+        long startPts = getTimeshiftStartPts();
+
+        if (startPts == -1 || mStartTime == -1) {
+            return -1;
+        }
+
+        return mStartTime + startPts;
     }
 
     public void unsubscribe() {
@@ -152,6 +191,7 @@ public class Subscriber implements MessageListener {
                     for (final Listener listener : mListeners) {
                         listener.onSubscriptionStart(message);
                     }
+                    mStartTime = (System.currentTimeMillis() * 1000) - 1000;
                     break;
                 case "subscriptionStatus":
                     for (final Listener listener : mListeners) {
@@ -163,6 +203,10 @@ public class Subscriber implements MessageListener {
                         listener.onSubscriptionStop(message);
                     }
                     break;
+                case "timeshiftStatus":
+                    mTimeshiftStatus = message;
+                    Log.d(TAG, "Size: " +message.getLong("end", -1));
+                    break;
                 case "muxpkt":
                     for (final Listener listener : mListeners) {
                         listener.onMuxpkt(message);
@@ -171,5 +215,4 @@ public class Subscriber implements MessageListener {
             }
         }
     }
-
 }

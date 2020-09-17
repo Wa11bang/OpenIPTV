@@ -20,6 +20,7 @@ import com.openiptv.code.Constants;
 
 public class ExtendedExtractorsFactory implements ExtractorsFactory {
     private Context context;
+    private @AdtsExtractor.Flags int adtsFlags;
 
     public ExtendedExtractorsFactory(Context context)
     {
@@ -35,7 +36,7 @@ public class ExtendedExtractorsFactory implements ExtractorsFactory {
         extractors[2] = new FragmentedMp4Extractor(0);
         extractors[3] = new MatroskaExtractor(0);
         extractors[4] = new Mp3Extractor(0);
-        extractors[5] = new AdtsExtractor();
+        extractors[5] = new AdtsExtractor(adtsFlags | (AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING));
         extractors[6] = new Ac3Extractor();
         extractors[7] = new TsExtractor(0);
         extractors[8] = new FlvExtractor();

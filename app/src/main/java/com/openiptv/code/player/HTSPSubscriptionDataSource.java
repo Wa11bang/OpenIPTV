@@ -32,6 +32,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     private static final AtomicInteger sDataSourceCount = new AtomicInteger();
     private static final int BUFFER_SIZE = 10*1024*1024;
     public static final byte[] HEADER = new byte[] {0,1,0,1,0,1,0,1};
+    private boolean isRewinding = false;
 
     public static class Factory extends HTSPDataSource.Factory {
         private static final String TAG = Factory.class.getName();
@@ -211,14 +212,39 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         mIsOpen = false;
     }
 
-    public void seek(long timeMs)
+    //SYNONYM TO SEEK
+    public void skip(long timeMs)
     {
-        mSubscriber.skip(timeMs * 1000);
+        Log.d(TAG, "Wanting to see by " + timeMs);
+        mSubscriber.skip(timeMs);
     }
 
-    public void rewind(float speed)
-    {
-        mSubscriber.rewind(speed/2);
+    public long getTimeshiftStartTime() {
+        if (mSubscriber != null) {
+            return mSubscriber.getTimeshiftStartTime();
+        }
+
+        return -1;
+    }
+
+    public long getTimeshiftOffsetPts() {
+        if (mSubscriber != null) {
+            return mSubscriber.getTimeshiftOffsetPts();
+        }
+
+        return -1;
+    }
+
+    public void pause() {
+        if (mSubscriber != null) {
+            mSubscriber.pause();
+        }
+    }
+
+    public void resume() {
+        if (mSubscriber != null) {
+            mSubscriber.resume();
+        }
     }
 
     @Override

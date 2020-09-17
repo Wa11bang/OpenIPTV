@@ -126,28 +126,40 @@ public class TVInputService extends TvInputService {
         }
 
         @Override
+        public long onTimeShiftGetStartPosition() {
+            return player.getTimeshiftStartPosition();
+        }
+
+        @Override
+        public long onTimeShiftGetCurrentPosition() {
+            return player.getTimeshiftCurrentPosition();
+        }
+
+        @Override
         public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
             super.onTimeShiftSetPlaybackParams(params);
 
 
             Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
-            player.rewind(params.getSpeed());
+
         }
 
         @Override
         public void onTimeShiftSeekTo(long timeMs) {
             Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
-            player.seek((timeMs - System.currentTimeMillis()));
+            player.skip((timeMs - System.currentTimeMillis()));
         }
 
         @Override
         public void onTimeShiftPause() {
-
+            Log.d(TAG, "PAUSE");
+            player.pause();
         }
 
         @Override
         public void onTimeShiftResume() {
-
+            Log.d(TAG, "RESUME");
+            player.resume();
         }
 
         @Override

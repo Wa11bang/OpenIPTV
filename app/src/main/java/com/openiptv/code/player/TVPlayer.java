@@ -31,6 +31,7 @@ public class TVPlayer implements Player.EventListener {
     private boolean recording;
 
     private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
+    private static final String TAG = TVPlayer.class.getSimpleName();
 
     public TVPlayer(Context context, SimpleExoPlayer player, BaseConnection connection)
     {
@@ -89,20 +90,77 @@ public class TVPlayer implements Player.EventListener {
         Log.d("TVPlayer", "Released Subscription");
         player.release();
         connection.stop();
+        surface.release();
+        mediaSource.releaseSource(null);
     }
 
-    public void rewind(float speed)
-    {
+    public void resume() {
+        player.setPlayWhenReady(true);
+
         mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
-        if(mDataSource != null)
-            ((HTSPSubscriptionDataSource)mDataSource).rewind(speed);
+        if (mDataSource != null) {
+            Log.d("TVPlayer", "Resuming HtspDataSource");
+            ((HTSPSubscriptionDataSource)mDataSource).resume();
+        } else {
+            Log.w("TVPlayer", "Unable to resume, no HtspDataSource available");
+        }
     }
 
-    public void seek(long timeMs)
+    public void pause() {
+        player.setPlayWhenReady(false);
+
+        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if (mDataSource != null) {
+            ((HTSPSubscriptionDataSource)mDataSource).pause();
+        }
+    }
+
+    public long getTimeshiftStartPosition() {
+        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if (mDataSource != null) {
+            long startTime = ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartTime();
+            if (startTime != -1) {
+                // For live content
+                return startTime / 1000;
+            } else {
+                // For recorded content
+                return 0;
+            }
+        } else {
+            Log.w(TAG, "Unable to getTimeshiftStartPosition, no HtspDataSource available");
+        }
+
+        return -1;
+    }
+
+    public long getTimeshiftCurrentPosition() {
+        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if (mDataSource != null) {
+            long offset = ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftOffsetPts();
+            if (offset != -1) {
+                // For live content
+                return System.currentTimeMillis() + (offset / 1000);
+            } else {
+                // For recorded content
+                player.getCurrentPosition();
+            }
+        } else {
+            Log.w(TAG, "Unable to getTimeshiftCurrentPosition, no HtspDataSource available");
+        }
+
+        return -1;
+    }
+
+    // SYNONYM FOR SEEK
+    public void skip(long timeMs)
     {
-        Log.d("SEEEEK", "Got seek in TVPlayer");
-        if(mDataSource != null)
-            ((HTSPSubscriptionDataSource)mDataSource).seek(timeMs);
+        Log.d(TAG, "Wanting to seek " + timeMs);
+        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if (mDataSource != null) {
+            ((HTSPSubscriptionDataSource)mDataSource).skip(timeMs);
+            player.prepare(mediaSource);
+            start();
+        }
     }
 
     @Override
