@@ -20,9 +20,12 @@ import com.openiptv.code.Constants;
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
+import com.openiptv.code.epg.Program;
 import com.openiptv.code.epg.RecordedProgram;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
+import com.openiptv.code.htsp.HTSPMessage;
+import com.openiptv.code.htsp.HTSPNotConnectedException;
 import com.openiptv.code.player.TVPlayer;
 
 import static com.openiptv.code.Constants.RESTART_SERVICES;
@@ -49,6 +52,13 @@ public class TVInputService extends TvInputService {
         return session;
     }
 
+    @Nullable
+    @Override
+    public TvInputService.RecordingSession onCreateRecordingSession(String inputId) {
+        RecordingSession session = new RecordingSession(this, connection);
+        return session;
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -71,6 +81,62 @@ public class TVInputService extends TvInputService {
     {
         connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "Subscription", "23"));
         connection.start();
+    }
+
+    class RecordingSession extends TvInputService.RecordingSession {
+
+        private BaseConnection connection;
+        private Context context;
+        private Uri program;
+        private Uri channel;
+
+        /**
+         * Creates a new RecordingSession.
+         *
+         * @param context The context of the application
+         */
+        public RecordingSession(Context context, BaseConnection connection) {
+            super(context);
+            this.context = context;
+            this.connection = connection;
+        }
+
+        @Override
+        public void onTune(Uri channelUri) {
+            notifyTuned(channelUri);
+            Log.d(TAG, "Recording added to server.");
+            this.channel = channelUri;
+        }
+
+        @Override
+        public void onStartRecording(@Nullable Uri programUri) {
+            int eventID = Program.getProgramIdFromProgramUri(context, programUri);
+            int channelID = Channel.getChannelIdFromChannelUri(context, channel);
+            Log.d(TAG, "eventID "+eventID);
+            this.program = programUri;
+
+            HTSPMessage message = new HTSPMessage();
+            message.put("method", "addDvrEntry");
+            message.put("eventId", eventID);
+            message.put("start", (Program.getProgramStartFromProgramUri(context, programUri) / 1000));
+            message.put("stop", (Program.getProgramEndFromProgramUri(context, programUri) / 1000));
+
+            try {
+                connection.getHTSPMessageDispatcher().sendMessage(message);
+            } catch (HTSPNotConnectedException ignored) {
+
+            }
+        }
+
+        @Override
+        public void onStopRecording() {
+            notifyRecordingStopped(program);
+        }
+
+        @Override
+        public void onRelease() {
+
+        }
     }
 
     class TVSession extends TvInputService.Session {

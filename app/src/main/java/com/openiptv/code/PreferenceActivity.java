@@ -11,7 +11,7 @@ public class PreferenceActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.preferences);
+        setContentView(R.layout.preferences_layout);
 
         getSupportFragmentManager()
                 .beginTransaction()
