@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     //Account Fragment String. Once the Account Fragment is completed, we can update it.
-    <string name="AccountFragment_guidance_title">View Accounts Test: account fragment guidance title</string>
+    <string name="AccountFragment_guidance_title">测试View Accounts Test: account fragment guidance title</string>
     <string name="AccountFragment_guidance_description">This is accounts Test: account fragment guidance desc</string>
 
     <string name="AccountFragment_subaction_id_1_title">Action2 Test: account fragment subaction1 title</string>

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -20,15 +21,20 @@ public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTa
     EPGCaptureTask mEpgSyncTask;
     BaseConnection connection;
     private static final String TAG = SyncFragment.class.getName();
+    private FragmentManager fm;
+
+    public SyncFragment(FragmentManager fragmentManager) {
+        this.fm = fragmentManager;
+    }
 
     @Override
     public void onSyncComplete() {
         Log.d(TAG, "Initial Sync Completed");
 
         // Move to the CompletedFragment
-        GuidedStepSupportFragment fragment = new CompletedFragment();
+        GuidedStepSupportFragment fragment = new CompletedFragment(getFragmentManager());
         fragment.setArguments(getArguments());
-        add(getFragmentManager(), fragment);
+        add(this.fm, fragment);
     }
 
     @Override

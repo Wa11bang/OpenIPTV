@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -22,6 +23,11 @@ public class CompletedFragment extends GuidedStepSupportFragment {
     private static final int ACTION_ID_SETTINGS = 1;
     private static final int ACTION_ID_COMPLETE = 2;
     private static final String TAG = CompletedFragment.class.getName();
+    private FragmentManager fragmentManager;
+
+    public CompletedFragment(FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
+    }
 
     @NonNull
     @Override
@@ -68,12 +74,10 @@ public class CompletedFragment extends GuidedStepSupportFragment {
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
 
-        }
-        else if(action.getId() == ACTION_ID_SETTINGS)
-        {
-            GuidedStepSupportFragment sync = new SyncFragment();
+        } else if (action.getId() == ACTION_ID_SETTINGS) {
+            GuidedStepSupportFragment sync = new SyncFragment(getFragmentManager());
             sync.setArguments(getArguments());
-            add(getFragmentManager(),sync);
+            add(this.fragmentManager, sync);
         }
     }
 }

@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -15,6 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AccountFragment extends GuidedStepSupportFragment {
+
+    private FragmentManager fragmentManager;
+
+    public AccountFragment(FragmentManager fragmentManager) {
+        this.fragmentManager = fragmentManager;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,8 +87,8 @@ public class AccountFragment extends GuidedStepSupportFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         // Move onto the next step
-        GuidedStepSupportFragment fragment = new CompletedFragment();
+        GuidedStepSupportFragment fragment = new CompletedFragment(getFragmentManager());
         fragment.setArguments(getArguments());
-        add(getFragmentManager(), fragment);
+        add(this.fragmentManager, fragment);
     }
 }

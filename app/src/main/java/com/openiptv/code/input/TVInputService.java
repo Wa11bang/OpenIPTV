@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
@@ -36,7 +38,7 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
-        if(isSetupComplete(this)) {
+        if (isSetupComplete(this)) {
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
         }
         createConnection();
@@ -54,7 +56,7 @@ public class TVInputService extends TvInputService {
         super.onDestroy();
         connection.stop();
 
-        if(RESTART_SERVICES)
+        if (RESTART_SERVICES)
             startService(new Intent(this, TvInputService.class));
     }
 
@@ -67,8 +69,7 @@ public class TVInputService extends TvInputService {
         return START_STICKY; // Makes sure the service restarts after being destroyed.
     }
 
-    public void createConnection()
-    {
+    public void createConnection() {
         connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "Subscription", "23"));
         connection.start();
     }
@@ -102,9 +103,15 @@ public class TVInputService extends TvInputService {
             return player.setSurface(surface);
         }
 
+        //change the stream volume, this method just simply call method in the TVPlayer class
         @Override
         public void onSetStreamVolume(float volume) {
+            player.changeVolume(volume);
+        }
 
+        // mute the stream, using the same method with onSetStreamVolume
+        public void onSetStreamMute() {
+            player.changeVolume(0.0f);
         }
 
         @Override
@@ -147,7 +154,7 @@ public class TVInputService extends TvInputService {
         }
     }
 
-    private void startMyOwnForeground(){
+    private void startMyOwnForeground() {
         String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
         String channelName = "My Background Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
