@@ -38,18 +38,24 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
-        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
-        databaseActions.syncActiveAccount();
-        databaseActions.close();
 
         if (isSetupComplete(this)) {
+            DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+            databaseActions.syncActiveAccount();
+            databaseActions.close();
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
+
+            createConnection();
         }
-        createConnection();
+
     }
 
     @Override
     public final Session onCreateSession(String inputId) {
+        if(connection == null)
+        {
+            createConnection();
+        }
         TVSession session = new TVSession(this, inputId, connection);
         session.setOverlayViewEnabled(true);
         return session;

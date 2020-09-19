@@ -76,7 +76,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
 
         GuidedAction portForm = new GuidedAction.Builder(getActivity())
                 .title("")
-                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_NUMBER)
+                .editInputType(InputType.TYPE_CLASS_NUMBER)
                 .description(R.string.setup_new_account_fragment_port)
                 .id(PORT)
                 .editable(true)
