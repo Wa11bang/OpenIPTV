@@ -127,7 +127,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
             Bundle newAccountDetails = new Bundle(5);
 
             Boolean emptyField = false;
-            
+
             for (Long i = 0L; i < 5; i++) {
                 if (findActionById(i).getTitle().toString().equals("")) {
                     emptyField = true;
@@ -145,23 +145,25 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                 newAccountDetails.putString("clientName", findActionById(CLIENT).getTitle().toString());
 
                 TVHeadendAccount newAccount = new TVHeadendAccount(newAccountDetails);
-                addAccountToDatabase(newAccount);
-                DatabaseActions databaseActions = new DatabaseActions(getContext());
+                if (addAccountToDatabase(newAccount)) {
 
 
-                String accountId = databaseActions.getActiveAccount();
-                databaseActions.setActiveAccount(accountId);
+                    DatabaseActions databaseActions = new DatabaseActions(getContext());
 
-                databaseActions.close();
-                GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
-                fragment.setArguments(newAccountDetails);
-                add(getFragmentManager(), fragment);
 
+                    String accountId = databaseActions.getActiveAccount();
+                    databaseActions.setActiveAccount(accountId);
+
+                    databaseActions.close();
+                    GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
+                    fragment.setArguments(newAccountDetails);
+                    add(getFragmentManager(), fragment);
+                }
+                else{
+                    Log.d("AddAccount", "Error, adding account. Check field is not empty");
+                }
             }
-
-
         }
-
     }
 
     /**
@@ -169,9 +171,10 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
      *
      * @param account
      */
-    public void addAccountToDatabase(TVHeadendAccount account) {
+    public boolean addAccountToDatabase(TVHeadendAccount account) {
         DatabaseActions databaseActions = new DatabaseActions(getContext());
-        databaseActions.addAccount(account);
+        Boolean status = databaseActions.addAccount(account);
         databaseActions.close();
+        return status;
     }
 }

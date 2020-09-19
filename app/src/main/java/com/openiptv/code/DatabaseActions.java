@@ -122,6 +122,17 @@ public class DatabaseActions extends SQLiteOpenHelper {
      * @return true on success, false on error thrown
      */
     public boolean addAccount(TVHeadendAccount account) {
+
+        /**
+         * If any entries are equal to "", return false
+         */
+        if (account.getUsername().equals("") || account.getPassword().equals("") ||
+                account.getHostname().equals("") || account.getPort().equals("") ||
+                account.getClientName().equals("")) {
+            return false;
+        }
+
+
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
 
         ContentValues contentValues = new ContentValues();
@@ -205,4 +216,15 @@ public class DatabaseActions extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(query);
     }
 
+    /**
+     * Remove all accounts with a certain name rather than just the first.
+     * @param clientName
+     */
+    public void clearAccountsClientName(String clientName) {
+        Cursor accounts = getAccountByClientName(clientName);
+
+        while (accounts.moveToNext()) {
+            deleteAccount(Integer.parseInt(accounts.getString(0)), accounts.getString(5));
+        }
+    }
 }
