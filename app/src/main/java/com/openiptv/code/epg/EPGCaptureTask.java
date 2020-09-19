@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.media.tv.TvContract;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.Log;
 
 import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -28,19 +30,29 @@ public class EPGCaptureTask implements MessageListener {
     private BaseConnection connection;
     private Set<Listener> syncListeners;
 
-    public interface Listener
-    {
+    public interface Listener {
         void onSyncComplete();
     }
 
-    public EPGCaptureTask(Context context)
-    {
-        if(Constants.DEBUG) {
+    public EPGCaptureTask(Context context) {
+        if (Constants.DEBUG) {
             Log.d(TAG, "Started EPGCaptureTask");
         }
 
+
+        String username = DatabaseActions.activeAccount.getString("username");
+        String password = DatabaseActions.activeAccount.getString("password");
+        String hostname = DatabaseActions.activeAccount.getString("hostname");
+        String port = DatabaseActions.activeAccount.getString("port");
+        String clientName = DatabaseActions.activeAccount.getString("clientName");
+
+
         // Create a new BaseConnection
-        connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "MetaCapture", "23"));
+        /**
+         *   Test values: "tv.theron.co.nz", "9982", "development", "development", "MetaCapture", "23"));
+         */
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName, "23"));
+
 
         // Link ourselves to the BaseConnection to listen for when we have received HTSP Messages.
         // The base connection has an instance of a HTSPMessageDispatcher
@@ -53,50 +65,43 @@ public class EPGCaptureTask implements MessageListener {
         syncListeners = new ArraySet<>();
     }
 
-    public void addSyncListener(Listener listener)
-    {
-        if(DEBUG) {
+    public void addSyncListener(Listener listener) {
+        if (DEBUG) {
             Log.d(TAG, "Added sync listener");
         }
         syncListeners.add(listener);
     }
 
-    public void stop()
-    {
+    public void stop() {
         syncListeners = null;
         connection.stop();
     }
 
-    public void captureChannels(HTSPMessage channelMessage)
-    {
+    public void captureChannels(HTSPMessage channelMessage) {
         Channel channel = new Channel(channelMessage);
 
         Uri channelUri = Channel.getUri(context, channel);
 
         if (channelUri == null) {
             context.getContentResolver().insert(TvContract.Channels.CONTENT_URI, channel.getContentValues());
-        }
-        else {
-            if(DEBUG) {
+        } else {
+            if (DEBUG) {
                 Log.d(TAG, "Channel already exists");
             }
         }
     }
 
-    public void capturePrograms(HTSPMessage programMessage)
-    {
+    public void capturePrograms(HTSPMessage programMessage) {
         Program program = new Program(context, programMessage);
         Uri eventUri = Program.getUri(context, program);
 
         if (eventUri == null) {
             context.getContentResolver().insert(TvContract.Programs.CONTENT_URI, program.getContentValues());
-            if(DEBUG)
-            {
-                Log.d(TAG, "Adding program: " +program.getTitle());
+            if (DEBUG) {
+                Log.d(TAG, "Adding program: " + program.getTitle());
             }
         } else {
-            if(DEBUG)
-            {
+            if (DEBUG) {
                 Log.d(TAG, "Updating Program - " + program.getTitle());
             }
             ArrayList<ContentProviderOperation> operations = new ArrayList<>();
@@ -111,20 +116,17 @@ public class EPGCaptureTask implements MessageListener {
         }
     }
 
-    public void captureRecordedPrograms(HTSPMessage message)
-    {
+    public void captureRecordedPrograms(HTSPMessage message) {
         RecordedProgram recordedProgram = new RecordedProgram(context, message);
         Uri recordedProgramUri = RecordedProgram.getUri(context, recordedProgram);
 
         if (recordedProgramUri == null) {
             context.getContentResolver().insert(TvContract.RecordedPrograms.CONTENT_URI, recordedProgram.getContentValues());
-            if(DEBUG)
-            {
-                Log.d(TAG, "Adding recorded program: " +recordedProgram.getTitle());
+            if (DEBUG) {
+                Log.d(TAG, "Adding recorded program: " + recordedProgram.getTitle());
             }
         } else {
-            if(DEBUG)
-            {
+            if (DEBUG) {
                 Log.d(TAG, "Updating Recorded Program - " + recordedProgram.getTitle());
             }
             ArrayList<ContentProviderOperation> operations = new ArrayList<>();
@@ -139,26 +141,22 @@ public class EPGCaptureTask implements MessageListener {
         }
     }
 
-    public void initialCompleted()
-    {
-        if(DEBUG) {
+    public void initialCompleted() {
+        if (DEBUG) {
             Log.d(TAG, "Initial Sync Complete");
         }
-        for(Listener l : syncListeners)
-        {
+        for (Listener l : syncListeners) {
             l.onSyncComplete();
         }
     }
 
     @Override
     public void onMessage(HTSPMessage message) {
-        if(DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "Received method: " + message.getString("method"));
         }
-        if(message.getString("method") != null && EPG_METHODS.contains(message.getString("method")))
-        {
-            switch (message.getString("method"))
-            {
+        if (message.getString("method") != null && EPG_METHODS.contains(message.getString("method"))) {
+            switch (message.getString("method")) {
                 case "channelAdd":
                 case "channelUpdate": {
                     captureChannels(message);
@@ -174,8 +172,7 @@ public class EPGCaptureTask implements MessageListener {
                     captureRecordedPrograms(message);
                     break;
                 }
-                case "initialSyncCompleted":
-                {
+                case "initialSyncCompleted": {
                     initialCompleted();
                     break;
                 }
