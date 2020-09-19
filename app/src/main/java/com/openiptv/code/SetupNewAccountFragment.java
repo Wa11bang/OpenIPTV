@@ -127,9 +127,9 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
             Bundle newAccountDetails = new Bundle(5);
 
             Boolean emptyField = false;
-
+            
             for (Long i = 0L; i < 5; i++) {
-                if (findActionById(i).getTitle().equals("")) {
+                if (findActionById(i).getTitle().toString().equals("")) {
                     emptyField = true;
                     Toast.makeText(getContext(), findActionById(i).getDescription().toString(), Toast.LENGTH_SHORT).show();
                     break;
