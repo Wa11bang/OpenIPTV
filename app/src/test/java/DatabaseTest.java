@@ -35,6 +35,13 @@ import static org.robolectric.util.FragmentTestUtil.startFragment;
  */
 public class DatabaseTest extends GuidedStepSupportFragment {
 
+    private static final String USERNAME = "dwad";
+    private static final String PASSWORD = "awf";
+    private static final String HOSTNAME = "123";
+    private static final String PORT = "awd";
+    private static final String CLIENTNAME = "ref";
+
+
 
     /**
      * Try to add invalid entries to database.
@@ -42,11 +49,11 @@ public class DatabaseTest extends GuidedStepSupportFragment {
     @Before
     public void addTestEntries() {
         Bundle newAccountDetails = new Bundle();
-        newAccountDetails.putString("username", "");
-        newAccountDetails.putString("password", "");
-        newAccountDetails.putString("hostname", "");
-        newAccountDetails.putString("port", "");
-        newAccountDetails.putString("clientName", "");
+        newAccountDetails.putString("username", USERNAME);
+        newAccountDetails.putString("password", PASSWORD);
+        newAccountDetails.putString("hostname", HOSTNAME);
+        newAccountDetails.putString("port", PORT);
+        newAccountDetails.putString("clientName", CLIENTNAME);
         TVHeadendAccount tvHeadendAccount = new TVHeadendAccount(newAccountDetails);
 
         DatabaseActions databaseActions = new DatabaseActions(RuntimeEnvironment.systemContext);

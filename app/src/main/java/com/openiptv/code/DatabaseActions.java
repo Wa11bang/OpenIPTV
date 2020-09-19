@@ -131,6 +131,14 @@ public class DatabaseActions extends SQLiteOpenHelper {
                 account.getClientName().equals("")) {
             return false;
         }
+        /**
+         * Check port is a number if not return false
+         */
+        try {
+            Integer.parseInt(account.getPort());
+        } catch (NumberFormatException e) {
+            return false;
+        }
 
 
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
