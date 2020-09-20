@@ -141,13 +141,13 @@ public class TVInputService extends TvInputService {
 
 
             Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
-
+            player.setPlaybackParams(params);
         }
 
         @Override
         public void onTimeShiftSeekTo(long timeMs) {
             Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
-            player.skip((timeMs - System.currentTimeMillis()));
+            player.seek(timeMs);
         }
 
         @Override

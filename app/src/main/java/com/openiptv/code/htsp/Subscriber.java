@@ -115,19 +115,19 @@ public class Subscriber implements MessageListener {
         setSpeed(100);
     }
 
-    public void skip(long time) {
+    public void seek(long time) {
         Log.i(TAG, "Requesting skip for channel " + mChannelId);
 
         HTSPMessage subscriptionSkipRequest = new HTSPMessage();
 
         subscriptionSkipRequest.put("method", "subscriptionSkip");
         subscriptionSkipRequest.put("subscriptionId", mSubscriptionId);
-        subscriptionSkipRequest.put("time", (time*1000));
+        subscriptionSkipRequest.put("time", time);
         subscriptionSkipRequest.put("absolute", 1);
 
         try {
             mDispatcher.sendMessage(subscriptionSkipRequest);
-            mStartTime = mStartTime + time;
+            //mStartTime = mStartTime + time;
         } catch (HTSPNotConnectedException e) {
             // Ignore
         }
@@ -205,7 +205,6 @@ public class Subscriber implements MessageListener {
                     break;
                 case "timeshiftStatus":
                     mTimeshiftStatus = message;
-                    Log.d(TAG, "Size: " +message.getLong("end", -1));
                     break;
                 case "muxpkt":
                     for (final Listener listener : mListeners) {

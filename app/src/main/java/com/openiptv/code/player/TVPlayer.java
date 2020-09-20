@@ -1,11 +1,13 @@
 package com.openiptv.code.player;
 
 import android.content.Context;
+import android.media.PlaybackParams;
 import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -29,6 +31,7 @@ public class TVPlayer implements Player.EventListener {
     private HTSPDataSource mDataSource;
     private ExtractorsFactory mExtractorsFactory;
     private boolean recording;
+    private PlaybackParams playbackParams;
 
     private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
     private static final String TAG = TVPlayer.class.getSimpleName();
@@ -96,6 +99,7 @@ public class TVPlayer implements Player.EventListener {
 
     public void resume() {
         player.setPlayWhenReady(true);
+        player.setPlaybackParameters(new PlaybackParameters(1));
 
         mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (mDataSource != null) {
@@ -112,6 +116,17 @@ public class TVPlayer implements Player.EventListener {
         mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (mDataSource != null) {
             ((HTSPSubscriptionDataSource)mDataSource).pause();
+        }
+    }
+
+    public void setPlaybackParams(PlaybackParams playbackParams)
+    {
+        this.playbackParams = playbackParams;
+        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if (mDataSource != null) {
+            Log.d("TVPlayer", "Resuming HtspDataSource");
+            ((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
+            player.setPlaybackParameters(new PlaybackParameters(playbackParams.getSpeed()));
         }
     }
 
@@ -137,13 +152,10 @@ public class TVPlayer implements Player.EventListener {
         mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (mDataSource != null) {
             long offset = ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftOffsetPts();
-            if (offset != -1) {
+
                 // For live content
-                return System.currentTimeMillis() + (offset / 1000);
-            } else {
-                // For recorded content
-                player.getCurrentPosition();
-            }
+                return System.currentTimeMillis() + (offset / 1000) + 2000;
+
         } else {
             Log.w(TAG, "Unable to getTimeshiftCurrentPosition, no HtspDataSource available");
         }
@@ -151,16 +163,27 @@ public class TVPlayer implements Player.EventListener {
         return -1;
     }
 
-    // SYNONYM FOR SEEK
-    public void skip(long timeMs)
+    public void seek(long timeMs)
     {
-        Log.d(TAG, "Wanting to seek " + timeMs);
-        mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
+        player.setPlayWhenReady(false);
+
         if (mDataSource != null) {
-            ((HTSPSubscriptionDataSource)mDataSource).skip(timeMs);
-            player.prepare(mediaSource);
-            start();
+            Log.d(TAG, "Seeking to time: " + timeMs);
+
+            long seekPts = (timeMs * 1000) - ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartTime();
+            seekPts = Math.max(seekPts, ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartPts()) / 1000;
+            Log.d(TAG, "Seeking to PTS: " + seekPts+1000);
+
+            ((HTSPSubscriptionDataSource)mDataSource).seek(seekPts);
+            player.seekTo(seekPts);
+            //mediaSource.releaseSource(null);
+
+            //player.prepare(mediaSource, false, false);
+        } else {
+            Log.w(TAG, "Unable to seek, no HtspDataSource available");
         }
+
+        player.setPlayWhenReady(true);
     }
 
     @Override
@@ -168,5 +191,48 @@ public class TVPlayer implements Player.EventListener {
         if (isLoading && !recording) {
             mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
         }
+    }
+
+    public static int AndroidTVSpeedToTVH(float speed)
+    {
+        switch ((int) speed)
+        {
+            case 0:
+            {
+                return 100; // 1X
+            }
+            case 2: {
+                return 200; // 2X
+            }
+            case 8:
+            {
+                return 300; // 3X
+            }
+            case 32:
+            {
+                return 400; // 4X
+            }
+            case 128:
+            {
+                return 500; // 5X
+            }
+            case -2: {
+                return -200;
+            }
+            case -8:
+            {
+                return -300;
+            }
+            case -32:
+            {
+                return -400;
+            }
+            case -128:
+            {
+                return -500;
+            }
+        }
+
+        return 100; // 1X
     }
 }

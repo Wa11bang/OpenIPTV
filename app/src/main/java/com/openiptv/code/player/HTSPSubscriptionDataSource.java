@@ -131,14 +131,14 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         if (seekPosition > 0) {
             Log.d(TAG, "Seek to time PTS: " + seekPosition);
 
-            mSubscriber.skip(seekPosition);
+            mSubscriber.seek(seekPosition);
             mBuffer.clear();
             mBuffer.limit(0);
         }
 
         mIsOpen = true;
 
-        return C.LENGTH_UNSET;
+        return dataSpec.length;
     }
 
     @Override
@@ -155,7 +155,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             try {
                 if (DEBUG)
                     Log.v(TAG, "Blocking for more data ("+mDataSourceNumber+")");
-                Thread.sleep(250);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 // Ignore.
                 return 0;
@@ -213,10 +213,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     //SYNONYM TO SEEK
-    public void skip(long timeMs)
+    public void seek(long timeMs)
     {
         Log.d(TAG, "Wanting to see by " + timeMs);
-        mSubscriber.skip(timeMs);
+        mSubscriber.seek(timeMs);
     }
 
     public long getTimeshiftStartTime() {
@@ -227,12 +227,16 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         return -1;
     }
 
-    public long getTimeshiftOffsetPts() {
+    public long getTimeshiftStartPts() {
         if (mSubscriber != null) {
-            return mSubscriber.getTimeshiftOffsetPts();
+            return mSubscriber.getTimeshiftStartPts();
         }
 
         return -1;
+    }
+
+    public long getTimeshiftOffsetPts() {
+        return mSubscriber.getTimeshiftOffsetPts();
     }
 
     public void pause() {
@@ -245,6 +249,11 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         if (mSubscriber != null) {
             mSubscriber.resume();
         }
+    }
+
+    public void setSpeed(int speed)
+    {
+        mSubscriber.setSpeed(speed);
     }
 
     @Override
