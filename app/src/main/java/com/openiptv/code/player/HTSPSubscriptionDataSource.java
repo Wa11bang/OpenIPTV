@@ -290,7 +290,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             mBuffer.put(outputStream.toByteArray());
 
             mBuffer.flip();
-        } catch (IOException | BufferOverflowException e) {
+        } catch (IOException | BufferOverflowException | IllegalArgumentException e) {
             // Ignore
         } finally {
             mLock.unlock();

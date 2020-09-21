@@ -3,9 +3,12 @@ package com.openiptv.code.player;
 import android.content.Context;
 import android.media.PlaybackParams;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -20,6 +23,11 @@ import com.openiptv.code.epg.RecordedProgram;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.HTSPMessage;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 public class TVPlayer implements Player.EventListener {
     private SimpleExoPlayer player;
     private Context context;
@@ -32,9 +40,12 @@ public class TVPlayer implements Player.EventListener {
     private ExtractorsFactory mExtractorsFactory;
     private boolean recording;
     private PlaybackParams playbackParams;
+    private SeekableRunnable seekableRunnable;
+    private Handler handler;
 
     private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
     private static final String TAG = TVPlayer.class.getSimpleName();
+
 
     public TVPlayer(Context context, SimpleExoPlayer player, BaseConnection connection)
     {
@@ -48,6 +59,8 @@ public class TVPlayer implements Player.EventListener {
 
         // Produces Extractor instances for parsing the media data.
         mExtractorsFactory = new ExtendedExtractorsFactory(context);
+
+        handler = new Handler();
     }
 
     public boolean setSurface(Surface surface)
@@ -98,6 +111,13 @@ public class TVPlayer implements Player.EventListener {
     }
 
     public void resume() {
+
+        if(seekableRunnable != null)
+        {
+            seekableRunnable.stopRewind();
+            seekableRunnable = null;
+        }
+
         player.setPlayWhenReady(true);
         player.setPlaybackParameters(new PlaybackParameters(1));
 
@@ -121,12 +141,34 @@ public class TVPlayer implements Player.EventListener {
 
     public void setPlaybackParams(PlaybackParams playbackParams)
     {
+        player.setPlayWhenReady(false);
+        if(seekableRunnable != null)
+        {
+            seekableRunnable.stopRewind();
+            seekableRunnable = null;
+        }
+
         this.playbackParams = playbackParams;
         mDataSource = mHtspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (mDataSource != null) {
             Log.d("TVPlayer", "Resuming HtspDataSource");
-            ((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
-            player.setPlaybackParameters(new PlaybackParameters(playbackParams.getSpeed()));
+
+            if(playbackParams.getSpeed() < 1)
+            {
+                Log.d(TAG, "REWINDING! - NOT SUPPORTED");
+                //((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
+                //seekableRunnable = new SeekableRunnable(player, (int) playbackParams.getSpeed(), (HTSPSubscriptionDataSource) mDataSource, (HTSPSubscriptionDataSource.Factory) mHtspSubscriptionDataSourceFactory);
+                //seekableRunnable.startRewind();
+                //rewindRunnable = new RewindRunnable(player, playbackParams, (HTSPSubscriptionDataSource) mDataSource);
+                //handler.postAtFrontOfQueue(rewindRunnable);
+
+                Toast.makeText(context, "Fast Rewind not Supported!", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                ((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
+                player.setPlaybackParameters(new PlaybackParameters(playbackParams.getSpeed()));
+                player.setPlayWhenReady(true);
+            }
         }
     }
 
@@ -136,7 +178,7 @@ public class TVPlayer implements Player.EventListener {
             long startTime = ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartTime();
             if (startTime != -1) {
                 // For live content
-                return startTime / 1000;
+                return (startTime / 1000);
             } else {
                 // For recorded content
                 return 0;
@@ -153,8 +195,8 @@ public class TVPlayer implements Player.EventListener {
         if (mDataSource != null) {
             long offset = ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftOffsetPts();
 
+            return Math.max((System.currentTimeMillis() + (offset / 1000)), getTimeshiftStartPosition());
                 // For live content
-                return System.currentTimeMillis() + (offset / 1000) + 2000;
 
         } else {
             Log.w(TAG, "Unable to getTimeshiftCurrentPosition, no HtspDataSource available");
@@ -165,17 +207,19 @@ public class TVPlayer implements Player.EventListener {
 
     public void seek(long timeMs)
     {
-        player.setPlayWhenReady(false);
+        pause();
 
         if (mDataSource != null) {
             Log.d(TAG, "Seeking to time: " + timeMs);
 
             long seekPts = (timeMs * 1000) - ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartTime();
             seekPts = Math.max(seekPts, ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartPts()) / 1000;
-            Log.d(TAG, "Seeking to PTS: " + seekPts+1000);
+            Log.d(TAG, "Seeking to PTS: " + seekPts);
 
-            ((HTSPSubscriptionDataSource)mDataSource).seek(seekPts);
             player.seekTo(seekPts);
+            ((HTSPSubscriptionDataSource)mDataSource).seek(seekPts);
+
+
             //mediaSource.releaseSource(null);
 
             //player.prepare(mediaSource, false, false);
@@ -183,7 +227,7 @@ public class TVPlayer implements Player.EventListener {
             Log.w(TAG, "Unable to seek, no HtspDataSource available");
         }
 
-        player.setPlayWhenReady(true);
+        resume();
     }
 
     @Override
@@ -234,5 +278,57 @@ public class TVPlayer implements Player.EventListener {
         }
 
         return 100; // 1X
+    }
+
+    private static class SeekableRunnable
+    {
+        private Handler repeatUpdateHandler = new Handler();
+        public int mValue;           //increment
+        private boolean mAutoIncrement = false;          //for fast foward in real time
+        private boolean mAutoDecrement = false;         // for rewind in real time
+        private SimpleExoPlayer player;
+        private HTSPSubscriptionDataSource dataSource;
+        private HTSPSubscriptionDataSource.Factory htspDataSourceFactory;
+
+        public SeekableRunnable(SimpleExoPlayer player, int speed, HTSPSubscriptionDataSource dataSource, HTSPSubscriptionDataSource.Factory htspDataSourceFactory)
+        {
+            this.player = player;
+            this.mValue = speed;
+            this.dataSource = dataSource;
+            this.htspDataSourceFactory = htspDataSourceFactory;
+        }
+
+        private class Updater implements Runnable {
+            public void run() {
+                if( mAutoDecrement ){
+
+                    dataSource = (HTSPSubscriptionDataSource) htspDataSourceFactory.getCurrentDataSource();
+                    long seekPts = (mValue * 1000) + dataSource.getTimeshiftStartTime();
+                    seekPts = Math.max(seekPts, dataSource.getTimeshiftStartPts()) / 1000;
+                    Log.d(TAG, "Seeking to PTS DataSource: " + seekPts+1000);
+
+                    dataSource.seek(seekPts);
+
+                    long seekPtsPlayer = player.getCurrentPosition() + mValue;
+                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer+1000);
+
+                    //dataSource.seek(seekPts);
+                    player.seekTo(seekPtsPlayer);
+
+                    repeatUpdateHandler.postDelayed( new Updater(), 50 );
+                }
+            }
+        }
+
+        public void startRewind()
+        {
+            mAutoDecrement = true;
+            repeatUpdateHandler.post( new Updater() );
+        }
+
+        public void stopRewind()
+        {
+            mAutoDecrement = false;
+        }
     }
 }

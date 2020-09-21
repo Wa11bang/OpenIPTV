@@ -30,6 +30,9 @@ public class Subscriber implements MessageListener {
     private HTSPMessage mTimeshiftStatus;
     private long mStartTime = -1;
 
+    private long timeshiftStart = -1;
+    private long timeshiftShift = -1;
+    private long timeshiftEnd = -1;
 
     private long mChannelId;
 
@@ -127,26 +130,18 @@ public class Subscriber implements MessageListener {
 
         try {
             mDispatcher.sendMessage(subscriptionSkipRequest);
-            //mStartTime = mStartTime + time;
+            mStartTime = mStartTime + 100; // USED TO TEST
         } catch (HTSPNotConnectedException e) {
             // Ignore
         }
     }
 
     public long getTimeshiftOffsetPts() {
-        if (mTimeshiftStatus != null) {
-            return mTimeshiftStatus.getLong("shift") * -1;
-        }
-
-        return -1;
+        return timeshiftShift * -1;
     }
 
     public long getTimeshiftStartPts() {
-        if (mTimeshiftStatus != null) {
-            return mTimeshiftStatus.getLong("start", -1);
-        }
-
-        return -1;
+        return timeshiftStart;
     }
 
     public long getTimeshiftStartTime() {
@@ -205,6 +200,9 @@ public class Subscriber implements MessageListener {
                     break;
                 case "timeshiftStatus":
                     mTimeshiftStatus = message;
+                    timeshiftShift = message.getLong("shift", -1);
+                    timeshiftEnd = message.getLong("end", -1);
+                    timeshiftStart = message.getLong("start", -1);
                     break;
                 case "muxpkt":
                     for (final Listener listener : mListeners) {
