@@ -130,7 +130,10 @@ public class Subscriber implements MessageListener {
 
         try {
             mDispatcher.sendMessage(subscriptionSkipRequest);
-            mStartTime = mStartTime + 100; // USED TO TEST
+            if(time > timeshiftShift)
+            {
+                timeshiftShift = time;
+            }
         } catch (HTSPNotConnectedException e) {
             // Ignore
         }

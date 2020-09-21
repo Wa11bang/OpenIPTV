@@ -216,9 +216,20 @@ public class TVPlayer implements Player.EventListener {
             seekPts = Math.max(seekPts, ((HTSPSubscriptionDataSource)mDataSource).getTimeshiftStartPts()) / 1000;
             Log.d(TAG, "Seeking to PTS: " + seekPts);
 
-            player.seekTo(seekPts);
+            Log.d(TAG, "BEFORE Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " +((HTSPSubscriptionDataSource)mDataSource).getTimeshiftOffsetPts());
+
+
             ((HTSPSubscriptionDataSource)mDataSource).seek(seekPts);
 
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            player.seekTo(seekPts);
+
+            Log.d(TAG, "AFTER Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " +((HTSPSubscriptionDataSource)mDataSource).getTimeshiftOffsetPts());
 
             //mediaSource.releaseSource(null);
 
