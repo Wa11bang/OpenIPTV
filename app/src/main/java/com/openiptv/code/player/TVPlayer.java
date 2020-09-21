@@ -4,7 +4,6 @@ import android.content.Context;
 import android.media.PlaybackParams;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Surface;
@@ -159,9 +158,8 @@ public class TVPlayer implements Player.EventListener {
                 //((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
                 //seekableRunnable = new SeekableRunnable(player, (int) playbackParams.getSpeed(), (HTSPSubscriptionDataSource) mDataSource, (HTSPSubscriptionDataSource.Factory) mHtspSubscriptionDataSourceFactory);
                 //seekableRunnable.startRewind();
-                //rewindRunnable = new RewindRunnable(player, playbackParams, (HTSPSubscriptionDataSource) mDataSource);
-                //handler.postAtFrontOfQueue(rewindRunnable);
 
+                player.setPlayWhenReady(true);
                 Toast.makeText(context, "Fast Rewind not Supported!", Toast.LENGTH_SHORT).show();
             }
             else {
@@ -291,6 +289,9 @@ public class TVPlayer implements Player.EventListener {
         return 100; // 1X
     }
 
+    /**
+     * This is going to be used for the a custom fast rewind implementation.
+     */
     private static class SeekableRunnable
     {
         private Handler repeatUpdateHandler = new Handler();
@@ -312,21 +313,14 @@ public class TVPlayer implements Player.EventListener {
         private class Updater implements Runnable {
             public void run() {
                 if( mAutoDecrement ){
-
                     dataSource = (HTSPSubscriptionDataSource) htspDataSourceFactory.getCurrentDataSource();
-                    long seekPts = (mValue * 1000) + dataSource.getTimeshiftStartTime();
-                    seekPts = Math.max(seekPts, dataSource.getTimeshiftStartPts()) / 1000;
-                    Log.d(TAG, "Seeking to PTS DataSource: " + seekPts+1000);
 
-                    dataSource.seek(seekPts);
+                    long seekPtsPlayer = player.getContentBufferedPosition() + (mValue * 15);
+                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer +", OFFSET: " + dataSource.getTimeshiftOffsetPts());
 
-                    long seekPtsPlayer = player.getCurrentPosition() + mValue;
-                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer+1000);
-
-                    //dataSource.seek(seekPts);
-                    player.seekTo(seekPtsPlayer);
-
-                    repeatUpdateHandler.postDelayed( new Updater(), 50 );
+                    //dataSource.seek(seekPtsPlayer * 1000);
+                    //player.seekTo(seekPtsPlayer);
+                    repeatUpdateHandler.postDelayed( new Updater(), 100 );
                 }
             }
         }
@@ -335,11 +329,13 @@ public class TVPlayer implements Player.EventListener {
         {
             mAutoDecrement = true;
             repeatUpdateHandler.post( new Updater() );
+            player.setPlayWhenReady(false);
         }
 
         public void stopRewind()
         {
             mAutoDecrement = false;
+            player.setPlayWhenReady(true);
         }
     }
 }
