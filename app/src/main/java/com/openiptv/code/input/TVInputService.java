@@ -13,11 +13,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
@@ -37,8 +39,13 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
-        if(isSetupComplete(this)) {
+
+        if (isSetupComplete(this)) {
+            DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+            databaseActions.syncActiveAccount();
+            databaseActions.close();
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
+            
             createConnection();
         }
     }
@@ -59,7 +66,7 @@ public class TVInputService extends TvInputService {
         super.onDestroy();
         connection.stop();
 
-        if(RESTART_SERVICES)
+        if (RESTART_SERVICES)
             startService(new Intent(this, TvInputService.class));
     }
 
@@ -72,9 +79,14 @@ public class TVInputService extends TvInputService {
         return START_STICKY; // Makes sure the service restarts after being destroyed.
     }
 
-    public void createConnection()
-    {
-        connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "Subscription", "23"));
+    public void createConnection() {
+        String username = DatabaseActions.activeAccount.getString("username");
+        String password = DatabaseActions.activeAccount.getString("password");
+        String hostname = DatabaseActions.activeAccount.getString("hostname");
+        String port = DatabaseActions.activeAccount.getString("port");
+        String clientName = DatabaseActions.activeAccount.getString("clientName");
+
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, "Subscription", "23"));
         connection.start();
     }
 
@@ -181,7 +193,7 @@ public class TVInputService extends TvInputService {
     }
 
     // TODO: Not use some shady code from the interwebs
-    private void startMyOwnForeground(){
+    private void startMyOwnForeground() {
         String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
         String channelName = "My Background Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);

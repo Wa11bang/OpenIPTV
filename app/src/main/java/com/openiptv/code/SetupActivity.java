@@ -3,6 +3,11 @@ package com.openiptv.code;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.media.tv.TvInputInfo;
+import android.os.Bundle;
+import android.util.Log;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentFactory;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -38,11 +44,8 @@ public class SetupActivity extends FragmentActivity {
         GuidedStepSupportFragment fragment = new IntroFragment();
         fragment.setArguments(getIntent().getExtras());
         GuidedStepSupportFragment.addAsRoot(this, fragment, android.R.id.content);
-    }
 
-    public int getTest()
-    {
-        return 10;
+
     }
 
     public static abstract class BaseGuidedStepFragment extends GuidedStepSupportFragment {
@@ -73,8 +76,8 @@ public class SetupActivity extends FragmentActivity {
         public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
             return new GuidanceStylist.Guidance(
-                    "Welcome Title",
-                    "A short description of the application",
+                    getString(R.string.setup_activity_welcome),
+                    getString(R.string.setup_activity_description),
                     getString(R.string.account_label),
                     ContextCompat.getDrawable(getActivity(), R.drawable.standard));
         }
@@ -82,10 +85,9 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             GuidedAction action = new GuidedAction.Builder(getActivity())
-                    .title("Button")
-                    .description("Button action")
+                    .title(getString(R.string.setup_activity_select_account))
+                    .description(getString(R.string.setup_activity_select_account_description))
                     .editable(false)
-                    .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                     .build();
 
             actions.add(action);
@@ -94,70 +96,73 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
             // Move onto the next step
-            GuidedStepSupportFragment fragment = new SyncFragment();
+            GuidedStepSupportFragment fragment = new SetupSelectAccount();
             fragment.setArguments(getArguments());
             add(getFragmentManager(), fragment);
         }
     }
 
     public static class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTask.Listener {
-            EPGCaptureTask mEpgSyncTask;
-            BaseConnection connection;
+        EPGCaptureTask mEpgSyncTask;
+        BaseConnection connection;
 
-            @Override
-            public void onSyncComplete() {
-                Log.d(TAG, "Initial Sync Completed");
+        @Override
+        public void onSyncComplete() {
+            Log.d(TAG, "Initial Sync Completed");
+          
+            // Move to the CompletedFragment
+            GuidedStepSupportFragment fragment = new CompletedFragment();
+            fragment.setArguments(getArguments());
+            add(getFragmentManager(), fragment);
+        }
 
-                // Move to the CompletedFragment
-                GuidedStepSupportFragment fragment = new CompletedFragment();
-                fragment.setArguments(getArguments());
-                add(getFragmentManager(), fragment);
-            }
 
-            @Override
-            public void onStart() {
-                super.onStart();
-                mEpgSyncTask = new EPGCaptureTask(getActivity().getBaseContext());
-                mEpgSyncTask.addSyncListener(this);
-            }
+        @Override
+        public void onStart() {
+            super.onStart();
+            mEpgSyncTask = new EPGCaptureTask(getActivity().getBaseContext());
+            mEpgSyncTask.addSyncListener(this);
+        }
 
-            @Override
-            public void onStop() {
-                mEpgSyncTask.stop();
-                mEpgSyncTask = null;
+        @Override
+        public void onStop() {
+            mEpgSyncTask.stop();
+            mEpgSyncTask = null;
 
-                super.onStop();
-            }
+            super.onStop();
+        }
 
-            @Override
-            public GuidedActionsStylist onCreateActionsStylist() {
-                return new GuidedActionsStylist() {
-                    @Override
-                    public int onProvideItemLayoutId() {
-                        return R.layout.setup_progress;
-                    }
-                };
-            }
+        @Override
+        public GuidedActionsStylist onCreateActionsStylist() {
+            return new GuidedActionsStylist() {
+                @Override
+                public int onProvideItemLayoutId() {
+                    return R.layout.setup_progress;
+                }
+            };
+        }
 
-            @NonNull
-            @Override
-            public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
+        @NonNull
+        @Override
+        public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
-                return new GuidanceStylist.Guidance(
-                        "title",
-                        "body",
-                        getString(R.string.account_label),
-                        null);
-            }
+            return new GuidanceStylist.Guidance(
+                    "title",
+                    "body",
+                    getString(R.string.account_label),
+                    null);
+        }
 
-            @Override
-            public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
-                GuidedAction action = new GuidedAction.Builder(getActivity())
-                        .title("Progress")
-                        .infoOnly(true)
-                        .build();
-                actions.add(action);
-            }
+        @Override
+        public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
+            GuidedAction action = new GuidedAction.Builder(getActivity())
+                    .title("Progress")
+                    .infoOnly(true)
+                    .build();
+            actions.add(action);
+
+
+        }
     }
 
     public static class AccountFragment extends GuidedStepSupportFragment {
@@ -192,7 +197,6 @@ public class SetupActivity extends FragmentActivity {
                     .title("action3")
                     .description("desc")
                     .build());
-
 
 
             GuidedAction actionWithSubActions = new GuidedAction.Builder(getActivity())
