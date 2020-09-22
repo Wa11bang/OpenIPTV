@@ -31,7 +31,9 @@ public class EPGService extends Service {
         if (DEBUG) {
             Log.d("EPGService", "called!");
         }
-        if (isSetupComplete(this)) {
+
+        if(isSetupComplete(this)) {
+            Log.d("EPGService", "Creating Capture Task");
             epgCaptureTask = new EPGCaptureTask(this);
         }
     }

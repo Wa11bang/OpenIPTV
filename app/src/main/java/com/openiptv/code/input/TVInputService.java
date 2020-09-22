@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.PlaybackParams;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
@@ -44,10 +45,9 @@ public class TVInputService extends TvInputService {
             databaseActions.syncActiveAccount();
             databaseActions.close();
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
-
+            
             createConnection();
         }
-
     }
 
     @Override
@@ -126,6 +126,7 @@ public class TVInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
+            notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
             player.prepare(channelUri, false);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));
@@ -137,13 +138,40 @@ public class TVInputService extends TvInputService {
         }
 
         @Override
-        public void onTimeShiftPause() {
+        public long onTimeShiftGetStartPosition() {
+            return player.getTimeshiftStartPosition();
+        }
 
+        @Override
+        public long onTimeShiftGetCurrentPosition() {
+            return player.getTimeshiftCurrentPosition();
+        }
+
+        @Override
+        public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
+            super.onTimeShiftSetPlaybackParams(params);
+
+
+            Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
+            player.setPlaybackParams(params);
+        }
+
+        @Override
+        public void onTimeShiftSeekTo(long timeMs) {
+            Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
+            player.seek(timeMs);
+        }
+
+        @Override
+        public void onTimeShiftPause() {
+            Log.d(TAG, "PAUSE");
+            player.pause();
         }
 
         @Override
         public void onTimeShiftResume() {
-
+            Log.d(TAG, "RESUME");
+            player.resume();
         }
 
         @Override

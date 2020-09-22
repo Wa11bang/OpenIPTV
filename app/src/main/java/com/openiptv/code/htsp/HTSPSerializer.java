@@ -69,6 +69,10 @@ public class HTSPSerializer {
     }
 
     protected void serialize(ByteBuffer buffer, Map<String, Object> map) {
+        if(map == null)
+        {
+            return;
+        }
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             serialize(buffer, entry.getKey(), entry.getValue());
         }

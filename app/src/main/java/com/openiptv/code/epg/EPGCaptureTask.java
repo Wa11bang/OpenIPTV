@@ -22,6 +22,7 @@ import java.util.Set;
 
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.EPG_METHODS;
+import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 public class EPGCaptureTask implements MessageListener {
     private static final String TAG = EPGCaptureTask.class.getSimpleName();
@@ -148,6 +149,11 @@ public class EPGCaptureTask implements MessageListener {
         for (Listener l : syncListeners) {
             l.onSyncComplete();
         }
+
+        /*if(!isSetupComplete(context))
+        {
+            stop();
+        }*/
     }
 
     @Override
