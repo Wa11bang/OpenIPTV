@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="streamProfiles">
+        <item>HTSP</item>
+        <item>Matroska</item>
+        <item>Pass</item>
+        <item>Webtv-h264-aac-matroska</item>
+        <item>Webtv-h264-aac-mpegts</item>
+        <item>Webtv-h264-vorbis-mp4</item>
+        <item>Webtv-vp8-vorbis-webm</item>
+    </string-array>
+    
+    <string-array
+        name="profileValues">
+        <item>htsp</item>
+        <item>matroska</item>
+        <item>pass</item>
+        <item>webtv-h264-aac-matroska</item>
+        <item>webtv-h264-aac-mpegts</item>
+        <item>webtv-h264-vorbis-mp4</item>
+        <item>webtv-vp8-vorbis-webm</item>
+    </string-array>
+
+    <string-array name="bufferSizes">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+
+    <string-array name="bufferValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
+</resources>
