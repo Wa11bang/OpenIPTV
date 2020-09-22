@@ -147,8 +147,8 @@ public class SetupActivity extends FragmentActivity {
         public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
             return new GuidanceStylist.Guidance(
-                    "title",
-                    "body",
+                    "Syncing with TVHeadend",
+                    "Please wait...",
                     getString(R.string.account_label),
                     null);
         }
@@ -246,7 +246,7 @@ public class SetupActivity extends FragmentActivity {
 
             return new GuidanceStylist.Guidance(
                     "Completed",
-                    "Complete body",
+                    "All content for your account has been synced. Channels, Programs and Recordings are all linked to your TVHeadend Server",
                     getString(R.string.account_label),
                     null);
         }
@@ -255,8 +255,8 @@ public class SetupActivity extends FragmentActivity {
         public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
             GuidedAction action = new GuidedAction.Builder(getActivity())
                     .id(ACTION_ID_COMPLETE)
-                    .title("Complete title")
-                    .description("Complete body")
+                    .title("Finish")
+                    .description("Exit Setup Wizard")
                     .editable(false)
                     .build();
 
