@@ -11,11 +11,18 @@ import com.openiptv.code.htsp.HTSPMessage;
 
 import static com.openiptv.code.Constants.DEBUG;
 
+/**
+ * Creates a new HEVC (H.265) Video Stream Reader.
+ */
 public class HEVCReader extends VideoReader {
     public HEVCReader(Context context) {
         super(context, MimeTypes.VIDEO_H265);
     }
 
+    /**
+     * Extracts initialization data from an htsp message.
+     * @param message htsp Message to extract the data from.
+     */
     @Override
     protected void buildInitializationData(HTSPMessage message) {
         // Build H265 Metadata

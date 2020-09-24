@@ -13,22 +13,33 @@ import com.openiptv.code.htsp.HTSPMessage;
 
 import java.util.Collections;
 
+/**
+ * Creates a ACC Audio Stream reader
+ */
 public class AACReader extends AudioReader
 {
+    // Size of the Header
     private static final int ADTS_HEADER_SIZE = 7;
+    // Size of the CRC
     private static final int ADTS_CRC_SIZE = 2;
 
     public AACReader(Context context) {
         super(context, MimeTypes.AUDIO_AAC);
     }
 
+    /**
+     * extract initialisation data from the initial message.
+     * @param message Message to extract the data from
+     */
     @Override
     protected void buildInitializationData(HTSPMessage message) {
         int rate = Format.NO_VALUE;
+        // Extract audio sample rate
         if (message.containsKey("rate")) {
             rate = getSampleRate(message.getInteger("rate"));
         }
 
+        // Extract metadata
         if (message.containsKey("meta")) {
             initializationData = Collections.singletonList(message.getByteArray("meta"));
         } else {
@@ -36,6 +47,11 @@ public class AACReader extends AudioReader
         }
     }
 
+    /**
+     * extract ACC Audio Stream data from a message
+     * @param message Message to extract the data from
+     * @return true if successful, false if the message is empty
+     */
     @Override
     public boolean extract (@NonNull HTSPMessage message){
         byte[] payload = message.getByteArray("payload");
