@@ -41,10 +41,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         private final String streamProfile;
 
         /**
-         *
-         * @param context
-         * @param connection
-         * @param streamProfile
+         * Factory constructor, used for creating a new HTSPSubscriptionDataSource
+         * @param context application context
+         * @param connection BaseConnection used for subscribing to Channels/Recordings
+         * @param streamProfile stream profile to use with TVHeadEnd
          */
         public Factory(Context context, BaseConnection connection, String streamProfile) {
             this.context = context;
@@ -67,16 +67,16 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     private boolean isSubscribed = false;
 
     /**
-     *
-     * @param context
-     * @param connection
-     * @param streamProfile
+     * Internal Constructor - Only accessible via Factory.
+     * @param context application context
+     * @param connection BaseConnection used for subscribing to Channels/Recordings
+     * @param streamProfile stream profile to use with TVHeadEnd
      */
     private HTSPSubscriptionDataSource(Context context, BaseConnection connection, String streamProfile) {
         super(context, connection);
 
         this.streamProfile = streamProfile;
-        dataSourceNumber = dataSourceCount.incrementAndGet();
+        this.dataSourceNumber = dataSourceCount.incrementAndGet();
 
         try {
             // Create the buffer, and place the HtspSubscriptionDataSource header in place.
@@ -88,18 +88,14 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             throw new RuntimeException("OutOfMemoryError when allocating HTSPSubscriptionDataSource buffer", e);
         }
 
-        subscriber = new Subscriber(this.connection.getHTSPMessageDispatcher());
-        subscriber.addSubscriptionListener(this);
+        this.subscriber = new Subscriber(this.connection.getHTSPMessageDispatcher());
+        this.subscriber.addSubscriptionListener(this);
     }
 
     @Override
     protected void finalize() throws Throwable {
-        // This is a total hack, but there's not much else we can do?
-        // https://github.com/google/ExoPlayer/issues/2662 - Luckily, i've not found it's actually
-        // been used anywhere at this moment.
         if (subscriber != null || connection != null) {
             Log.e(TAG, "Datasource finalize relied upon to release the subscription");
-
             release();
         }
 
@@ -108,7 +104,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public void addTransferListener(TransferListener transferListener) {
-
+        // Ignore
     }
 
     @Override
@@ -201,7 +197,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public void onSubscriptionStatus(@NonNull HTSPMessage message) {
-        // Don't care about this event here
+        // Ignore
     }
 
     @Override
@@ -211,8 +207,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
-     * @param timeMs
+     * Pass method, used to interact with underlying Subscriber object
+     * @param timeMs to seek
      */
     public void seek(long timeMs)
     {
@@ -221,8 +217,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
-     * @return
+     * Pass method, used to return start time from underlying Subscriber object
+     * @return start time
      */
     public long getTimeshiftStartTime() {
         if (subscriber != null) {
@@ -233,8 +229,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
-     * @return
+     * Pass method, used to return start time in PTS from underlying Subscriber object
+     * @return start time in PTS
      */
     public long getTimeshiftStartPts() {
         if (subscriber != null) {
@@ -245,15 +241,15 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
-     * @return
+     * Pass method, used to return offset in PTS from underlying Subscriber object
+     * @return offset in PTS
      */
     public long getTimeshiftOffsetPts() {
         return subscriber.getTimeshiftOffsetPts();
     }
 
     /**
-     *
+     * Pauses the underlying Subscriber object
      */
     public void pause() {
         if (subscriber != null) {
@@ -262,7 +258,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
+     * Resumes the underlying Subscriber object
      */
     public void resume() {
         if (subscriber != null) {
@@ -271,8 +267,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
-     * @param speed
+     * Pass method, used to interact with underlying Subscriber object
+     * @param speed to set the stream to
      */
     public void setSpeed(int speed)
     {
@@ -284,7 +280,9 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         serializeMessageToBuffer(message);
     }
 
-
+    /**
+     * Stops the connection AND unsubscribe's from stream.
+     */
     public void release() {
         if (connection != null) {
             connection = null;
@@ -298,8 +296,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     }
 
     /**
-     *
-     * @param message
+     * Helper method which serialises a given HTSPMessage to a ByteBuffer. Message contains Stream data.
+     * @param message stream data message
      */
     private void serializeMessageToBuffer(@NonNull HTSPMessage message) {
 

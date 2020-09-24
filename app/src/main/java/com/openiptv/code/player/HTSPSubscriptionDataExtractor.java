@@ -28,7 +28,8 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     private static final String TAG = HTSPSubscriptionDataExtractor.class.getName();
 
     /**
-     *
+     * HTSPSeekMap which fakes seeking ability. The seeking should only occur on the server
+     * side.
      */
     private class HTSPSeekMap implements SeekMap {
         @Override
@@ -45,7 +46,6 @@ class HTSPSubscriptionDataExtractor implements Extractor {
         public SeekPoints getSeekPoints(long timeUs) {
             return new SeekPoints(new SeekPoint(timeUs, timeUs));
         }
-
     }
 
     private final Context context;
@@ -53,13 +53,13 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     private final SparseArray<SourceReader> streamReaders = new SparseArray<>();
 
     /*
-
+        Currently the byte buffer is set to 5MB
      */
-    private final byte[] mRawBytes = new byte[1024 * 1024 * 5];
+    private final byte[] rawBytes = new byte[1024 * 1024 * 5];
 
     /**
-     *
-     * @param context
+     * Constructor for HTSPSubscriptionDataExtractor
+     * @param context application context
      */
     public HTSPSubscriptionDataExtractor(Context context) {
         this.context = context;
@@ -86,7 +86,7 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
     @Override
     public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException, InterruptedException {
-        int bytesRead = input.read(mRawBytes, 0, mRawBytes.length);
+        int bytesRead = input.read(rawBytes, 0, rawBytes.length);
         if (DEBUG)
             Log.v(TAG, "Read " + bytesRead + " bytes");
 
@@ -94,7 +94,7 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
         try (
                 // N.B. Don't add the objectInput to this bit, it breaks stuff
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(mRawBytes, 0, bytesRead)
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(rawBytes, 0, bytesRead)
         ) {
             while (inputStream.available() > 0) {
                 objectInput = new ObjectInputStream(inputStream);
@@ -127,8 +127,8 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     }
 
     /**
-     *
-     * @param message
+     * Internal Wrapper method used to identify the type of incoming HTSPMessage.
+     * @param message incoming message
      */
     private void handleMessage(@NonNull final HTSPMessage message) {
         final String method = message.getString("method");
@@ -141,8 +141,9 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     }
 
     /**
-     *
-     * @param message
+     * Internal method used to parse a subscriptionStart HTSPMessage. This message indicates to the
+     * application all of the available streams and their metadata.
+     * @param message subscriptionStart message
      */
     private void handleSubscriptionStart(@NonNull final HTSPMessage message) {
         Log.i(TAG, "Handling Subscription Start");
@@ -184,8 +185,8 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     }
 
     /**
-     *
-     * @param message
+     * Internal method used to parse a given HTSPMessage that has stream data.
+     * @param message stream data message
      */
     private void handleMuxpkt(@NonNull final HTSPMessage message) {
         int streamIndex = message.getInteger("stream");
