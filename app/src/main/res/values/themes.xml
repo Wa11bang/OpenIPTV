@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.Panel" parent="@android:style/Theme.Material.Panel">
+        <item name="android:windowElevation">@dimen/side_panel_elevation</item>
+        <item name="android:windowBackground">@color/side_panel_background</item>
+        <item name="android:windowAnimationStyle">@style/side_panel_animation</item>
+    </style>
+
+    <style name="side_panel_animation">
+        <item name="android:windowEnterAnimation">@anim/side_panel_enter</item>
+        <item name="android:windowExitAnimation">@anim/side_panel_exit</item>
+    </style>
+
+    <style name="Theme.Transparent" parent="Theme.Leanback">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="Theme" parent="Theme.Leanback.GuidedStep">
+    </style>
+
+    <style name="Theme.Setup">
+        <item name="guidedActionsBackground">@color/setup_actions</item>
+        <item name="guidedActionsBackgroundDark">@color/setup_sub_actions</item>
+    </style>
+
+    <style name="Theme.Preferences" parent="Theme.Leanback">
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Leanback</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:colorAccent">@color/cyan_process</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+</resources>

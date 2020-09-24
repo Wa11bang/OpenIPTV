@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    //Account Fragment String. Once the Account Fragment is completed, we can update it.
+    <string name="AccountFragment_guidance_title">测试View Accounts Test: account fragment guidance title</string>
+    <string name="AccountFragment_guidance_description">This is accounts Test: account fragment guidance desc</string>
+
+    <string name="AccountFragment_subaction_id_1_title">Action2 Test: account fragment subaction1 title</string>
+    <string name="AccountFragment_subaction_id_1_description">Description Test: account fragment subaction1 desc</string>
+
+    <string name="AccountFragment_subaction_id_2_title">Action3 Test: account fragment subaction2 title</string>
+    <string name="AccountFragment_subaction_id_2_description">Description Test: account fragment subaction2 desc</string>
+
+    <string name="AccountFragment_actionWithSubaction_title">Button Test: account fragment actionWithSubaction title</string>
+    <string name="AccountFragment_actionWithSubaction_description">Button action Test: account fragment actionWithSubaction desc</string>
+
+    <string name="AccountFragment_action2_title">Button Test: account fragment action title</string>
+    <string name="AccountFragment_action2_description">Button action Test: account fragment action desc</string>
+
+    //Completed Fragment String.
+    <string name="CompletedFragment_guidance_title">Completed Test: completed fragment guidance title</string>
+    <string name="CompletedFragment_guidance_description">Complete body Test: completed fragment guidance desc</string>
+
+    <string name="CompletedFragment_action_title">Complete title Test: completed fragment action title</string>
+    <string name="CompletedFragment_action_description">Complete body Test: completed fragment action desc</string>
+
+    //Intro Fragment String.
+    <string name="IntroFragment_guidance_title">Welcome Title! Test: intro fragment guidance title</string>
+    <string name="IntroFragment_guidance_description">A short description of the application.Test: intro fragment guidance description</string>
+
+    <string name="IntroFragment_action_title">Button Test: intro fragment action title</string>
+    <string name="IntroFragment_action_description">Button action Test: intro fragment action description</string>
+
+    //Sync Fragment String.
+    <string name="SyncFragment_guidance_title">title Test: Sync fragment guidance title</string>
+    <string name="SyncFragment_guidance_description">Body Test: Sync fragment guidance desc</string>
+
+    <string name="SyncFragment_action_title">Process Test: Sync fragment action title</string>
+</resources>

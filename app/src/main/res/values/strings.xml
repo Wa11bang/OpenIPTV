@@ -1,78 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">IPTV</string>
-    <string name="browse_title"><![CDATA[Videos by Your Company]]></string>
-    <string name="related_movies">Related Videos</string>
-    <string name="grid_view">Grid View</string>
-    <string name="error_fragment">Error Fragment</string>
-    <string name="personal_settings">Personal Settings</string>
-    <string name="watch_trailer_1">Watch trailer</string>
-    <string name="watch_trailer_2">FREE</string>
-    <string name="rent_1">Rent By Day</string>
-    <string name="rent_2">From $1.99</string>
-    <string name="buy_1">Buy and Own</string>
-    <string name="buy_2">AT $9.99</string>
-    <string name="movie">Movie</string>
-
-    <!-- Error messages -->
-    <string name="error_fragment_message">An error occurred</string>
-    <string name="dismiss_error">Dismiss</string>
-
-    <string name="title_activity_authenticator">TVHeadend Authenticator</string>
+    <string name="app_name">OpenIPTV</string>
+    <string name="company_name" translatable="false">Your Company</string>
+    <string name="rich_input_label" translatable="false">OpenIPTV</string>
+    <string name="rich_input_feed_url" translatable="false">http://commondatastorage.googleapis.com/android-tv/rich_tv_input_xmltv_feed.xml</string>
+    <string name="rich_setup_first_step_title">Welcome to Rich Input</string>
+    <string name="rich_setup_first_step_description">"TV Channels from your company"</string>
+    <string name="rich_setup_add_channel">Add Channels</string>
+    <string name="rich_setup_cancel">Cancel Setup</string>
+    <string name="rich_setup_in_progress">In Progress…</string>
+    <string name="feed_error_message">No feed. Check your connection!</string>
+    <string name="app_link_title_1" translatable="false">App Link Title 1</string>
+    <string name="app_link_title_2" translatable="false">App Link Title 2</string>
+    <string name="details_fragment_subtitle" translatable="false">Details fragment subtitle</string>
+    <string name="details_fragment_body" translatable="false">Details fragment body</string>
+    <string name="details_fragment_action_1" translatable="false">Action 1</string>
+    <string name="details_fragment_action_2" translatable="false">Action 2</string>
+    <string name="item_1" translatable="false">Item 1</string>
+    <string name="item_2" translatable="false">Item 2</string>
+    <string name="setup_activity_welcome" translatable="false">Welcome to OpenIPTV</string>
+    <string name="setup_activity_description" translatable="false">Choose select an account to start</string>
+    <string name="setup_activity_select_account" translatable="false">Select Account</string>
+    <string name="setup_activity_select_account_description" translatable="false">Click to start</string>
+    <string name="setup_new_account_fragment_title" translatable="false">Create an Account</string>
+    <string name="setup_new_account_fragment_description" translatable="false">Enter TVHeadend Credentials</string>
+    <string name="setup_new_account_fragment_username" translatable="false">Enter a Username</string>
+    <string name="setup_new_account_fragment_password" translatable="false">Enter a Password</string>
+    <string name="setup_new_account_fragment_hostname" translatable="false">Enter a Hostname</string>
+    <string name="sync_error_canceled">User canceled sync</string>
+    <string name="sync_error_no_data">No programs or channels found. Check your connection.</string>
+    <string name="sync_error_other">Error code %1$d</string>
     <string name="account_label">OpenIPTV</string>
-
-    <string name="pref_disable_acra">Enable ACRA?</string>
-    <string name="pref_acra_enabled">ACRA enabled</string>
-    <string name="pref_acra_disabled">ACRA disabled</string>
-
-    <string name="pref_acra_syslog">Send system logs?</string>
-    <string name="pref_acra_syslog_enabled">Sending system logs is enabled</string>
-    <string name="pref_acra_syslog_disabled">Sending system logs is disabled</string>
-
-    <string name="pref_acra_user_email">Contact email address (optional)</string>
-    <string name="pref_acra_user_email_summary">Sometimes, the developers may need to contact you for more info</string>
-
-    <string name="account_add_successful">Successfully Added Account</string>
-    <string name="account_failed_error">Failed to add account: %s</string>
-    <string name="account_name">Tvheadend Account</string>
-    <string name="account_name_body">Enter your Tvheadend username and password</string>
-    <string name="account_password">Password</string>
-    <string name="account_password_invalid">Invalid Password</string>
-    <string name="account_username">Username</string>
-    <string name="account_username_invalid">Invalid Username</string>
-
-    <string name="server_htsp_port">HTSP Port Number</string>
-    <string name="server_htsp_port_invalid">Invalid HTSP Port</string>
-    <string name="server_ip">Hostname/IP</string>
-    <string name="server_ip_invalid">Invalid Hostname</string>
-    <string name="server_name">Tvheadend Server</string>
-    <string name="server_name_body">Enter your Tvheadend server hostname or IP address</string>
-    <string name="setup_account_action_title">Account Selection</string>
-    <string name="setup_account_body">Please choose an existing, or create a new Tvheadend account to use</string>
-    <string name="setup_account_complete_body">You\'re all set!</string>
-    <string name="setup_account_create">Add New Account</string>
-    <string name="setup_account_finish">Finish</string>
-    <string name="setup_account_title">Select An Account</string>
-    <string name="setup_begin_body">Setup Live IPTV Access</string>
-    <string name="setup_begin_title">Start</string>
-    <string name="setup_complete_action_title">Complete</string>
-    <string name="setup_complete_body">More EPG data, channel logs, etc are downloading in the background</string>
-    <string name="setup_complete_failed">Failed to add account</string>
-    <string name="setup_complete_title">Setup Complete</string>
-    <string name="setup_confirm">Confirm</string>
-    <string name="setup_confirm_body">Confirm This Selection</string>
-    <string name="setup_continue">Next</string>
-    <string name="setup_failed_htsp">Failed to validate HTSP Credentials</string>
-    <string name="setup_htsp_failed">Failed to connect to HTSP server</string>
-    <string name="setup_intro_body">We\'ll guide you through the setup, so that you can get stuck into watching content</string>
-    <string name="setup_intro_title">Introduction</string>
-    <string name="setup_only_one_account">Only one Tvheadend account is currently supported</string>
-    <string name="setup_progress_body">Processing</string>
-    <string name="setup_progress_title">Checking your HTSP account</string>
-    <string name="setup_settings_body">Advanced Settings</string>
-    <string name="setup_settings_title">Settings</string>
-    <string name="setup_sync_body">Just a few seconds please :)</string>
-    <string name="setup_sync_title">Syncing Channels and Program data</string>
-
-    <string name="settings_require_restart">IMPORTANT: Most settings require a device restart to take effect</string>
-    <string name="channel_logo">Channel Logo</string>
+    <string name="setup_new_account_fragment_port">Enter a Port</string>
+    <string name="setup_new_account_fragment_client">Enter a Client Name</string>
+    <string name="setup_new_account_fragment_next">Next</string>
+    <string name="setup_select_account_title">Select an Account</string>
+    <string name="setup_select_account_description">Or add a new one</string>
+    <string name="setup_select_account_no_accounts_message">No Accounts, Add One!</string>
+    <string name="setup_select_account_available_accounts">Available Accounts</string>
+    <string name="setup_select_account_add_new_account">Add new Account</string>
+    <string name="setup_select_account_skip">Skip</string>
 </resources>
