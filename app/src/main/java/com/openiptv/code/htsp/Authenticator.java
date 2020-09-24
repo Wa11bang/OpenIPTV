@@ -20,6 +20,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
     private boolean fullSync = false;
     private State state;
     private Set<Listener> listeners = new ArraySet<>();
+    private static final int SEQ = 10;
 
     public enum State {
         AUTHENTICATED,
@@ -67,9 +68,17 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
 
     public void handleResponse(HTSPMessage message)
     {
-        if(message.containsKey("noaccess") && message.getInteger("noaccess") == 1)
+        if(message.containsKey("seq") && message.getInteger("seq") == SEQ)
         {
-            setState(State.UNAUTHORISED);
+            if(message.containsKey("noaccess") && message.getInteger("noaccess") == 1)
+            {
+                setState(State.UNAUTHORISED);
+            }
+            else
+            {
+                setState(State.AUTHENTICATED);
+                sendEnableAsyncMessage();
+            }
             return;
         }
 
@@ -114,6 +123,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
             authMessage.put("method", "authenticate");
             authMessage.put("username", connectionInfo.getUsername());
             authMessage.put("digest", calculateDigest(connectionInfo.getPassword(), challenge));
+            authMessage.put("seq", SEQ);
 
             try {
                 Log.d(TAG, "Sending Authentication Message");
@@ -121,12 +131,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
             } catch (HTSPNotConnectedException e) {
                 Log.d(TAG, "Received HTSPNotConnectedException");
                 setState(State.FAILED);
-                return;
             }
-
-            setState(State.AUTHENTICATED);
-
-            sendEnableAsyncMessage();
         }
     }
 

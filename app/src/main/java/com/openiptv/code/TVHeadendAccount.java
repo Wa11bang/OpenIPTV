@@ -1,8 +1,5 @@
 package com.openiptv.code;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Bundle;
 
 
