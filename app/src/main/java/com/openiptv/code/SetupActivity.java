@@ -26,6 +26,7 @@ import androidx.leanback.widget.GuidedActionsStylist;
 
 import com.openiptv.code.epg.EPGCaptureTask;
 import com.openiptv.code.epg.EPGService;
+import com.openiptv.code.fragments.IntroFragment;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 
@@ -41,11 +42,9 @@ public class SetupActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GuidedStepSupportFragment fragment = new IntroFragment();
+        GuidedStepSupportFragment fragment = new IntroFragment(getSupportFragmentManager());
         fragment.setArguments(getIntent().getExtras());
         GuidedStepSupportFragment.addAsRoot(this, fragment, android.R.id.content);
-
-
     }
 
     public static abstract class BaseGuidedStepFragment extends GuidedStepSupportFragment {

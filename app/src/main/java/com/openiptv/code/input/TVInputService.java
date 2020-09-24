@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -39,11 +40,11 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
-
         if (isSetupComplete(this)) {
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             databaseActions.syncActiveAccount();
             databaseActions.close();
+
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
             
             createConnection();
@@ -119,9 +120,15 @@ public class TVInputService extends TvInputService {
             return player.setSurface(surface);
         }
 
+        //change the stream volume, this method just simply call method in the TVPlayer class
         @Override
         public void onSetStreamVolume(float volume) {
+            player.changeVolume(volume);
+        }
 
+        // mute the stream, using the same method with onSetStreamVolume
+        public void onSetStreamMute() {
+            player.changeVolume(0.0f);
         }
 
         @Override
