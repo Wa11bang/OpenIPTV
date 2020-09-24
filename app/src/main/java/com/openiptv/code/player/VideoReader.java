@@ -14,12 +14,23 @@ public abstract class VideoReader extends SourceReader {
 
     private String videoType;
 
+    /**
+     * Create a new VideoStream reader
+     * @param context
+     * @param videoType Format of the video to read
+     */
     public VideoReader(Context context, String videoType) {
         super(context, C.TRACK_TYPE_VIDEO);
         this.videoType = videoType;
         this.initializationData = null;
     }
 
+    /**
+     * Extract the initial track data from a htsp message.
+     * @param message htsp message to extract the data from
+     * @param index
+     * @return The format data of the video stream
+     */
     @Override
     protected Format buildTrackFormat(HTSPMessage message, int index) {
 
