@@ -28,12 +28,27 @@ public class Connection implements Runnable {
     private Set<Listener> listeners = new CopyOnWriteArraySet<>();
     private final static String TAG = Connection.class.getSimpleName();
 
+    /**
+     *
+     */
     public interface Listener
     {
+        /**
+         *
+         * @param connection
+         */
         void setConnection(@NonNull Connection connection);
+
+        /**
+         *
+         * @param state
+         */
         void onConnectionStateChange(@NonNull State state);
     }
 
+    /**
+     *
+     */
     public enum State {
         STARTED,
         CONNECTED,
@@ -42,6 +57,11 @@ public class Connection implements Runnable {
         FAILED
     }
 
+    /**
+     *
+     * @param connectionInfo
+     * @param socketIOHandler
+     */
     public Connection(ConnectionInfo connectionInfo, SocketIOHandler socketIOHandler)
     {
         this.connectionInfo = connectionInfo;
@@ -76,6 +96,9 @@ public class Connection implements Runnable {
 
     }
 
+    /**
+     *
+     */
     public void openConnection()
     {
         setState(State.STARTED);
@@ -104,6 +127,9 @@ public class Connection implements Runnable {
         setState(State.CONNECTING);
     }
 
+    /**
+     *
+     */
     public void closeConnection()
     {
         if (currentState == State.CLOSED || currentState == State.FAILED) {
@@ -142,6 +168,9 @@ public class Connection implements Runnable {
         }
     }
 
+    /**
+     *
+     */
     public void manageChannel()
     {
         try {
@@ -212,6 +241,10 @@ public class Connection implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param selectionKey
+     */
     public void handleConnect(SelectionKey selectionKey)
     {
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
@@ -227,6 +260,10 @@ public class Connection implements Runnable {
         setState(State.CONNECTED);
     }
 
+    /**
+     *
+     * @param selectionKey
+     */
     public void handleRead(SelectionKey selectionKey)
     {
         //System.out.println("processReadableSelectionKey()");
@@ -240,6 +277,10 @@ public class Connection implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param selectionKey
+     */
     public void handleWrite(SelectionKey selectionKey)
     {
         //System.out.println("processWritableSelectionKey()");
@@ -254,6 +295,9 @@ public class Connection implements Runnable {
         }
     }
 
+    /**
+     *
+     */
     public void setWritePending() {
             if (currentState == State.CLOSED || currentState == State.FAILED) {
                 System.out.println("Attempting to write while closed, closing or failed - discarding");
@@ -276,6 +320,10 @@ public class Connection implements Runnable {
             }
     }
 
+    /**
+     *
+     * @param state
+     */
     private void setState(final State state) {
         ccLock.lock();
         try {
@@ -289,6 +337,10 @@ public class Connection implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param listener
+     */
     public void addConnectionListener(Listener listener) {
         if (listeners.contains(listener)) {
             Log.w(TAG, "Attempted to add duplicate connection listener");
@@ -298,6 +350,10 @@ public class Connection implements Runnable {
         listeners.add(listener);
     }
 
+    /**
+     *
+     * @param listener
+     */
     public void removeConnectionListener(Listener listener) {
         if (!listeners.contains(listener)) {
             Log.w(TAG, "Attempted to remove non existing connection listener");

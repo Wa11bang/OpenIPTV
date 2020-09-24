@@ -12,12 +12,9 @@ import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
 import com.openiptv.code.R;
-import com.openiptv.code.SetupActivity;
 import com.openiptv.code.epg.EPGService;
 
 import java.util.List;
-
-import static com.openiptv.code.epg.EPGService.setSetupComplete;
 
 public class CompletedFragment extends GuidedStepSupportFragment {
     private static final int ACTION_ID_SETTINGS = 1;
@@ -63,8 +60,6 @@ public class CompletedFragment extends GuidedStepSupportFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         if (action.getId() == ACTION_ID_COMPLETE) {
-
-            setSetupComplete(getActivity(), true);
 
             Log.d(TAG, "Exiting Setup!");
             Intent intent = new Intent(getActivity(), EPGService.class);

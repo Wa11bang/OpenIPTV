@@ -15,9 +15,6 @@ import androidx.leanback.widget.GuidedActionsStylist;
 
 import com.openiptv.code.epg.EPGCaptureTask;
 import com.openiptv.code.epg.EPGService;
-import com.openiptv.code.fragments.IntroFragment;
-import com.openiptv.code.htsp.BaseConnection;
-import com.openiptv.code.htsp.ConnectionInfo;
 
 import java.util.List;
 

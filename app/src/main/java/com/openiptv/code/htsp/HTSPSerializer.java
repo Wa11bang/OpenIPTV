@@ -9,12 +9,36 @@ import java.util.Arrays;
 import java.util.Map;
 
 public class HTSPSerializer {
+    /*
+        DataType Constant for Map Object
+     */
     private static final byte FIELD_MAP = 1;
+
+    /*
+        DataType Constant for Signed 64-bit Integer Object
+     */
     private static final byte FIELD_S64 = 2;
+
+    /*
+        DataType Constant for String Object
+     */
     private static final byte FIELD_STR = 3;
+
+    /*
+        DataType Constant for Raw Byte Array Object
+     */
     private static final byte FIELD_BIN = 4;
+
+    /*
+        DataType Constant for List Object
+     */
     private static final byte FIELD_LIST = 5;
 
+    /**
+     * This methods reads in a byte buffer, which is then parsed into an HTSPMessage object,
+     * @param buffer to parse
+     * @return HTSPMessage object from parsed buffer
+     */
     public HTSPMessage read(ByteBuffer buffer) {
         if (buffer.limit() < 4) {
             System.out.println("Buffer does not have enough data to read a message length");
@@ -50,6 +74,12 @@ public class HTSPSerializer {
         return message;
     }
 
+    /**
+     * This method writes a given ByteBuffer to a given HTSPMessage object.
+     * The ByteBuffer is serialised to the message.
+     * @param buffer to write from
+     * @param message to write to
+     */
     public void write(ByteBuffer buffer, @NonNull HTSPMessage message) {
         // Skip forward 4 bytes to make space for the length field
         buffer.position(4);
@@ -68,6 +98,11 @@ public class HTSPSerializer {
         }
     }
 
+    /**
+     * Method used to accept a Map which is then serialised to a given ByteBuffer
+     * @param buffer to serialise to
+     * @param map to serialise
+     */
     protected void serialize(ByteBuffer buffer, Map<String, Object> map) {
         if(map == null)
         {
@@ -78,6 +113,11 @@ public class HTSPSerializer {
         }
     }
 
+    /**
+     * Method used to accept Iterable objects which are serialised to a given ByteBuffer
+     * @param buffer to serialise to
+     * @param list to serialise
+     */
     protected void serialize(ByteBuffer buffer, Iterable<?> list) {
         for (Object value : list) {
             // Lists are just like maps, but with empty / zero length keys.
@@ -85,6 +125,12 @@ public class HTSPSerializer {
         }
     }
 
+    /**
+     * This method serialises a key and value into a given ByteBuffer
+     * @param buffer to serialise to
+     * @param key to serialise
+     * @param value to serialise
+     */
     protected void serialize(ByteBuffer buffer, String key, Object value) {
         byte[] keyBytes = key.getBytes();
         ByteBuffer valueBytes = ByteBuffer.allocate(65535);
@@ -133,6 +179,11 @@ public class HTSPSerializer {
         buffer.put(valueBytes);
     }
 
+    /**
+     * This method deserialises a byte buffer into an HTSPMessage object
+     * @param buffer
+     * @return
+     */
     protected static HTSPMessage deserialize(ByteBuffer buffer) {
         HTSPMessage message = new HTSPMessage();
 
@@ -152,13 +203,8 @@ public class HTSPSerializer {
             buffer.get(valueLengthBytes);
             valueLength = bin2long(valueLengthBytes);
 
-            // 50000000 is ~50MB, aka improbably large. Without this guard, we'll get a series of
-            // OutOfMemoryError crash reports, which don't group nicely as the values are always
-            // different. This makes it hard to understand the extent of the issue or begin tracing
-            // the bug (it may even be a TVHeadend bug?)
             if (valueLength > 50000000) {
-                System.out.println("Attempted to deserialize an improbably large field (" + valueLength + " bytes)");
-                throw new RuntimeException("Attempted to deserialize an improbably large field");
+                throw new RuntimeException("Attempted to deserialise an invalid field.");
             }
 
             // Deserialize the Key
@@ -204,6 +250,11 @@ public class HTSPSerializer {
         return message;
     }
 
+    /**
+     * Convert a byte array into a Big Integer
+     * @param b byte array
+     * @return big int
+     */
     private static BigInteger toBigInteger(byte b[]) {
         byte b1[] = new byte[b.length + 1];
 
@@ -216,6 +267,11 @@ public class HTSPSerializer {
         return new BigInteger(b1);
     }
 
+    /**
+     * Convert a byte array into a long
+     * @param bytes byte array
+     * @return long
+     */
     private static long bin2long(byte[] bytes) {
         /**
          *  return (ord(d[0]) << 24) + (ord(d[1]) << 16) + (ord(d[2]) <<  8) + ord(d[3])
@@ -230,6 +286,11 @@ public class HTSPSerializer {
         return result;
     }
 
+    /**
+     * Convert a BigInt to ByteArray following HTSP standards
+     * @param big bigint
+     * @return byte array
+     */
     private static byte[] toByteArray(BigInteger big) {
         // Convert to a byte array
         byte[] b = big.toByteArray();
@@ -251,6 +312,11 @@ public class HTSPSerializer {
         return b1;
     }
 
+    /**
+     * Converts a long to a byte array
+     * @param l long
+     * @return byte array
+     */
     private static byte[] long2bin(long l) {
         /**
          * return chr(i >> 24 & 0xFF) + chr(i >> 16 & 0xFF) + chr(i >> 8 & 0xFF) + chr(i & 0xFF)

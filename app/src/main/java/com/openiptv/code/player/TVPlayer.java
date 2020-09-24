@@ -53,17 +53,27 @@ public class TVPlayer implements Player.EventListener {
     private List<Listener> listeners;
     private DefaultTrackSelector trackSelector;
     private float currentVolume;
-    private PlaybackParams playbackParams;
-    private SeekableRunnable seekableRunnable;
-    private Handler handler;
 
     private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
     private static final String TAG = TVPlayer.class.getSimpleName();
 
+    /**
+     *
+     */
     public interface Listener {
+        /**
+         *
+         * @param tracks
+         * @param selectedTracks
+         */
         void onTracks(List<TvTrackInfo> tracks, SparseArray<String> selectedTracks);
     }
 
+    /**
+     *
+     * @param context
+     * @param connection
+     */
     public TVPlayer(Context context, BaseConnection connection)
     {
         Log.d("TVPlayer", "Created!");
@@ -83,6 +93,11 @@ public class TVPlayer implements Player.EventListener {
         listeners = new ArrayList<>();
     }
 
+    /**
+     *
+     * @param surface
+     * @return
+     */
     public boolean setSurface(Surface surface) {
         this.surface = surface;
         player.setVideoSurface(surface);
@@ -90,6 +105,11 @@ public class TVPlayer implements Player.EventListener {
         return true;
     }
 
+    /**
+     *
+     * @param channelUri
+     * @param recording
+     */
     public void prepare(Uri channelUri, boolean recording) {
         this.recording = recording;
 
@@ -112,10 +132,16 @@ public class TVPlayer implements Player.EventListener {
         }
     }
 
+    /**
+     *
+     */
     public void start() {
         player.setPlayWhenReady(true);
     }
 
+    /**
+     *
+     */
     public void stop() {
         Log.d("TVPlayer", "Released Subscription");
         player.release();
@@ -126,6 +152,9 @@ public class TVPlayer implements Player.EventListener {
         mediaSource.releaseSource(null);
     }
 
+    /**
+     *
+     */
     public void resume() {
 
         /*if(seekableRunnable != null)
@@ -146,6 +175,9 @@ public class TVPlayer implements Player.EventListener {
         }
     }
 
+    /**
+     *
+     */
     public void pause() {
         player.setPlayWhenReady(false);
 
@@ -155,6 +187,10 @@ public class TVPlayer implements Player.EventListener {
         }
     }
 
+    /**
+     *
+     * @param playbackParams
+     */
     public void setPlaybackParams(PlaybackParams playbackParams)
     {
         player.setPlayWhenReady(false);
@@ -187,6 +223,10 @@ public class TVPlayer implements Player.EventListener {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTimeshiftStartPosition() {
         dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
@@ -205,13 +245,15 @@ public class TVPlayer implements Player.EventListener {
         return -1;
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTimeshiftCurrentPosition() {
         dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
             long offset = ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts();
-
             return Math.max((System.currentTimeMillis() + (offset / 1000)), getTimeshiftStartPosition());
-                // For live content
 
         } else {
             Log.w(TAG, "Unable to getTimeshiftCurrentPosition, no HtspDataSource available");
@@ -220,10 +262,13 @@ public class TVPlayer implements Player.EventListener {
         return -1;
     }
 
+    /**
+     *
+     * @param timeMs
+     */
     public void seek(long timeMs)
     {
         pause();
-
         if (dataSource != null) {
             Log.d(TAG, "Seeking to time: " + timeMs);
 
@@ -245,7 +290,6 @@ public class TVPlayer implements Player.EventListener {
             Log.d(TAG, "AFTER Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " +((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
 
             //mediaSource.releaseSource(null);
-
             //player.prepare(mediaSource, false, false);
         } else {
             Log.w(TAG, "Unable to seek, no HtspDataSource available");
@@ -261,17 +305,29 @@ public class TVPlayer implements Player.EventListener {
         }
     }
 
-    //this method take input from the TVInputService class onSetStreamVolume method or onSetStreamMute method
-    //change the volume of the player
+    /**
+     * this method take input from the TVInputService class onSetStreamVolume method or
+     * onSetStreamMute method change the volume of the player
+     * @param volume to set
+     */
     public void changeVolume(float volume) {
         this.currentVolume = volume;
         this.player.setVolume(volume);
     }
 
+    /**
+     *
+     * @return
+     */
     public float getCurrentVolume() {
         return this.currentVolume;
     }
 
+    /**
+     *
+     * @param speed
+     * @return
+     */
     public static int AndroidTVSpeedToTVH(float speed)
     {
         switch ((int) speed)

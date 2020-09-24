@@ -15,7 +15,6 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Surface;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;

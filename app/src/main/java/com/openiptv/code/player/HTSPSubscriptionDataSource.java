@@ -29,66 +29,67 @@ import static com.openiptv.code.Constants.DEBUG;
 
 public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscriber.Listener {
     private static final String TAG = HTSPSubscriptionDataSource.class.getName();
-    private static final AtomicInteger sDataSourceCount = new AtomicInteger();
+    private static final AtomicInteger dataSourceCount = new AtomicInteger();
     private static final int BUFFER_SIZE = 10*1024*1024;
     public static final byte[] HEADER = new byte[] {0,1,0,1,0,1,0,1};
-    private boolean isRewinding = false;
 
     public static class Factory extends HTSPDataSource.Factory {
         private static final String TAG = Factory.class.getName();
 
-        private final Context mContext;
-        private final BaseConnection mConnection;
-        private final String mStreamProfile;
+        private final Context context;
+        private final BaseConnection connection;
+        private final String streamProfile;
 
+        /**
+         *
+         * @param context
+         * @param connection
+         * @param streamProfile
+         */
         public Factory(Context context, BaseConnection connection, String streamProfile) {
-            mContext = context;
-            mConnection = connection;
-            mStreamProfile = streamProfile;
+            this.context = context;
+            this.connection = connection;
+            this.streamProfile = streamProfile;
         }
 
         @Override
         public HTSPDataSource createDataSourceInternal() {
-            return new HTSPSubscriptionDataSource(mContext, mConnection, mStreamProfile);
+            return new HTSPSubscriptionDataSource(context, connection, streamProfile);
         }
-
     }
 
-    private final String mStreamProfile;
+    private final String streamProfile;
+    private final int dataSourceNumber;
+    private Subscriber subscriber;
+    private ByteBuffer buffer;
+    private final ReentrantLock lock = new ReentrantLock();
+    private boolean isOpen = false;
+    private boolean isSubscribed = false;
 
-    private final int mDataSourceNumber;
-    private Subscriber mSubscriber;
-
-    private ByteBuffer mBuffer;
-    private final ReentrantLock mLock = new ReentrantLock();
-
-    private boolean mIsOpen = false;
-    private boolean mIsSubscribed = false;
-
+    /**
+     *
+     * @param context
+     * @param connection
+     * @param streamProfile
+     */
     private HTSPSubscriptionDataSource(Context context, BaseConnection connection, String streamProfile) {
         super(context, connection);
 
-        mStreamProfile = streamProfile;
-        mDataSourceNumber = sDataSourceCount.incrementAndGet();
-
-        Log.d(TAG, "New HtspSubscriptionDataSource instantiated ("+mDataSourceNumber+")");
+        this.streamProfile = streamProfile;
+        dataSourceNumber = dataSourceCount.incrementAndGet();
 
         try {
             // Create the buffer, and place the HtspSubscriptionDataSource header in place.
-            mBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-            mBuffer.limit(HEADER.length);
-            mBuffer.put(HEADER);
-            mBuffer.position(0);
+            buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            buffer.limit(HEADER.length);
+            buffer.put(HEADER);
+            buffer.position(0);
         } catch (OutOfMemoryError e) {
-            // Since we're allocating a large buffer here, it's fairly safe to assume we'll have
-            // enough memory to catch and throw this exception. We do this, as each OOM exception
-            // message is unique (lots of #'s of bytes available/used/etc) and means crash reporting
-            // doesn't group things nicely.
-            throw new RuntimeException("OutOfMemoryError when allocating HtspSubscriptionDataSource buffer ("+mDataSourceNumber+")", e);
+            throw new RuntimeException("OutOfMemoryError when allocating HTSPSubscriptionDataSource buffer", e);
         }
 
-        mSubscriber = new Subscriber(this.connection.getHTSPMessageDispatcher());
-        mSubscriber.addSubscriptionListener(this);
+        subscriber = new Subscriber(this.connection.getHTSPMessageDispatcher());
+        subscriber.addSubscriptionListener(this);
     }
 
     @Override
@@ -96,7 +97,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         // This is a total hack, but there's not much else we can do?
         // https://github.com/google/ExoPlayer/issues/2662 - Luckily, i've not found it's actually
         // been used anywhere at this moment.
-        if (mSubscriber != null || connection != null) {
+        if (subscriber != null || connection != null) {
             Log.e(TAG, "Datasource finalize relied upon to release the subscription");
 
             release();
@@ -110,20 +111,18 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     }
 
-    // DataSource Methods
     @Override
     public long open(DataSpec dataSpec) throws IOException {
-        Log.i(TAG, "Opening HtspSubscriptionDataSource ("+mDataSourceNumber+")");
+        Log.i(TAG, "Opening HtspSubscriptionDataSource ("+ dataSourceNumber +")");
         this.dataSpec = dataSpec;
 
-        if (!mIsSubscribed) {
+        if (!isSubscribed) {
             try {
-                Log.d(TAG + " -----", "" + Long.parseLong(Channel.getChannelIdFromChannelUri(context, dataSpec.uri).toString()));;
                 long channelId = Long.parseLong(Channel.getChannelIdFromChannelUri(context, dataSpec.uri).toString());
-                mSubscriber.subscribe(channelId, mStreamProfile);
-                mIsSubscribed = true;
+                subscriber.subscribe(channelId, streamProfile);
+                isSubscribed = true;
             } catch (HTSPException e) {
-                throw new IOException("Failed to open HtspSubscriptionDataSource, HTSP not connected (" + mDataSourceNumber + ")", e);
+                throw new IOException("Failed to open HtspSubscriptionDataSource, HTSP not connected (" + dataSourceNumber + ")", e);
             }
         }
 
@@ -131,13 +130,12 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         if (seekPosition > 0) {
             Log.d(TAG, "Seek to time PTS: " + seekPosition);
 
-            mSubscriber.seek(seekPosition);
-            mBuffer.clear();
-            mBuffer.limit(0);
+            subscriber.seek(seekPosition);
+            buffer.clear();
+            buffer.limit(0);
         }
 
-        mIsOpen = true;
-
+        isOpen = true;
         return dataSpec.length;
     }
 
@@ -151,10 +149,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         // that cause unnecessary handling.
 
         // If the buffer is empty, block until we have at least 1 byte of data
-        while (mIsOpen && mBuffer.remaining() == 0) {
+        while (isOpen && this.buffer.remaining() == 0) {
             try {
                 if (DEBUG)
-                    Log.v(TAG, "Blocking for more data ("+mDataSourceNumber+")");
+                    Log.v(TAG, "Blocking for more data ("+ dataSourceNumber +")");
                 Thread.sleep(50);
             } catch (InterruptedException e) {
                 // Ignore.
@@ -162,22 +160,22 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             }
         }
 
-        if (!mIsOpen && mBuffer.remaining() == 0) {
+        if (!isOpen && this.buffer.remaining() == 0) {
             return C.RESULT_END_OF_INPUT;
         }
 
         int length;
 
-        mLock.lock();
+        lock.lock();
         try {
-            int remaining = mBuffer.remaining();
+            int remaining = this.buffer.remaining();
             length = Math.min(remaining, readLength);
 
-            mBuffer.get(buffer, offset, length);
-            mBuffer.compact();
-            mBuffer.flip();
+            this.buffer.get(buffer, offset, length);
+            this.buffer.compact();
+            this.buffer.flip();
         } finally {
-            mLock.unlock();
+            lock.unlock();
         }
 
         return length;
@@ -190,14 +188,14 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public void close() throws IOException {
-        Log.i(TAG, "Closing HTSP DataSource ("+mDataSourceNumber+")");
-        mIsOpen = false;
+        Log.i(TAG, "Closing HTSP DataSource ("+ dataSourceNumber +")");
+        isOpen = false;
     }
 
     // Subscription.Listener Methods
     @Override
     public void onSubscriptionStart(@NonNull HTSPMessage message) {
-        Log.d(TAG, "Received subscriptionStart ("+mDataSourceNumber+")");
+        Log.d(TAG, "Received subscriptionStart ("+ dataSourceNumber +")");
         serializeMessageToBuffer(message);
     }
 
@@ -208,52 +206,77 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public void onSubscriptionStop(@NonNull HTSPMessage message) {
-        Log.d(TAG, "Received subscriptionStop ("+mDataSourceNumber+")");
-        mIsOpen = false;
+        Log.d(TAG, "Received subscriptionStop ("+ dataSourceNumber +")");
+        isOpen = false;
     }
 
-    //SYNONYM TO SEEK
+    /**
+     *
+     * @param timeMs
+     */
     public void seek(long timeMs)
     {
         Log.d(TAG, "Wanting to see by " + timeMs);
-        mSubscriber.seek(timeMs);
+        subscriber.seek(timeMs);
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTimeshiftStartTime() {
-        if (mSubscriber != null) {
-            return mSubscriber.getTimeshiftStartTime();
+        if (subscriber != null) {
+            return subscriber.getTimeshiftStartTime();
         }
 
         return -1;
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTimeshiftStartPts() {
-        if (mSubscriber != null) {
-            return mSubscriber.getTimeshiftStartPts();
+        if (subscriber != null) {
+            return subscriber.getTimeshiftStartPts();
         }
 
         return -1;
     }
 
+    /**
+     *
+     * @return
+     */
     public long getTimeshiftOffsetPts() {
-        return mSubscriber.getTimeshiftOffsetPts();
+        return subscriber.getTimeshiftOffsetPts();
     }
 
+    /**
+     *
+     */
     public void pause() {
-        if (mSubscriber != null) {
-            mSubscriber.pause();
+        if (subscriber != null) {
+            subscriber.pause();
         }
     }
 
+    /**
+     *
+     */
     public void resume() {
-        if (mSubscriber != null) {
-            mSubscriber.resume();
+        if (subscriber != null) {
+            subscriber.resume();
         }
     }
 
+    /**
+     *
+     * @param speed
+     */
     public void setSpeed(int speed)
     {
-        mSubscriber.setSpeed(speed);
+        subscriber.setSpeed(speed);
     }
 
     @Override
@@ -261,39 +284,42 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         serializeMessageToBuffer(message);
     }
 
-    // HTSPDataSource Methods
+
     public void release() {
         if (connection != null) {
             connection = null;
         }
 
-        if (mSubscriber != null) {
-            mSubscriber.removeSubscriptionListener(this);
-            mSubscriber.unsubscribe();
-            mSubscriber = null;
+        if (subscriber != null) {
+            subscriber.removeSubscriptionListener(this);
+            subscriber.unsubscribe();
+            subscriber = null;
         }
     }
 
-    // Misc Internal Methods
+    /**
+     *
+     * @param message
+     */
     private void serializeMessageToBuffer(@NonNull HTSPMessage message) {
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ObjectOutputStream objectOutput = new ObjectOutputStream(outputStream)
         ) {
-            mLock.lock();
+            lock.lock();
             objectOutput.writeUnshared(message);
             objectOutput.flush();
 
-            mBuffer.position(mBuffer.limit());
-            mBuffer.limit(mBuffer.capacity());
+            buffer.position(buffer.limit());
+            buffer.limit(buffer.capacity());
 
-            mBuffer.put(outputStream.toByteArray());
+            buffer.put(outputStream.toByteArray());
 
-            mBuffer.flip();
+            buffer.flip();
         } catch (IOException | BufferOverflowException | IllegalArgumentException e) {
             // Ignore
         } finally {
-            mLock.unlock();
+            lock.unlock();
         }
     }
 }
