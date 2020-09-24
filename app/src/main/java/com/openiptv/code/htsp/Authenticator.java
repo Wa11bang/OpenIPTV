@@ -10,28 +10,42 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
+import static com.openiptv.code.Constants.UNIQUE_AUTH_SEQ_ID;
 
-
-public class Authenticator implements MessageListener, Connection.ConnectionListener {
+public class Authenticator implements MessageListener, Connection.Listener {
     private static final String TAG = Authenticator.class.getSimpleName();
+
     private final MessageDispatcher messageDispatcher;
     private final ConnectionInfo connectionInfo;
-    private Connection connection;
-    private boolean fullSync = false;
     private State state;
     private Set<Listener> listeners = new ArraySet<>();
-    private static final int SEQ = 10;
 
+    private boolean enableAsync = true;
+
+    private static final int SEQ = UNIQUE_AUTH_SEQ_ID;
+
+    /**
+     * Enumeration of all the possible states an Authenticate object can be in.
+     */
     public enum State {
         AUTHENTICATED,
         UNAUTHORISED,
         FAILED
     }
 
+    /**
+     * Interface used to communicate with other Classes and update the status of the authenticator.
+     * Updates the state as above.
+     */
     public interface Listener {
         void onAuthenticated(State state);
     }
 
+    /**
+     * Constructor for Authenticator Object
+     * @param dispatcher messageDispatcher, used for sending and receiving messages
+     * @param connectionInfo used for the data when sending messages.
+     */
     public Authenticator(MessageDispatcher dispatcher, ConnectionInfo connectionInfo)
     {
         this.messageDispatcher = dispatcher;
@@ -40,17 +54,17 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
 
     @Override
     public void setConnection(@NonNull Connection connection) {
-        this.connection = connection;
+
     }
 
     @Override
-    public void onConnectionStateChange(@NonNull ConnectionState state) {
+    public void onConnectionStateChange(@NonNull Connection.State state) {
         Log.d(TAG, "Received State - " + state.name());
-        if (state == ConnectionState.CONNECTED) {
+        if (state == Connection.State.CONNECTED) {
             authenticate();
         }
 
-        if(state == ConnectionState.FAILED)
+        if(state == Connection.State.FAILED)
         {
             setState(State.FAILED);
         }
@@ -58,16 +72,24 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
 
     @Override
     public void onMessage(HTSPMessage message) {
-            handleResponse(message);
+        handleResponse(message);
     }
 
+    /**
+     * Internal method used to start the authentication process.
+     */
     private void authenticate()
     {
         sendHelloRequest();
     }
 
+    /**
+     * Internal helper method used to handle any messages associated with the Authenticator.
+     * @param message auth messages
+     */
     public void handleResponse(HTSPMessage message)
     {
+        // Make sure that the incoming message has the sequence set.
         if(message.containsKey("seq") && message.getInteger("seq") == SEQ)
         {
             if(message.containsKey("noaccess") && message.getInteger("noaccess") == 1)
@@ -91,10 +113,12 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
         if(message.containsKey("challenge"))
         {
             sendAuthenticationRequest(message);
-            return;
         }
     }
 
+    /**
+     * Internal method used to dispatch a HTSPMessage with the hello method.
+     */
     public void sendHelloRequest()
     {
         HTSPMessage message = new HTSPMessage();
@@ -107,11 +131,16 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
         try {
             Log.d(TAG, "Sending Hello Message");
             messageDispatcher.sendMessage(message);
-        } catch (HTSPNotConnectedException e) {
-            Log.d(TAG, "Received HTSPNotConnectedException");
+        } catch (HTSPException e) {
+            Log.d(TAG, "Received HTSPException");
         }
     }
 
+    /**
+     * Internal method used to dispatch a HTSPMessage with the authenticate method. Requires a
+     * challenge as a byte array, which is used for calculating the password digest.
+     * @param message hello response message
+     */
     public void sendAuthenticationRequest(HTSPMessage message)
     {
         if(message.containsKey("challenge"))
@@ -128,42 +157,51 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
             try {
                 Log.d(TAG, "Sending Authentication Message");
                 messageDispatcher.sendMessage(authMessage);
-            } catch (HTSPNotConnectedException e) {
-                Log.d(TAG, "Received HTSPNotConnectedException");
+            } catch (HTSPException e) {
+                Log.d(TAG, "Received HTSPException");
                 setState(State.FAILED);
             }
         }
     }
 
+    /**
+     * Internal method, used to send the enableAsyncMetaData method to the TVHeadEnd server.
+     */
     public void sendEnableAsyncMessage()
     {
-        fullSync = false;
+        boolean quickSync = true;
         long epgMaxTime = 0L;
         HTSPMessage enableAsyncMetadataRequest = new HTSPMessage();
 
         enableAsyncMetadataRequest.put("method", "enableAsyncMetadata");
         enableAsyncMetadataRequest.put("epg", 1);
 
-        if(fullSync) {
-            Log.d(TAG, "Full sync enabled");
-            epgMaxTime = 691200 + (System.currentTimeMillis() / 1000L);
-        }
-        else {
+        if(quickSync)
+        {
             epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);
         }
-        Log.d(TAG, "MAX TIME: "+epgMaxTime);
+        else {
+            epgMaxTime = 691200 + (System.currentTimeMillis() / 1000L);
+        }
 
         enableAsyncMetadataRequest.put("epgMaxTime", epgMaxTime);
-
         try {
             Log.d(TAG, "Sending EnableAsync Message");
             messageDispatcher.sendMessage(enableAsyncMetadataRequest);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             Log.d(TAG, "Received HTSPNotConnectedException");
             setState(State.FAILED);
         }
     }
 
+    /**
+     * Helper method used to calculate the SHA-1 hash digest of a password. Used when wanting to
+     * authenticate with TVHeadEnd over HTSP.
+     * @param password users password
+     * @param challenge the given byte array acting as a challenge for the hash
+     *                  (retrieved from the server)
+     * @return the SHA-1 digest of the password
+     */
     private byte[] calculateDigest(String password, byte[] challenge) {
         MessageDigest md;
 
@@ -180,16 +218,31 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
         return md.digest();
     }
 
+    /**
+     * Add a new listener to the internal Listener list
+     * @param listener to be added
+     * @return whether the add operation was successful
+     */
     public boolean addListener(Listener listener)
     {
         return listeners.add(listener);
     }
 
+    /**
+     * Remove a listener from the internal Listener list,
+     * @param listener to be removed
+     * @return whether the remove operation was successful
+     */
     public boolean removeListener(Listener listener)
     {
         return listeners.remove(listener);
     }
 
+    /**
+     * Sets the current state of the Authenticator AND notifies each listener that the state has
+     * also changed.
+     * @param state new state
+     */
     public void setState(State state) {
         this.state = state;
         for (Listener listener : listeners) {
@@ -197,6 +250,10 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
         }
     }
 
+    /**
+     * Returns the current state of the Authenticator
+     * @return current state
+     */
     public State getState()
     {
         return state;

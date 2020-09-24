@@ -60,7 +60,7 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     }
 
     @Override
-    public void sendMessage(HTSPMessage message) throws HTSPNotConnectedException {
+    public void sendMessage(HTSPMessage message) throws HTSPException {
         if(!pendingMessages.contains(message))
         {
             if (connection != null) {
@@ -72,7 +72,7 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
                 return;
             }
 
-            throw new HTSPNotConnectedException("MessageDispatcher has no oper Connection!");
+            throw new HTSPException("MessageDispatcher has no oper Connection!");
         }
     }
 

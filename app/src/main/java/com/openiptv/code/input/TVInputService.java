@@ -9,18 +9,19 @@ import android.graphics.Color;
 import android.media.PlaybackParams;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
+import android.media.tv.TvTrackInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Surface;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.openiptv.code.Constants;
 import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.PreferenceUtils;
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
@@ -29,8 +30,10 @@ import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.player.TVPlayer;
 
+import java.util.List;
+
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 import static com.openiptv.code.Constants.RESTART_SERVICES;
-import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 
 public class TVInputService extends TvInputService {
@@ -40,7 +43,9 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (isSetupComplete(this)) {
+        PreferenceUtils preferenceUtils = new PreferenceUtils(this);
+
+        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             databaseActions.syncActiveAccount();
             databaseActions.close();
@@ -87,11 +92,11 @@ public class TVInputService extends TvInputService {
         String port = DatabaseActions.activeAccount.getString("port");
         String clientName = DatabaseActions.activeAccount.getString("clientName");
 
-        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, "Subscription", "23"));
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName+"_Subscription", String.valueOf(Build.VERSION.SDK_INT)));
         connection.start();
     }
 
-    class TVSession extends TvInputService.Session {
+    class TVSession extends TvInputService.Session implements TVPlayer.Listener {
         private TVPlayer player;
         private String inputId;
         private Context context;
@@ -104,8 +109,8 @@ public class TVInputService extends TvInputService {
             this.inputId = inputId;
             this.connection = connection;
 
-            SimpleExoPlayer exoPlayer = new SimpleExoPlayer.Builder(context).build();
-            player = new TVPlayer(context, exoPlayer, connection);
+            this.player = new TVPlayer(context, connection);
+            this.player.addListener(this);
         }
 
         @Override
@@ -157,8 +162,6 @@ public class TVInputService extends TvInputService {
         @Override
         public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
             super.onTimeShiftSetPlaybackParams(params);
-
-
             Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
             player.setPlaybackParams(params);
         }
@@ -185,17 +188,37 @@ public class TVInputService extends TvInputService {
         public void onTimeShiftPlay(Uri recordedProgramUri) {
             Log.d(TAG, "recorded program: " + recordedProgramUri.getPathSegments().get(1));
             Log.d(TAG, "recorded program TVH ID: " + RecordedProgram.getRecordingIdFromRecordingUri(context, recordedProgramUri));
+
             player.prepare(recordedProgramUri, true);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
-
             player.start();
+
             notifyContentAllowed();
             notifyVideoAvailable();
         }
 
         @Override
         public void onSetCaptionEnabled(boolean enabled) {
+            // Stub
+        }
 
+        @Override
+        public void onTracks(List<TvTrackInfo> tracks, SparseArray<String> selectedTracks) {
+            notifyTracksChanged(tracks);
+
+            for (int i = 0; i < selectedTracks.size(); i++) {
+                final int selectedTrackType = selectedTracks.keyAt(i);
+                final String selectedTrackId = selectedTracks.get(selectedTrackType);
+
+                notifyTrackSelected(selectedTrackType, selectedTrackId);
+            }
+        }
+
+        // TODO: Implement
+        @Override
+        public boolean onSelectTrack(int type, String trackId) {
+            Log.d(TAG, "Session selectTrack: " + type + " / " + trackId);
+            return true;
         }
     }
 

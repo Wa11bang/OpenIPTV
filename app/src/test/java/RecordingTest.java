@@ -3,7 +3,7 @@ import android.os.Build;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPMessage;
-import com.openiptv.code.htsp.HTSPNotConnectedException;
+import com.openiptv.code.htsp.HTSPException;
 import com.openiptv.code.htsp.MessageListener;
 
 import org.junit.BeforeClass;
@@ -118,7 +118,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(addRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
@@ -162,7 +162,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(removeRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
@@ -207,7 +207,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(addRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
@@ -249,7 +249,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(removeRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
