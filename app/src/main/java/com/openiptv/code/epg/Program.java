@@ -12,6 +12,9 @@ import android.util.Log;
 import com.openiptv.code.Constants;
 import com.openiptv.code.htsp.HTSPMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.NULL_CHANNEL;
 
@@ -190,5 +193,65 @@ public class Program {
     public static Uri getUri(Context context, Program program)
     {
         return getUri(context, program.getChannelId(), program.getEventId());
+    }
+
+    public static Integer getProgramIdFromProgramUri(Context context, Uri programUri) {
+        ContentResolver resolver = context.getContentResolver();
+
+        String[] projection = {TvContract.Programs._ID, TvContract.Programs.COLUMN_INTERNAL_PROVIDER_DATA};
+        List<Integer> programIds = new ArrayList<>();
+
+        try (Cursor cursor = resolver.query(programUri, projection, null,null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                programIds.add(cursor.getInt(1));
+            }
+        }
+
+        if(programIds.size() == 1)
+        {
+            return programIds.get(0);
+        }
+
+        return null;
+    }
+
+    public static Integer getProgramStartFromProgramUri(Context context, Uri programUri) {
+        ContentResolver resolver = context.getContentResolver();
+
+        String[] projection = {TvContract.Programs._ID, TvContract.Programs.COLUMN_START_TIME_UTC_MILLIS};
+        List<Integer> programIds = new ArrayList<>();
+
+        try (Cursor cursor = resolver.query(programUri, projection, null,null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                programIds.add(cursor.getInt(1));
+            }
+        }
+
+        if(programIds.size() == 1)
+        {
+            return programIds.get(0);
+        }
+
+        return null;
+    }
+
+    public static Integer getProgramEndFromProgramUri(Context context, Uri programUri) {
+        ContentResolver resolver = context.getContentResolver();
+
+        String[] projection = {TvContract.Programs._ID, TvContract.Programs.COLUMN_END_TIME_UTC_MILLIS};
+        List<Integer> programIds = new ArrayList<>();
+
+        try (Cursor cursor = resolver.query(programUri, projection, null,null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                programIds.add(cursor.getInt(1));
+            }
+        }
+
+        if(programIds.size() == 1)
+        {
+            return programIds.get(0);
+        }
+
+        return null;
     }
 }

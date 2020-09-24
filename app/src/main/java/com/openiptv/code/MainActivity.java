@@ -33,15 +33,18 @@ public class MainActivity extends Activity {
 
         Intent i;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            i = new Intent(TvInputManager.ACTION_SETUP_INPUTS);
+        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+            i = new Intent(this, PreferenceActivity.class);
         } else {
-            i = new Intent(Intent.ACTION_VIEW, TvContract.Channels.CONTENT_URI);
-            i.setData(TvContract.buildChannelsUriForInput(TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS))));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                i = new Intent(TvInputManager.ACTION_SETUP_INPUTS);
+            } else {
+                i = new Intent(Intent.ACTION_VIEW, TvContract.Channels.CONTENT_URI);
+                i.setData(TvContract.buildChannelsUriForInput(TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS))));
+            }
         }
 
         startActivity(i);
-
         finish();
     }
 }
