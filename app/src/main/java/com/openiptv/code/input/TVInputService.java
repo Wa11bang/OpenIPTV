@@ -155,8 +155,6 @@ public class TVInputService extends TvInputService {
         @Override
         public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
             super.onTimeShiftSetPlaybackParams(params);
-
-
             Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
             player.setPlaybackParams(params);
         }

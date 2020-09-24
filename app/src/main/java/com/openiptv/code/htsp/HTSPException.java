@@ -1,6 +1,6 @@
 package com.openiptv.code.htsp;
 
-public class HTSPException extends ConnectionException {
+public class HTSPException extends Exception {
     public HTSPException() {
     }
 
