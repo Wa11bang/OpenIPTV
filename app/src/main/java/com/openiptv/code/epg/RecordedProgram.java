@@ -21,39 +21,74 @@ import static com.openiptv.code.Constants.NULL_CHANNEL;
 public class RecordedProgram {
     private static final String TAG = Program.class.getSimpleName();
 
-    private final int recordingId;
-    private final int eventId;
-    private final int channelId;
-    private final long start;
-    private final long end;
+    private int recordingId;
+    private int eventId;
+    private int channelId;
+    private long start;
+    private long end;
     private String title;
     private String summary;
     private String desc;
     private ContentValues contentValues;
+    private Context context;
 
-    public RecordedProgram(Context context, int recordingId,int eventId, int channelId, long start, long end, String title, String summary, String desc) {
+    public RecordedProgram(Context context)
+    {
+        this.context = context;
+    }
+
+    public RecordedProgram setRecordingId(int recordingId)
+    {
         this.recordingId = recordingId;
-        this.eventId = eventId;
+        return this;
+    }
+
+    public RecordedProgram setChannelId(int channelId)
+    {
         this.channelId = channelId;
+        return this;
+    }
+
+    public RecordedProgram setEventId(int eventId)
+    {
+        this.eventId = eventId;
+        return this;
+    }
+
+    public RecordedProgram setStart(long start)
+    {
         this.start = start;
+        return this;
+    }
+
+    public RecordedProgram setEnd(long end)
+    {
         this.end = end;
+        return this;
+    }
+
+    public RecordedProgram setTitle(String title)
+    {
         this.title = title;
+        return this;
+    }
+
+    public RecordedProgram setSummary(String summary)
+    {
         this.summary = summary;
+        return this;
+    }
+
+    public RecordedProgram setDescription(String desc)
+    {
         this.desc = desc;
-
-        generateContentValues(context);
+        return this;
     }
 
-    public RecordedProgram(Context context, int recordingId,int eventId, int channelId, long start, long end) {
-        this.recordingId = recordingId;
-        this.eventId = eventId;
-        this.channelId = channelId;
-        this.start = start;
-        this.end = end;
-
+    public RecordedProgram build() {
         generateContentValues(context);
+        return this;
     }
-
 
     public RecordedProgram(Context context, HTSPMessage message)
     {
@@ -187,17 +222,17 @@ public class RecordedProgram {
         ContentResolver resolver = context.getContentResolver();
 
         String[] projection = {TvContract.RecordedPrograms._ID, TvContract.RecordedPrograms.COLUMN_INTERNAL_PROVIDER_DATA};
-        List<Integer> channelIds = new ArrayList<>();
+        List<Integer> recordingIds = new ArrayList<>();
 
         try (Cursor cursor = resolver.query(recordingUri, projection, null,null, null)) {
             while (cursor != null && cursor.moveToNext()) {
-                channelIds.add(cursor.getInt(1));
+                recordingIds.add(cursor.getInt(1));
             }
         }
 
-        if(channelIds.size() == 1)
+        if(recordingIds.size() == 1)
         {
-            return channelIds.get(0);
+            return recordingIds.get(0);
         }
 
         return null;
