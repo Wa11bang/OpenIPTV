@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -40,7 +41,7 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
         @Override
         public SeekPoints getSeekPoints(long timeUs) {
-            return null;
+            return new SeekPoints(new SeekPoint(timeUs, timeUs));
         }
 
     }
@@ -49,7 +50,7 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     private ExtractorOutput mOutput;
     private final SparseArray<SourceReader> streamReaders = new SparseArray<>();
 
-    private final byte[] mRawBytes = new byte[1024 * 1024];
+    private final byte[] mRawBytes = new byte[1024 * 1024 * 5];
 
     public HTSPSubscriptionDataExtractor(Context context) {
         mContext = context;

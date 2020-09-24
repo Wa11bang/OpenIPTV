@@ -4,30 +4,36 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.google.android.media.tv.companionlibrary.model.Channel;
-import com.google.android.media.tv.companionlibrary.model.Program;
-import com.google.android.media.tv.companionlibrary.sync.EpgSyncJobService;
-import com.google.android.media.tv.companionlibrary.xmltv.XmlTvParser;
 import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
 
-import java.util.ArrayList;
-import java.util.List;
+
+import static com.openiptv.code.Constants.DEBUG;
 
 public class EPGService extends Service {
     private EPGCaptureTask epgCaptureTask;
+    private Bundle accountDetails;
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
+
+
         super.onCreate();
-        Log.d("EPGService", "called!");
+        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+        databaseActions.syncActiveAccount();
+        databaseActions.close();
+        if (DEBUG) {
+            Log.d("EPGService", "called!");
+        }
+
         if(isSetupComplete(this)) {
+            Log.d("EPGService", "Creating Capture Task");
             epgCaptureTask = new EPGCaptureTask(this);
         }
     }
@@ -44,6 +50,7 @@ public class EPGService extends Service {
         return null;
     }
 
+    // TODO: use utils class methods
     public static boolean isSetupComplete(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 Constants.ACCOUNT, Context.MODE_PRIVATE);
@@ -52,6 +59,7 @@ public class EPGService extends Service {
         return sharedPreferences.getBoolean("SETUP", false);
     }
 
+    // TODO: use utils class methods
     public static void setSetupComplete(Context context, boolean isSetupComplete) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
                 Constants.ACCOUNT, Context.MODE_PRIVATE);

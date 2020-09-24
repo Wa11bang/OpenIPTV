@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.PlaybackParams;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
@@ -39,13 +41,22 @@ public class TVInputService extends TvInputService {
     public void onCreate() {
         super.onCreate();
         if (isSetupComplete(this)) {
+            DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+            databaseActions.syncActiveAccount();
+            databaseActions.close();
+
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
+            
+            createConnection();
         }
-        createConnection();
     }
 
     @Override
     public final Session onCreateSession(String inputId) {
+        if(connection == null)
+        {
+            createConnection();
+        }
         TVSession session = new TVSession(this, inputId, connection);
         session.setOverlayViewEnabled(true);
         return session;
@@ -70,7 +81,13 @@ public class TVInputService extends TvInputService {
     }
 
     public void createConnection() {
-        connection = new BaseConnection(new ConnectionInfo(Constants.DEV_HOST, 9982, "development", "development", "Subscription", "23"));
+        String username = DatabaseActions.activeAccount.getString("username");
+        String password = DatabaseActions.activeAccount.getString("password");
+        String hostname = DatabaseActions.activeAccount.getString("hostname");
+        String port = DatabaseActions.activeAccount.getString("port");
+        String clientName = DatabaseActions.activeAccount.getString("clientName");
+
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, "Subscription", "23"));
         connection.start();
     }
 
@@ -116,6 +133,7 @@ public class TVInputService extends TvInputService {
 
         @Override
         public boolean onTune(Uri channelUri) {
+            notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
             player.prepare(channelUri, false);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));
@@ -127,13 +145,40 @@ public class TVInputService extends TvInputService {
         }
 
         @Override
-        public void onTimeShiftPause() {
+        public long onTimeShiftGetStartPosition() {
+            return player.getTimeshiftStartPosition();
+        }
 
+        @Override
+        public long onTimeShiftGetCurrentPosition() {
+            return player.getTimeshiftCurrentPosition();
+        }
+
+        @Override
+        public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
+            super.onTimeShiftSetPlaybackParams(params);
+
+
+            Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
+            player.setPlaybackParams(params);
+        }
+
+        @Override
+        public void onTimeShiftSeekTo(long timeMs) {
+            Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
+            player.seek(timeMs);
+        }
+
+        @Override
+        public void onTimeShiftPause() {
+            Log.d(TAG, "PAUSE");
+            player.pause();
         }
 
         @Override
         public void onTimeShiftResume() {
-
+            Log.d(TAG, "RESUME");
+            player.resume();
         }
 
         @Override
@@ -154,6 +199,7 @@ public class TVInputService extends TvInputService {
         }
     }
 
+    // TODO: Not use some shady code from the interwebs
     private void startMyOwnForeground() {
         String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
         String channelName = "My Background Service";

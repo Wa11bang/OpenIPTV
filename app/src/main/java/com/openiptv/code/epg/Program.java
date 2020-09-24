@@ -25,7 +25,7 @@ public class Program {
     private String title;
     private String summary;
     private String desc;
-    private int ageRating;
+    private int ageRating; // Minimum-age rating
     private String programImage;
     private ContentValues contentValues;
 

@@ -32,6 +32,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
     private static final AtomicInteger sDataSourceCount = new AtomicInteger();
     private static final int BUFFER_SIZE = 10*1024*1024;
     public static final byte[] HEADER = new byte[] {0,1,0,1,0,1,0,1};
+    private boolean isRewinding = false;
 
     public static class Factory extends HTSPDataSource.Factory {
         private static final String TAG = Factory.class.getName();
@@ -130,14 +131,14 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         if (seekPosition > 0) {
             Log.d(TAG, "Seek to time PTS: " + seekPosition);
 
-            mSubscriber.skip(seekPosition);
+            mSubscriber.seek(seekPosition);
             mBuffer.clear();
             mBuffer.limit(0);
         }
 
         mIsOpen = true;
 
-        return C.LENGTH_UNSET;
+        return dataSpec.length;
     }
 
     @Override
@@ -146,12 +147,15 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             return 0;
         }
 
-        // If the buffer is empty, block until we have at least 1 byte
+        // IOException gets handled by calling method somehow. Catching the IOException leads to problems
+        // that cause unnecessary handling.
+
+        // If the buffer is empty, block until we have at least 1 byte of data
         while (mIsOpen && mBuffer.remaining() == 0) {
             try {
                 if (DEBUG)
                     Log.v(TAG, "Blocking for more data ("+mDataSourceNumber+")");
-                Thread.sleep(250);
+                Thread.sleep(50);
             } catch (InterruptedException e) {
                 // Ignore.
                 return 0;
@@ -208,12 +212,56 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         mIsOpen = false;
     }
 
+    //SYNONYM TO SEEK
+    public void seek(long timeMs)
+    {
+        Log.d(TAG, "Wanting to see by " + timeMs);
+        mSubscriber.seek(timeMs);
+    }
+
+    public long getTimeshiftStartTime() {
+        if (mSubscriber != null) {
+            return mSubscriber.getTimeshiftStartTime();
+        }
+
+        return -1;
+    }
+
+    public long getTimeshiftStartPts() {
+        if (mSubscriber != null) {
+            return mSubscriber.getTimeshiftStartPts();
+        }
+
+        return -1;
+    }
+
+    public long getTimeshiftOffsetPts() {
+        return mSubscriber.getTimeshiftOffsetPts();
+    }
+
+    public void pause() {
+        if (mSubscriber != null) {
+            mSubscriber.pause();
+        }
+    }
+
+    public void resume() {
+        if (mSubscriber != null) {
+            mSubscriber.resume();
+        }
+    }
+
+    public void setSpeed(int speed)
+    {
+        mSubscriber.setSpeed(speed);
+    }
+
     @Override
     public void onMuxpkt(@NonNull HTSPMessage message) {
         serializeMessageToBuffer(message);
     }
 
-    // HtspDataSource Methods
+    // HTSPDataSource Methods
     public void release() {
         if (connection != null) {
             connection = null;
@@ -242,13 +290,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
             mBuffer.put(outputStream.toByteArray());
 
             mBuffer.flip();
-        } catch (IOException e) {
-            // Ignore?
-        } catch (BufferOverflowException e) {
+        } catch (IOException | BufferOverflowException | IllegalArgumentException e) {
             // Ignore
         } finally {
             mLock.unlock();
-            // Ignore
         }
     }
 }

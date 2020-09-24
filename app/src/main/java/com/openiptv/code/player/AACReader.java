@@ -53,7 +53,6 @@ public class AACReader extends AudioReader
 
         int skipLength;
 
-        System.out.println("Payload: " + payload[0]);
         if (hasCRC(payload[1])) {
             // AAC has ADTS CRC Header
             skipLength = ADTS_HEADER_SIZE + ADTS_CRC_SIZE;

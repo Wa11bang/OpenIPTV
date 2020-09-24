@@ -9,12 +9,21 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.openiptv.code.input.TVInputService;
+import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 public class MainActivity extends Activity {
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.activity_main);
+
+        if(isSetupComplete(this)) {
+            DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+            String accountId = databaseActions.getActiveAccount();
+            databaseActions.setActiveAccount(accountId);
+            databaseActions.close();
+        }
 
         Intent intent = new Intent(this, TVInputService.class);
         startService(intent);
