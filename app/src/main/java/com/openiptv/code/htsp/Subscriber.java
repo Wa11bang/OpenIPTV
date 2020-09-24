@@ -1,12 +1,11 @@
 package com.openiptv.code.htsp;
 
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import java.util.Set;
-import java.util.Timer;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.openiptv.code.Constants.FALLBACK_SUBSCRIPTION_ID;
 import static com.openiptv.code.Constants.SUBSCRIPTION_METHODS;
@@ -24,152 +23,209 @@ public class Subscriber implements MessageListener {
         void onMuxpkt(@NonNull HTSPMessage message);
     }
 
-    private final HTSPMessageDispatcher mDispatcher;
-    private final Set<Listener> mListeners = new CopyOnWriteArraySet<>();
-    private final int mSubscriptionId;
-    private HTSPMessage mTimeshiftStatus;
-    private long mStartTime = -1;
+    private final HTSPMessageDispatcher dispatcher;
+    private final Set<Listener> listeners = new ArraySet<>();
+    private final int subscriptionId;
+    private long startTime = -1;
 
     private long timeshiftStart = -1;
     private long timeshiftShift = -1;
     private long timeshiftEnd = -1;
 
-    private long mChannelId;
+    private long channelId;
+    private boolean isSubscribed = false;
 
-    private boolean mIsSubscribed = false;
-
+    /**
+     * Constructor for a Subscriber Object
+     * @param dispatcher message dispatcher (used for sending and receiving messages),
+     */
     public Subscriber(@NonNull HTSPMessageDispatcher dispatcher) {
-        mDispatcher = dispatcher;
-
-        mSubscriptionId = 1000;
+        this.dispatcher = dispatcher;
+        subscriptionId = 1000;
     }
 
+    /**
+     * Adds a listener to the list of Listeners.
+     * @param listener to add
+     */
     public void addSubscriptionListener(Listener listener) {
-        if (mListeners.contains(listener)) {
+        if (listeners.contains(listener)) {
             Log.w(TAG, "Attempted to add duplicate subscription listener");
             return;
         }
-        mListeners.add(listener);
+        listeners.add(listener);
     }
 
+    /**
+     * Removes a listener from the list of Listeners.
+     * @param listener to remove
+     */
     public void removeSubscriptionListener(Listener listener) {
-        if (!mListeners.contains(listener)) {
+        if (!listeners.contains(listener)) {
             Log.w(TAG, "Attempted to remove non existing subscription listener");
             return;
         }
-        mListeners.remove(listener);
+        listeners.remove(listener);
     }
 
+    /**
+     * Returns true if there is a current live subscription
+     * @return isSubscribed.
+     */
     public boolean getIsSubscribed()
     {
-        return mIsSubscribed;
+        return isSubscribed;
     }
 
+    /**
+     * Returns the current subscription ID
+     * @return subscriptionId
+     */
     public int getSubscriptionId() {
-        return mSubscriptionId;
+        return subscriptionId;
     }
 
-    public void subscribe(long channelId) throws HTSPNotConnectedException {
+    /**
+     * Starts a new subscription to a given TV Channel (default profile).
+     * @param channelId TVH channelId
+     * @throws HTSPException if there is no connection made
+     */
+    public void subscribe(long channelId) throws HTSPException {
         subscribe(channelId, null);
     }
 
-    public void subscribe(long channelId, String profile) throws HTSPNotConnectedException {
-        Log.i(TAG, "Requesting subscription to channel " + mChannelId);
+    /**
+     * Starts a new subscription to a give TV Channel
+     * @param channelId TVH channelId
+     * @param profile TVH stream profile
+     * @throws HTSPException if there is no connection made
+     */
+    public void subscribe(long channelId, String profile) throws HTSPException {
+        Log.i(TAG, "Requesting subscription to channel " + this.channelId);
 
-        if (!mIsSubscribed) {
-            mDispatcher.addMessageListener(this);
+        if (!isSubscribed) {
+            dispatcher.addMessageListener(this);
         }
 
-        mChannelId = channelId;
+        this.channelId = channelId;
 
         HTSPMessage subscribeRequest = new HTSPMessage();
 
         subscribeRequest.put("method", "subscribe");
-        subscribeRequest.put("subscriptionId", mSubscriptionId);
+        subscribeRequest.put("subscriptionId", subscriptionId);
         subscribeRequest.put("channelId", channelId);
         subscribeRequest.put("profile", profile);
         subscribeRequest.put("timeshiftPeriod", (60*60));
 
-        mDispatcher.sendMessage(subscribeRequest);
-        mIsSubscribed = true;
+        dispatcher.sendMessage(subscribeRequest);
+        isSubscribed = true;
     }
 
+    /**
+     * Sets the speed of the currently subscribed stream.
+     * @param speed in TVH Format.
+     */
     public void setSpeed(int speed) {
-        Log.i(TAG, "Requesting speed " + speed + " for channel " + mChannelId);
+        Log.i(TAG, "Requesting speed " + speed + " for channel " + channelId);
 
         HTSPMessage subscriptionSpeedRequest = new HTSPMessage();
 
         subscriptionSpeedRequest.put("method", "subscriptionSpeed");
-        subscriptionSpeedRequest.put("subscriptionId", mSubscriptionId);
+        subscriptionSpeedRequest.put("subscriptionId", subscriptionId);
         subscriptionSpeedRequest.put("speed", speed);
 
         try {
-            mDispatcher.sendMessage(subscriptionSpeedRequest);
-        } catch (HTSPNotConnectedException e) {
+            dispatcher.sendMessage(subscriptionSpeedRequest);
+        } catch (HTSPException e) {
             // Ignore
         }
     }
 
+    /**
+     * Pauses the stream, sets the speed to 0 (0x).
+     */
     public void pause() {
         setSpeed(0);
     }
 
+    /**
+     * Play the stream, sets the speed back to 100 (1x).
+     */
     public void resume() {
         setSpeed(100);
     }
 
+    /**
+     * Seek a subscription using HTSPMessage request
+     * @param time to seek the stream by
+     */
     public void seek(long time) {
-        Log.i(TAG, "Requesting skip for channel " + mChannelId);
+        Log.i(TAG, "Requesting skip for channel " + channelId);
 
         HTSPMessage subscriptionSkipRequest = new HTSPMessage();
 
         subscriptionSkipRequest.put("method", "subscriptionSkip");
-        subscriptionSkipRequest.put("subscriptionId", mSubscriptionId);
+        subscriptionSkipRequest.put("subscriptionId", subscriptionId);
         subscriptionSkipRequest.put("time", time);
         subscriptionSkipRequest.put("absolute", 1);
 
         try {
-            mDispatcher.sendMessage(subscriptionSkipRequest);
+            dispatcher.sendMessage(subscriptionSkipRequest);
             if(time > timeshiftShift)
             {
                 timeshiftShift = time;
             }
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore
         }
     }
 
+    /**
+     * Returns the current shift period from the start time.
+     * @return offset from the start in PTS
+     */
     public long getTimeshiftOffsetPts() {
         return timeshiftShift * -1;
     }
 
+    /**
+     * Returns the starting time in PTS format.
+     * @return start time in PTS
+     */
     public long getTimeshiftStartPts() {
         return timeshiftStart;
     }
 
+    /**
+     * Gets the current Time-shift Starting time
+     * @return timeShiftStartTime
+     */
     public long getTimeshiftStartTime() {
         long startPts = getTimeshiftStartPts();
 
-        if (startPts == -1 || mStartTime == -1) {
+        if (startPts == -1 || startTime == -1) {
             return -1;
         }
 
-        return mStartTime + startPts;
+        return startTime + startPts;
     }
 
+    /**
+     * Unsubscribe the current TV service.
+     */
     public void unsubscribe() {
-        Log.i(TAG, "Requesting unsubscription from channel " + mChannelId);
-        mIsSubscribed = false;
-        mDispatcher.removeMessageListener(this);
+        Log.i(TAG, "Requesting unsubscribe from channel " + channelId);
+        isSubscribed = false;
+        dispatcher.removeMessageListener(this);
 
         HTSPMessage unsubscribeRequest = new HTSPMessage();
 
         unsubscribeRequest.put("method", "unsubscribe");
-        unsubscribeRequest.put("subscriptionId", mSubscriptionId);
+        unsubscribeRequest.put("subscriptionId", subscriptionId);
 
         try {
-            mDispatcher.sendMessage(unsubscribeRequest);
-        } catch (HTSPNotConnectedException ignored) {
+            dispatcher.sendMessage(unsubscribeRequest);
+        } catch (HTSPException ignored) {
         }
     }
 
@@ -180,35 +236,35 @@ public class Subscriber implements MessageListener {
         if (SUBSCRIPTION_METHODS.contains(method)) {
             final int subscriptionId = message.getInteger("subscriptionId", FALLBACK_SUBSCRIPTION_ID);
 
-            if (subscriptionId != mSubscriptionId) {
+            if (subscriptionId != this.subscriptionId) {
                 return;
             }
 
             switch (method) {
                 case "subscriptionStart":
-                    for (final Listener listener : mListeners) {
+                    for (final Listener listener : listeners) {
                         listener.onSubscriptionStart(message);
                     }
-                    mStartTime = (System.currentTimeMillis() * 1000) - 1000;
+                    // Using 1000 Ms as a buffer to prevent incorrect timestamp.
+                    startTime = (System.currentTimeMillis() * 1000) - 1000;
                     break;
                 case "subscriptionStatus":
-                    for (final Listener listener : mListeners) {
+                    for (final Listener listener : listeners) {
                         listener.onSubscriptionStatus(message);
                     }
                     break;
                 case "subscriptionStop":
-                    for (final Listener listener : mListeners) {
+                    for (final Listener listener : listeners) {
                         listener.onSubscriptionStop(message);
                     }
                     break;
                 case "timeshiftStatus":
-                    mTimeshiftStatus = message;
                     timeshiftShift = message.getLong("shift", -1);
                     timeshiftEnd = message.getLong("end", -1);
                     timeshiftStart = message.getLong("start", -1);
                     break;
                 case "muxpkt":
-                    for (final Listener listener : mListeners) {
+                    for (final Listener listener : listeners) {
                         listener.onMuxpkt(message);
                     }
                     break;
