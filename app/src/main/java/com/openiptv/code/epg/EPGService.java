@@ -19,6 +19,8 @@ public class EPGService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        // Sync currently active account. At this point, the is always an account present
+        // in the application's database.
         DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
         databaseActions.syncActiveAccount();
         databaseActions.close();

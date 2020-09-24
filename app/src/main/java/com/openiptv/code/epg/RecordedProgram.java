@@ -117,6 +117,10 @@ public class RecordedProgram {
         generateContentValues(context);
     }
 
+    /**
+     * Internal Method to generate ContentValues bundle
+     * @param context of the application
+     */
     private void generateContentValues(Context context)
     {
         contentValues = new ContentValues();
