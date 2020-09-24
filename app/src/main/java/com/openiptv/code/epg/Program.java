@@ -12,9 +12,6 @@ import android.util.Log;
 import com.openiptv.code.Constants;
 import com.openiptv.code.htsp.HTSPMessage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.NULL_CHANNEL;
 
@@ -194,6 +191,7 @@ public class Program {
     {
         return getUri(context, program.getChannelId(), program.getEventId());
     }
+<<<<<<< HEAD
 
     public static Integer getProgramIdFromProgramUri(Context context, Uri programUri) {
         ContentResolver resolver = context.getContentResolver();
@@ -254,4 +252,6 @@ public class Program {
 
         return null;
     }
+=======
+>>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
 }

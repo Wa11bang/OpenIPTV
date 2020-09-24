@@ -19,8 +19,14 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+<<<<<<< HEAD
 import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.PreferenceUtils;
+=======
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.openiptv.code.Constants;
+import com.openiptv.code.DatabaseActions;
+>>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
@@ -43,9 +49,13 @@ public class TVInputService extends TvInputService {
     public void onCreate() {
         super.onCreate();
 
+<<<<<<< HEAD
         PreferenceUtils preferenceUtils = new PreferenceUtils(this);
 
         if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+=======
+        if (isSetupComplete(this)) {
+>>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             databaseActions.syncActiveAccount();
             databaseActions.close();
@@ -91,7 +101,11 @@ public class TVInputService extends TvInputService {
         String port = DatabaseActions.activeAccount.getString("port");
         String clientName = DatabaseActions.activeAccount.getString("clientName");
 
+<<<<<<< HEAD
         connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName+"_Subscription", String.valueOf(Build.VERSION.SDK_INT)));
+=======
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, "Subscription", "23"));
+>>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
         connection.start();
     }
 
@@ -155,6 +169,7 @@ public class TVInputService extends TvInputService {
         @Override
         public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
             super.onTimeShiftSetPlaybackParams(params);
+<<<<<<< HEAD
             Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
             player.setPlaybackParams(params);
         }
@@ -171,6 +186,26 @@ public class TVInputService extends TvInputService {
             player.pause();
         }
 
+=======
+
+
+            Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
+            player.setPlaybackParams(params);
+        }
+
+        @Override
+        public void onTimeShiftSeekTo(long timeMs) {
+            Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
+            player.seek(timeMs);
+        }
+
+        @Override
+        public void onTimeShiftPause() {
+            Log.d(TAG, "PAUSE");
+            player.pause();
+        }
+
+>>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
         @Override
         public void onTimeShiftResume() {
             Log.d(TAG, "RESUME");

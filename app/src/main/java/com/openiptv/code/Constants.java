@@ -47,7 +47,7 @@ public class Constants {
     // HTSP Methods
     public static final Set<String> AUTH_METHODS = new ArraySet<>(Arrays.asList("hello","authenticate"));
     public static final Set<String> EPG_METHODS = new ArraySet<>(Arrays.asList("channelAdd","eventAdd","channelUpdate","eventUpdate","initialSyncCompleted","dvrEntryAdd","dvrEntryUpdate"));
-    public static final Set<String> SUBSCRIPTION_METHODS = new ArraySet<>(Arrays.asList("subscriptionStart","subscriptionStatus","subscriptionStop","subscriptionSkip","subscriptionSpeed","muxpkt"));
+    public static final Set<String> SUBSCRIPTION_METHODS = new ArraySet<>(Arrays.asList("subscriptionStart","subscriptionStatus","subscriptionStop","subscriptionSkip","subscriptionSpeed","muxpkt","timeshiftStatus"));
 
     // TVHeadEnd Audio Sample Rates
     public static final int[] AUDIO_SAMPLE_RATES = new int[]{

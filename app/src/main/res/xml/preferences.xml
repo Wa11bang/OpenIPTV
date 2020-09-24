@@ -27,12 +27,10 @@
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory android:title="Guide" >
-
         <SwitchPreference
 
             android:defaultValue="false"
             android:dialogTitle="Quick Sync"
-
             android:key="QUICK_SYNC"
             android:summary="Synchronises the Guide within only the specified EPG Sync timeframe."
             android:title="Quick Sync" />
@@ -73,5 +71,4 @@
             android:title="DVR Storage Location"/>
 
     </androidx.preference.PreferenceCategory>
-
 </androidx.preference.PreferenceScreen>
