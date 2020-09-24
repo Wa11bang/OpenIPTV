@@ -1,42 +1,28 @@
 package com.openiptv.code;
 
-import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
 import android.media.tv.TvContract;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.style.TtsSpan;
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
-import androidx.leanback.widget.GuidedActionEditText;
-import androidx.leanback.widget.GuidedActionsStylist;
-
 
 import com.openiptv.code.htsp.Authenticator;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
-import com.openiptv.code.htsp.HTSPMessage;
-import com.openiptv.code.htsp.MessageListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.openiptv.code.epg.EPGService.isSetupComplete;
-
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 
 public class SetupNewAccountFragment extends GuidedStepSupportFragment {
-
     ArrayList<String> accountDetails;
     SelectedBundle selectedBundle;
 
@@ -114,10 +100,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         actions.add(portForm);
         actions.add(clientNameForm);
         actions.add(finishButton);
-
-
     }
-
 
     @Override
     public long onGuidedActionEditedAndProceed(GuidedAction formResults) {
@@ -169,7 +152,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     databaseActions.close();
                     GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
                     fragment.setArguments(newAccountDetails);
-                    add(getFragmentManager(), fragment);
+                    add(getParentFragmentManager(), fragment);
                 }
                 else{
                     Log.d("AddAccount", "Error, adding account. Check field is not empty");
@@ -215,9 +198,11 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
          * Delete all existing content for account
          */
         ContentResolver resolver = getActivity().getContentResolver();
+        PreferenceUtils preferenceUtils = new PreferenceUtils(getActivity());
 
-        if(isSetupComplete(getActivity()))
+        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE))
         {
+            // TODO: Make sure logo directories for the channels get deleted as well.
             getActivity().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.Programs.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.RecordedPrograms.CONTENT_URI, null, null);
