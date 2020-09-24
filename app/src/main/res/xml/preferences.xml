@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#050401"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:title="OpenIPTV Settings">
 
     <androidx.preference.PreferenceCategory android:title="Audio and Video">
@@ -26,7 +26,7 @@
 
     </androidx.preference.PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory android:title="Guide">
+    <androidx.preference.PreferenceCategory android:title="Guide" >
 
         <SwitchPreference
 
@@ -34,12 +34,23 @@
             android:dialogTitle="Quick Sync"
 
             android:key="QUICK_SYNC"
-            android:summary="Synchronises the Guide within only the specified Quick Sync timeframe."
+            android:summary="Synchronises the Guide within only the specified EPG Sync timeframe."
             android:title="Quick Sync" />
+
+        <EditTextPreference
+
+            android:dependency="QUICK_SYNC"
+            android:dialogTitle="EPG Sync"
+            android:dialogMessage="Enter time in seconds"
+            android:inputType="number"
+            android:key="EPG_SYNC"
+            android:title="EPG Sync"
+            android:summary="Changes the set delay for updating the guide."/>
+
 
     </androidx.preference.PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory android:title="Others">
+    <androidx.preference.PreferenceCategory android:title="Other">
 
         <ListPreference
 
@@ -50,6 +61,16 @@
             android:key="BUFFER_SIZE"
             android:summary="Adjusts the size of the buffer."
             android:title="Buffer Size"/>
+
+        <ListPreference
+
+            android:dialogTitle="DVR Storage Location"
+            android:entries="@array/storageNames"
+            android:entryValues="@array/storageValues"
+
+            android:key="DVR_STORAGE"
+            android:summary="Changes the location for recordings to be saved to."
+            android:title="DVR Storage Location"/>
 
     </androidx.preference.PreferenceCategory>
 

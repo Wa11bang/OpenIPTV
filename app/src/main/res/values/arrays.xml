@@ -47,4 +47,12 @@
         <item>9</item>
         <item>10</item>
     </string-array>
+
+    <string-array name ="storageNames">
+        <item>placeholder</item>
+    </string-array>
+
+    <string-array name="storageValues">
+        <item>placeholder</item>
+    </string-array>
 </resources>
