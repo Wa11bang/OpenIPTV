@@ -3,14 +3,12 @@ package com.openiptv.code;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.tv.TvContract;
 import android.media.tv.TvInputManager;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.openiptv.code.input.TVInputService;
-
 import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 public class MainActivity extends Activity {
@@ -44,3 +42,4 @@ public class MainActivity extends Activity {
         finish();
     }
 }
+
