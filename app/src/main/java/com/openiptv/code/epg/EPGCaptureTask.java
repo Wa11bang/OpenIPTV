@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.media.tv.TvContract;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.Log;
 
 import com.openiptv.code.Constants;
 import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.TVHeadendAccount;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -22,7 +22,6 @@ import java.util.Set;
 
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.EPG_METHODS;
-import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 public class EPGCaptureTask implements MessageListener {
     private static final String TAG = EPGCaptureTask.class.getSimpleName();
@@ -40,19 +39,15 @@ public class EPGCaptureTask implements MessageListener {
             Log.d(TAG, "Started EPGCaptureTask");
         }
 
-
-        String username = DatabaseActions.activeAccount.getString("username");
-        String password = DatabaseActions.activeAccount.getString("password");
-        String hostname = DatabaseActions.activeAccount.getString("hostname");
-        String port = DatabaseActions.activeAccount.getString("port");
-        String clientName = DatabaseActions.activeAccount.getString("clientName");
-
+        TVHeadendAccount account = new TVHeadendAccount(DatabaseActions.activeAccount);
 
         // Create a new BaseConnection
-        /**
-         *   Test values: "tv.theron.co.nz", "9982", "development", "development", "MetaCapture", "23"));
-         */
-        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName, "23"));
+        connection = new BaseConnection(new ConnectionInfo(
+                account.getHostname(),
+                Integer.parseInt(account.getPort()),
+                account.getUsername(),
+                account.getPassword(),
+                account.getClientName(), "23"));
 
 
         // Link ourselves to the BaseConnection to listen for when we have received HTSP Messages.
@@ -149,11 +144,6 @@ public class EPGCaptureTask implements MessageListener {
         for (Listener l : syncListeners) {
             l.onSyncComplete();
         }
-
-        /*if(!isSetupComplete(context))
-        {
-            stop();
-        }*/
     }
 
     @Override

@@ -18,8 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.openiptv.code.Constants;
 import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.PreferenceUtils;
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
@@ -28,8 +28,8 @@ import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.player.TVPlayer;
 
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 import static com.openiptv.code.Constants.RESTART_SERVICES;
-import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 
 public class TVInputService extends TvInputService {
@@ -40,7 +40,9 @@ public class TVInputService extends TvInputService {
     public void onCreate() {
         super.onCreate();
 
-        if (isSetupComplete(this)) {
+        PreferenceUtils preferenceUtils = new PreferenceUtils(this);
+
+        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             databaseActions.syncActiveAccount();
             databaseActions.close();
@@ -86,7 +88,7 @@ public class TVInputService extends TvInputService {
         String port = DatabaseActions.activeAccount.getString("port");
         String clientName = DatabaseActions.activeAccount.getString("clientName");
 
-        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, "Subscription", "23"));
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName+"_Subscription", String.valueOf(Build.VERSION.SDK_INT)));
         connection.start();
     }
 

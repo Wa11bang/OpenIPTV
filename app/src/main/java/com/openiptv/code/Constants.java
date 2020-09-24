@@ -59,4 +59,11 @@ public class Constants {
 
     // Extended Extractors
     public static final int NUM_OF_EXTRACTORS = 13;
+
+    // Preferences
+    public static final int PREFERENCE_NOT_SET_INT = -1;
+    public static final String PREFERENCE_NOT_SET_STRING = "";
+    public static final boolean PREFERENCE_NOT_SET_BOOL = false;
+
+    public static final String PREFERENCE_SETUP_COMPLETE = "SETUP_COMPLETE";
 }
