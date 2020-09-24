@@ -87,7 +87,7 @@ public class SetupActivity extends FragmentActivity {
         @Override
         public void onSyncComplete() {
             Log.d(TAG, "Initial Sync Completed");
-          
+
             // Move to the CompletedFragment
             GuidedStepSupportFragment fragment = new CompletedFragment();
             fragment.setArguments(getArguments());

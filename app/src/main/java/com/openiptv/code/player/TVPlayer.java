@@ -105,7 +105,9 @@ public class TVPlayer implements Player.EventListener {
         Log.d("TVPlayer", "Released Subscription");
         player.release();
         connection.stop();
-        surface.release();
+        if(surface != null) {
+            surface.release();
+        }
         mediaSource.releaseSource(null);
     }
 

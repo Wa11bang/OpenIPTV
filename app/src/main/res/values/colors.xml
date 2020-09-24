@@ -27,4 +27,10 @@
     <color name="setup_sub_actions">#DDDDDD</color>
     <color name="selected_background">#ffaa3f</color>
     <color name="default_background">#3d3d3d</color>
+
+    <color name="jet">#303036</color>
+    <color name="cyan_process">#30BCED</color>
+    <color name="orange_soda">#FC5130</color>
+    <color name="rich_black">#050401</color>
+    <color name="magnolia">#FFFAFF</color>
 </resources>

@@ -1,7 +1,11 @@
 package com.openiptv.code;
 
 import android.accounts.Account;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
+import android.media.tv.TvContract;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.style.TtsSpan;
@@ -19,8 +23,16 @@ import androidx.leanback.widget.GuidedActionEditText;
 import androidx.leanback.widget.GuidedActionsStylist;
 
 
+import com.openiptv.code.htsp.Authenticator;
+import com.openiptv.code.htsp.BaseConnection;
+import com.openiptv.code.htsp.ConnectionInfo;
+import com.openiptv.code.htsp.HTSPMessage;
+import com.openiptv.code.htsp.MessageListener;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.openiptv.code.epg.EPGService.isSetupComplete;
 
 
 public class SetupNewAccountFragment extends GuidedStepSupportFragment {
@@ -171,10 +183,64 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
      *
      * @param account
      */
+    private static Authenticator.State state;
     public boolean addAccountToDatabase(TVHeadendAccount account) {
-        DatabaseActions databaseActions = new DatabaseActions(getContext());
-        Boolean status = databaseActions.addAccount(account);
-        databaseActions.close();
-        return status;
+        // Check if user login is successful
+
+
+        BaseConnection connection = new BaseConnection(new ConnectionInfo(account.getHostname(), Integer.parseInt(account.getPort()), account.getUsername(), account.getPassword(), account.getClientName(), "23"));
+
+        Authenticator.Listener listener = new Authenticator.Listener() {
+
+            @Override
+            public void onAuthenticated(Authenticator.State inState) {
+                state = inState;
+            }
+        };
+
+        connection.getAuthenticator().addListener(listener);
+        connection.start();
+
+        long timeoutTime = System.currentTimeMillis() + (20*100);
+        while(state == null)
+        {
+            if(timeoutTime < System.currentTimeMillis())
+            {
+                state = Authenticator.State.FAILED;
+            }
+            Log.v("BW", "Waiting for Server Response");
+        }
+
+        /*
+         * Delete all existing content for account
+         */
+        ContentResolver resolver = getActivity().getContentResolver();
+
+        if(isSetupComplete(getActivity()))
+        {
+            getActivity().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
+            getActivity().getContentResolver().delete(TvContract.Programs.CONTENT_URI, null, null);
+            getActivity().getContentResolver().delete(TvContract.RecordedPrograms.CONTENT_URI, null, null);
+        }
+
+        if(state == Authenticator.State.AUTHENTICATED)
+        {
+            DatabaseActions databaseActions = new DatabaseActions(getContext());
+            boolean status = databaseActions.addAccount(account);
+            databaseActions.close();
+
+            connection.getAuthenticator().removeListener(listener);
+            connection.stop();
+            state = null;
+            return status;
+        }
+
+        Toast.makeText(getContext(), "Server Response: " + state.name(), Toast.LENGTH_SHORT).show();
+
+        connection.getAuthenticator().removeListener(listener);
+        connection.stop();
+        state = null;
+
+        return false;
     }
 }
