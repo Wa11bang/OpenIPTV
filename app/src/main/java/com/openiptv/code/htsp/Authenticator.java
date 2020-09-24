@@ -10,17 +10,18 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
-
+import static com.openiptv.code.Constants.UNIQUE_AUTH_SEQ_ID;
 
 public class Authenticator implements MessageListener, Connection.ConnectionListener {
     private static final String TAG = Authenticator.class.getSimpleName();
+
     private final MessageDispatcher messageDispatcher;
     private final ConnectionInfo connectionInfo;
     private Connection connection;
-    private boolean fullSync = false;
     private State state;
     private Set<Listener> listeners = new ArraySet<>();
-    private static final int SEQ = 10;
+
+    private static final int SEQ = UNIQUE_AUTH_SEQ_ID;
 
     public enum State {
         AUTHENTICATED,
@@ -107,7 +108,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
         try {
             Log.d(TAG, "Sending Hello Message");
             messageDispatcher.sendMessage(message);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             Log.d(TAG, "Received HTSPNotConnectedException");
         }
     }
@@ -128,7 +129,7 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
             try {
                 Log.d(TAG, "Sending Authentication Message");
                 messageDispatcher.sendMessage(authMessage);
-            } catch (HTSPNotConnectedException e) {
+            } catch (HTSPException e) {
                 Log.d(TAG, "Received HTSPNotConnectedException");
                 setState(State.FAILED);
             }
@@ -137,28 +138,26 @@ public class Authenticator implements MessageListener, Connection.ConnectionList
 
     public void sendEnableAsyncMessage()
     {
-        fullSync = false;
+        boolean quickSync = true;
         long epgMaxTime = 0L;
         HTSPMessage enableAsyncMetadataRequest = new HTSPMessage();
 
         enableAsyncMetadataRequest.put("method", "enableAsyncMetadata");
         enableAsyncMetadataRequest.put("epg", 1);
 
-        if(fullSync) {
-            Log.d(TAG, "Full sync enabled");
-            epgMaxTime = 691200 + (System.currentTimeMillis() / 1000L);
-        }
-        else {
+        if(quickSync)
+        {
             epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);
         }
-        Log.d(TAG, "MAX TIME: "+epgMaxTime);
+        else {
+            epgMaxTime = 691200 + (System.currentTimeMillis() / 1000L);
+        }
 
         enableAsyncMetadataRequest.put("epgMaxTime", epgMaxTime);
-
         try {
             Log.d(TAG, "Sending EnableAsync Message");
             messageDispatcher.sendMessage(enableAsyncMetadataRequest);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             Log.d(TAG, "Received HTSPNotConnectedException");
             setState(State.FAILED);
         }

@@ -11,7 +11,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.HTSPMessage;
-import com.openiptv.code.htsp.HTSPNotConnectedException;
+import com.openiptv.code.htsp.HTSPException;
 import com.openiptv.code.htsp.Subscriber;
 
 import java.io.ByteArrayOutputStream;
@@ -122,7 +122,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
                 long channelId = Long.parseLong(Channel.getChannelIdFromChannelUri(context, dataSpec.uri).toString());
                 mSubscriber.subscribe(channelId, mStreamProfile);
                 mIsSubscribed = true;
-            } catch (HTSPNotConnectedException e) {
+            } catch (HTSPException e) {
                 throw new IOException("Failed to open HtspSubscriptionDataSource, HTSP not connected (" + mDataSourceNumber + ")", e);
             }
         }

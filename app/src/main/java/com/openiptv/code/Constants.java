@@ -13,6 +13,9 @@ public class Constants {
     public static final String COMPONENT_CLASS = ".input.TVInputService";
     public static final String DEV_HOST = "tv.theron.co.nz";
 
+    // HTSPMessage Sequence IDs
+    public static final int UNIQUE_AUTH_SEQ_ID = 101;
+
 
     // EPG Details
     /*

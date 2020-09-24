@@ -5,7 +5,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.util.Set;
-import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.openiptv.code.Constants.FALLBACK_SUBSCRIPTION_ID;
@@ -69,11 +68,11 @@ public class Subscriber implements MessageListener {
         return mSubscriptionId;
     }
 
-    public void subscribe(long channelId) throws HTSPNotConnectedException {
+    public void subscribe(long channelId) throws HTSPException {
         subscribe(channelId, null);
     }
 
-    public void subscribe(long channelId, String profile) throws HTSPNotConnectedException {
+    public void subscribe(long channelId, String profile) throws HTSPException {
         Log.i(TAG, "Requesting subscription to channel " + mChannelId);
 
         if (!mIsSubscribed) {
@@ -105,7 +104,7 @@ public class Subscriber implements MessageListener {
 
         try {
             mDispatcher.sendMessage(subscriptionSpeedRequest);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore
         }
     }
@@ -134,7 +133,7 @@ public class Subscriber implements MessageListener {
             {
                 timeshiftShift = time;
             }
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore
         }
     }
@@ -169,7 +168,7 @@ public class Subscriber implements MessageListener {
 
         try {
             mDispatcher.sendMessage(unsubscribeRequest);
-        } catch (HTSPNotConnectedException ignored) {
+        } catch (HTSPException ignored) {
         }
     }
 

@@ -30,7 +30,7 @@ public class AuthListener implements MessageListener
 
             try {
                 htspMessageDispatcher.sendMessage(authMessage);
-            } catch (HTSPNotConnectedException e) {
+            } catch (HTSPException e) {
                 e.printStackTrace();
             }
         }
