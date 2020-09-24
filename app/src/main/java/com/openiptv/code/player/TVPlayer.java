@@ -52,6 +52,10 @@ public class TVPlayer implements Player.EventListener {
     private boolean recording;
     private List<Listener> listeners;
     private DefaultTrackSelector trackSelector;
+    private float currentVolume;
+    private PlaybackParams playbackParams;
+    private SeekableRunnable seekableRunnable;
+    private Handler handler;
 
     private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
     private static final String TAG = TVPlayer.class.getSimpleName();
@@ -79,32 +83,28 @@ public class TVPlayer implements Player.EventListener {
         listeners = new ArrayList<>();
     }
 
-    public boolean setSurface(Surface surface)
-    {
+    public boolean setSurface(Surface surface) {
         this.surface = surface;
         player.setVideoSurface(surface);
 
         return true;
     }
 
-    public void prepare(Uri channelUri, boolean recording)
-    {
+    public void prepare(Uri channelUri, boolean recording) {
         this.recording = recording;
 
-        if(!recording) {
+        if (!recording) {
 
             mediaSource = new ProgressiveMediaSource.Factory(HTSPSubscriptionDataSourceFactory, extractorsFactory).createMediaSource(channelUri);
 
             player.prepare(mediaSource);
-        }
-        else
-        {
+        } else {
             Log.d("TVPlayer", "captured recording ID" + RecordedProgram.getRecordingIdFromRecordingUri(context, channelUri));
 
             byte[] toEncrypt = ("development" + ":" + "development").getBytes();
             DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "OpenIPTV").replace("ExoPlayerLib", "Blah"));
 
-            dataSourceFactory.getDefaultRequestProperties().set("Authorization","Basic "+Base64.encodeToString(toEncrypt, Base64.DEFAULT));
+            dataSourceFactory.getDefaultRequestProperties().set("Authorization", "Basic " + Base64.encodeToString(toEncrypt, Base64.DEFAULT));
             ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
             MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(Uri.parse(URL));
 
@@ -112,13 +112,11 @@ public class TVPlayer implements Player.EventListener {
         }
     }
 
-    public void start()
-    {
+    public void start() {
         player.setPlayWhenReady(true);
     }
 
-    public void stop()
-    {
+    public void stop() {
         Log.d("TVPlayer", "Released Subscription");
         player.release();
         connection.stop();
@@ -261,6 +259,17 @@ public class TVPlayer implements Player.EventListener {
         if (isLoading && !recording) {
             dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         }
+    }
+
+    //this method take input from the TVInputService class onSetStreamVolume method or onSetStreamMute method
+    //change the volume of the player
+    public void changeVolume(float volume) {
+        this.currentVolume = volume;
+        this.player.setVolume(volume);
+    }
+
+    public float getCurrentVolume() {
+        return this.currentVolume;
     }
 
     public static int AndroidTVSpeedToTVH(float speed)
