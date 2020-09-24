@@ -42,7 +42,7 @@ public class SetupActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GuidedStepSupportFragment fragment = new IntroFragment(getSupportFragmentManager());
+        GuidedStepSupportFragment fragment = new IntroFragment();
         fragment.setArguments(getIntent().getExtras());
         GuidedStepSupportFragment.addAsRoot(this, fragment, android.R.id.content);
     }
