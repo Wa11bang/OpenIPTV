@@ -287,8 +287,8 @@ public class TVInputService extends TvInputService {
 
     // TODO: Not use some shady code from the interwebs
     private void startMyOwnForeground() {
-        String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
-        String channelName = "My Background Service";
+        String NOTIFICATION_CHANNEL_ID = "com.openiptv.code";
+        String channelName = "My Foreground Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
         chan.setLightColor(Color.BLUE);
         chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
