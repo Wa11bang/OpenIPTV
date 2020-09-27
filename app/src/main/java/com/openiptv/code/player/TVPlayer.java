@@ -147,7 +147,7 @@ public class TVPlayer implements Player.EventListener {
     public void stop() {
         Log.d(TAG, "Released TVPlayer");
         player.release();
-        connection.stop();
+        //connection.stop();
         if(surface != null) {
             surface.release();
         }

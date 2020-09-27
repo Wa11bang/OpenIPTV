@@ -135,6 +135,8 @@ public class TVInputService extends TvInputService {
         super.onDestroy();
         connection.stop();
 
+        Log.d(TAG, "TVINPUTSERVICE KILLED");
+
         if (RESTART_SERVICES)
             startService(new Intent(this, TvInputService.class));
     }
