@@ -1,5 +1,5 @@
 # OpenIPTV
-###Solution for streaming IPTV content on Android TV OS.
+## Solution for streaming IPTV content on Android TV OS.
 
 More details to come :D
 
