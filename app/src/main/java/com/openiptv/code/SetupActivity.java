@@ -3,22 +3,14 @@ package com.openiptv.code;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.media.tv.TvInputInfo;
-import android.os.Bundle;
-import android.util.Log;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.InputType;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentFactory;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -28,7 +20,6 @@ import com.openiptv.code.epg.EPGCaptureTask;
 import com.openiptv.code.epg.EPGService;
 import com.openiptv.code.fragments.IntroFragment;
 import com.openiptv.code.htsp.BaseConnection;
-import com.openiptv.code.htsp.ConnectionInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +33,7 @@ public class SetupActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GuidedStepSupportFragment fragment = new IntroFragment(getSupportFragmentManager());
+        GuidedStepSupportFragment fragment = new IntroFragment();
         fragment.setArguments(getIntent().getExtras());
         GuidedStepSupportFragment.addAsRoot(this, fragment, android.R.id.content);
     }
@@ -64,11 +55,12 @@ public class SetupActivity extends FragmentActivity {
         }
     }
 
-    public static class IntroFragment extends GuidedStepSupportFragment {
+   public static class IntroFragment extends GuidedStepSupportFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
         }
+
 
         @NonNull
         @Override

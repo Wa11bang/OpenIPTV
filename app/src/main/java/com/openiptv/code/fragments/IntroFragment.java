@@ -11,7 +11,6 @@ import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
 import com.openiptv.code.R;
-import com.openiptv.code.SetupActivity;
 
 import java.util.List;
 
