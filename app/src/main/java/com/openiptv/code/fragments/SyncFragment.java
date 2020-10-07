@@ -20,22 +20,18 @@ import java.util.List;
 public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTask.Listener {
     EPGCaptureTask mEpgSyncTask;
     BaseConnection connection;
-    private static final String TAG = SyncFragment.class.getName();
-    private FragmentManager fm;
-
-    public SyncFragment(FragmentManager fragmentManager) {
-        this.fm = fragmentManager;
-    }
+    private static final String TAG = SetupActivity.class.getName();
 
     @Override
     public void onSyncComplete() {
         Log.d(TAG, "Initial Sync Completed");
 
         // Move to the CompletedFragment
-        GuidedStepSupportFragment fragment = new CompletedFragment(getFragmentManager());
+        GuidedStepSupportFragment fragment = new CompletedFragment();
         fragment.setArguments(getArguments());
-        add(this.fm, fragment);
+        add(getFragmentManager(), fragment);
     }
+
 
     @Override
     public void onStart() {
@@ -46,6 +42,7 @@ public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTa
 
     @Override
     public void onStop() {
+        mEpgSyncTask.stop();
         mEpgSyncTask = null;
 
         super.onStop();
@@ -66,8 +63,8 @@ public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTa
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                getResources().getString(R.string.SyncFragment_guidance_title),
-                getResources().getString(R.string.SyncFragment_guidance_description),
+                "Syncing with TVHeadend",
+                "Please wait...",
                 getString(R.string.account_label),
                 null);
     }
@@ -75,9 +72,11 @@ public class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTa
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         GuidedAction action = new GuidedAction.Builder(getActivity())
-                .title(getResources().getString(R.string.SyncFragment_action_title))
+                .title("Progress")
                 .infoOnly(true)
                 .build();
         actions.add(action);
+
+
     }
 }

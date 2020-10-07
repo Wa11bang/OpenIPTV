@@ -1,33 +1,24 @@
-package com.openiptv.code;
+package com.openiptv.code.fragments;
 
-import android.accounts.Account;
 import android.content.ContentResolver;
-import android.content.Intent;
-import android.database.Cursor;
 import android.media.tv.TvContract;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.style.TtsSpan;
 import android.util.Log;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
-import androidx.leanback.widget.GuidedActionEditText;
-import androidx.leanback.widget.GuidedActionsStylist;
 
 
+import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.R;
 import com.openiptv.code.htsp.Authenticator;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
-import com.openiptv.code.htsp.HTSPMessage;
-import com.openiptv.code.htsp.MessageListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,11 +158,10 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     databaseActions.setActiveAccount(accountId);
 
                     databaseActions.close();
-                    GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
+                    GuidedStepSupportFragment fragment = new SyncFragment();
                     fragment.setArguments(newAccountDetails);
                     add(getFragmentManager(), fragment);
-                }
-                else{
+                } else {
                     Log.d("AddAccount", "Error, adding account. Check field is not empty");
                 }
             }
@@ -184,6 +174,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
      * @param account
      */
     private static Authenticator.State state;
+
     public boolean addAccountToDatabase(TVHeadendAccount account) {
         // Check if user login is successful
 
@@ -201,11 +192,9 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         connection.getAuthenticator().addListener(listener);
         connection.start();
 
-        long timeoutTime = System.currentTimeMillis() + (20*100);
-        while(state == null)
-        {
-            if(timeoutTime < System.currentTimeMillis())
-            {
+        long timeoutTime = System.currentTimeMillis() + (20 * 100);
+        while (state == null) {
+            if (timeoutTime < System.currentTimeMillis()) {
                 state = Authenticator.State.FAILED;
             }
             Log.v("BW", "Waiting for Server Response");
@@ -216,15 +205,13 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
          */
         ContentResolver resolver = getActivity().getContentResolver();
 
-        if(isSetupComplete(getActivity()))
-        {
+        if (isSetupComplete(getActivity())) {
             getActivity().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.Programs.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.RecordedPrograms.CONTENT_URI, null, null);
         }
 
-        if(state == Authenticator.State.AUTHENTICATED)
-        {
+        if (state == Authenticator.State.AUTHENTICATED) {
             DatabaseActions databaseActions = new DatabaseActions(getContext());
             boolean status = databaseActions.addAccount(account);
             databaseActions.close();

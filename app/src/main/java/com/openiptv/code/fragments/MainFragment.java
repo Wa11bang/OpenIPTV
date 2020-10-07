@@ -1,4 +1,4 @@
-package com.openiptv.code;
+package com.openiptv.code.fragments;
 
 import android.os.Bundle;
 
