@@ -26,16 +26,17 @@ import static com.openiptv.code.Constants.PROGRAM_TITLE;
 @RunWith(RobolectricTestRunner.class)
 public class ProgramTest {
     private static final String TAG = ProgramTest.class.getSimpleName();
-    private static final Program RESULT_PROGRAM = new Program(getApplicationContext(),
-            100,
-            177477477,
-            14000000000000L,
-            14000003600000L,
-            "Test Program",
-            "Test Summary",
-            "Test Description",
-            16,
-            null);
+    private static final Program RESULT_PROGRAM = new Program(getApplicationContext())
+            .setEventId(100)
+            .setChannelId(177477477)
+            .setStart(14000000000000L)
+            .setEnd(14000003600000L)
+            .setTitle("Test Program")
+            .setSummary("Test Summary")
+            .setDescription("Test Description")
+            .setAgeRating(16)
+            .setProgramImage(null)
+            .build();
 
     @Test
     public void testProgramContentValueParse() {

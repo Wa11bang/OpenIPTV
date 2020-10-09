@@ -25,6 +25,10 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
             return currentDataSource.get();
         }
 
+        /**
+         * Retrieves the current DataSource instance if it exists.
+         * @return current DataSource instance
+         */
         public HTSPDataSource getCurrentDataSource() {
             if (currentDataSource != null) {
                 return currentDataSource.get();
@@ -32,6 +36,9 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
             return null;
         }
 
+        /**
+         * Destroys the current DataSource instance
+         */
         public void releaseCurrentDataSource() {
             if (currentDataSource != null) {
                 currentDataSource.get().release();
@@ -40,6 +47,10 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
             }
         }
 
+        /**
+         * Abstract method used to create the initial DataSource object.
+         * @return single instance of HTSPDataSource
+         */
         protected abstract HTSPDataSource createDataSourceInternal();
     }
 
@@ -47,11 +58,19 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
     public BaseConnection connection;
     public DataSpec dataSpec;
 
+    /**
+     * Constructor for a HTSPDataSource object
+     * @param context application context
+     * @param connection BaseConnection used to subscribe to TV Channels
+     */
     public HTSPDataSource(Context context, BaseConnection connection) {
         this.context = context;
         this.connection = connection;
     }
 
+    /**
+     * Abstract method to release the DataSource, part of implementation.
+     */
     protected abstract void release();
 
     @Override

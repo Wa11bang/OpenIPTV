@@ -1,4 +1,4 @@
-package com.openiptv.code.fragments;
+package com.openiptv.code;
 
 import android.content.ContentResolver;
 import android.media.tv.TvContract;
@@ -13,9 +13,6 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
-
-import com.openiptv.code.DatabaseActions;
-import com.openiptv.code.R;
 import com.openiptv.code.htsp.Authenticator;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
@@ -23,11 +20,9 @@ import com.openiptv.code.htsp.ConnectionInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.openiptv.code.epg.EPGService.isSetupComplete;
-
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 
 public class SetupNewAccountFragment extends GuidedStepSupportFragment {
-
     ArrayList<String> accountDetails;
     SelectedBundle selectedBundle;
 
@@ -105,10 +100,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         actions.add(portForm);
         actions.add(clientNameForm);
         actions.add(finishButton);
-
-
     }
-
 
     @Override
     public long onGuidedActionEditedAndProceed(GuidedAction formResults) {
@@ -158,10 +150,11 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     databaseActions.setActiveAccount(accountId);
 
                     databaseActions.close();
-                    GuidedStepSupportFragment fragment = new SyncFragment();
+                    GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
                     fragment.setArguments(newAccountDetails);
-                    add(getFragmentManager(), fragment);
-                } else {
+                    add(getParentFragmentManager(), fragment);
+                }
+                else{
                     Log.d("AddAccount", "Error, adding account. Check field is not empty");
                 }
             }
@@ -174,7 +167,6 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
      * @param account
      */
     private static Authenticator.State state;
-
     public boolean addAccountToDatabase(TVHeadendAccount account) {
         // Check if user login is successful
 
@@ -192,9 +184,11 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         connection.getAuthenticator().addListener(listener);
         connection.start();
 
-        long timeoutTime = System.currentTimeMillis() + (20 * 100);
-        while (state == null) {
-            if (timeoutTime < System.currentTimeMillis()) {
+        long timeoutTime = System.currentTimeMillis() + (20*100);
+        while(state == null)
+        {
+            if(timeoutTime < System.currentTimeMillis())
+            {
                 state = Authenticator.State.FAILED;
             }
             Log.v("BW", "Waiting for Server Response");
@@ -204,14 +198,18 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
          * Delete all existing content for account
          */
         ContentResolver resolver = getActivity().getContentResolver();
+        PreferenceUtils preferenceUtils = new PreferenceUtils(getActivity());
 
-        if (isSetupComplete(getActivity())) {
+        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE))
+        {
+            // TODO: Make sure logo directories for the channels get deleted as well.
             getActivity().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.Programs.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.RecordedPrograms.CONTENT_URI, null, null);
         }
 
-        if (state == Authenticator.State.AUTHENTICATED) {
+        if(state == Authenticator.State.AUTHENTICATED)
+        {
             DatabaseActions databaseActions = new DatabaseActions(getContext());
             boolean status = databaseActions.addAccount(account);
             databaseActions.close();

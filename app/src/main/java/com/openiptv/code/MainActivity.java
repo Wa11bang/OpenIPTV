@@ -9,7 +9,8 @@ import android.os.Build;
 import android.os.Bundle;
 
 import com.openiptv.code.input.TVInputService;
-import static com.openiptv.code.epg.EPGService.isSetupComplete;
+
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 
 public class MainActivity extends Activity {
 
@@ -18,7 +19,9 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(isSetupComplete(this)) {
+        PreferenceUtils preferenceUtils = new PreferenceUtils(this);
+
+        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             String accountId = databaseActions.getActiveAccount();
             databaseActions.setActiveAccount(accountId);
@@ -30,16 +33,18 @@ public class MainActivity extends Activity {
 
         Intent i;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            i = new Intent(TvInputManager.ACTION_SETUP_INPUTS);
+        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+            i = new Intent(this, PreferenceActivity.class);
         } else {
-            i = new Intent(Intent.ACTION_VIEW, TvContract.Channels.CONTENT_URI);
-            i.setData(TvContract.buildChannelsUriForInput(TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS))));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                i = new Intent(TvInputManager.ACTION_SETUP_INPUTS);
+            } else {
+                i = new Intent(Intent.ACTION_VIEW, TvContract.Channels.CONTENT_URI);
+                i.setData(TvContract.buildChannelsUriForInput(TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS))));
+            }
         }
 
         startActivity(i);
-
         finish();
     }
 }
-

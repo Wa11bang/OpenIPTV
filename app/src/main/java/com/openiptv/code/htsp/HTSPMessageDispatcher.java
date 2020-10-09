@@ -19,10 +19,18 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     public HTSPMessageDispatcher() {
     }
 
+    /**
+     *
+     * @param connection
+     */
     public void setConnection(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     *
+     * @param listener
+     */
     public void addMessageListener(MessageListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
@@ -33,6 +41,10 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
         }
     }
 
+    /**
+     *
+     * @param listener
+     */
     public void removeMessageListener(MessageListener listener) {
         if (listeners.contains(listener)) {
             listeners.remove(listener);
@@ -43,24 +55,18 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
         }
     }
 
-    public void displayMessageKeys(HTSPMessage message)
-    {
-        for(String key : message.keySet())
-        {
-            System.out.println(key + ": " + message.get(key));
-        }
-    }
-
+    /**
+     *
+     * @param message
+     */
     public void onMessage(final HTSPMessage message) {
-        //displayMessageKeys(message);
-
         for (final MessageListener listener : listeners) {
             listener.onMessage(message);
         }
     }
 
     @Override
-    public void sendMessage(HTSPMessage message) throws HTSPNotConnectedException {
+    public void sendMessage(HTSPMessage message) throws HTSPException {
         if(!pendingMessages.contains(message))
         {
             if (connection != null) {
@@ -72,14 +78,22 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
                 return;
             }
 
-            throw new HTSPNotConnectedException("MessageDispatcher has no oper Connection!");
+            throw new HTSPException("MessageDispatcher has no oper Connection!");
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean hasPendingMessages() {
         return pendingMessages.size() > 0;
     }
 
+    /**
+     *
+     * @return
+     */
     public HTSPMessage getMessage() {
         if(DEBUG) {
             System.out.println("Dequeueing message for sending");

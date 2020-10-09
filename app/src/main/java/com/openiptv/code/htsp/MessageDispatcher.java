@@ -3,6 +3,16 @@ package com.openiptv.code.htsp;
 import androidx.annotation.NonNull;
 
 public interface MessageDispatcher {
+    /**
+     *
+     * @param listener
+     */
     void addMessageListener(MessageListener listener);
-    void sendMessage(@NonNull HTSPMessage message) throws HTSPNotConnectedException;
+
+    /**
+     *
+     * @param message
+     * @throws HTSPException
+     */
+    void sendMessage(@NonNull HTSPMessage message) throws HTSPException;
 }

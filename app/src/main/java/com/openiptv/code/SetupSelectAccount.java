@@ -1,5 +1,6 @@
-package com.openiptv.code.fragments;
+package com.openiptv.code;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -8,9 +9,6 @@ import androidx.core.content.ContextCompat;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
-
-import com.openiptv.code.DatabaseActions;
-import com.openiptv.code.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,7 +128,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             databaseActions.setActiveAccount(accountSelected.getString(0));
 
             databaseActions.close();
-            GuidedStepSupportFragment fragment = new SyncFragment();
+            GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);
 

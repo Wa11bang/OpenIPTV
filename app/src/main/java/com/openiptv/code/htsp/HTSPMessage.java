@@ -9,6 +9,9 @@ import java.util.Map;
 
 import static com.openiptv.code.Constants.DEBUG;
 
+/**
+ *
+ */
 public class HTSPMessage extends HashMap<String, Object> {
     public HTSPMessage(Map<? extends String, ?> message)
     {
