@@ -1,14 +1,11 @@
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
-import androidx.fragment.app.Fragment;
 import androidx.leanback.app.GuidedStepSupportFragment;
 
 
 import com.openiptv.code.DatabaseActions;
-import com.openiptv.code.SetupNewAccountFragment;
 import com.openiptv.code.TVHeadendAccount;
 
 import org.junit.After;
@@ -18,9 +15,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.util.FragmentTestUtil;
-
-import java.util.regex.Pattern;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.util.FragmentTestUtil.startFragment;

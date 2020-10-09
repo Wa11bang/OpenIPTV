@@ -1,6 +1,5 @@
-package com.openiptv.code;
+package com.openiptv.code.fragments;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 
@@ -10,12 +9,13 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
-import com.openiptv.code.fragments.SyncFragment;
+import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SetupSelectAccount extends GuidedStepSupportFragment {
+public class SetupSelectAccountFragment extends GuidedStepSupportFragment {
     @NonNull
     @Override
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {

@@ -1,4 +1,4 @@
-package com.openiptv.code;
+package com.openiptv.code.fragments;
 
 import android.content.ContentResolver;
 import android.media.tv.TvContract;
@@ -13,6 +13,10 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
+import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.PreferenceUtils;
+import com.openiptv.code.R;
+import com.openiptv.code.TVHeadendAccount;
 import com.openiptv.code.fragments.SyncFragment;
 import com.openiptv.code.htsp.Authenticator;
 import com.openiptv.code.htsp.BaseConnection;

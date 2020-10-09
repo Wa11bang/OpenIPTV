@@ -9,7 +9,6 @@ import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
 import com.openiptv.code.R;
-import com.openiptv.code.SetupSelectAccount;
 
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class IntroFragment extends GuidedStepSupportFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         // Move onto the next step
-        GuidedStepSupportFragment fragment = new SetupSelectAccount();
+        GuidedStepSupportFragment fragment = new SetupSelectAccountFragment();
         fragment.setArguments(getArguments());
         add(getParentFragmentManager(), fragment);
     }
