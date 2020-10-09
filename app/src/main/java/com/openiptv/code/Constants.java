@@ -48,16 +48,16 @@ public class Constants {
     public static final int FALLBACK_SUBSCRIPTION_ID = -1;
 
     // HTSP Methods
-    public static final Set<String> AUTH_METHODS = new ArraySet<>(Arrays.asList("hello","authenticate"));
-    public static final Set<String> EPG_METHODS = new ArraySet<>(Arrays.asList("channelAdd","eventAdd","channelUpdate","eventUpdate","initialSyncCompleted","dvrEntryAdd","dvrEntryUpdate"));
-    public static final Set<String> SUBSCRIPTION_METHODS = new ArraySet<>(Arrays.asList("subscriptionStart","subscriptionStatus","subscriptionStop","subscriptionSkip","subscriptionSpeed","muxpkt","timeshiftStatus"));
+    public static final Set<String> AUTH_METHODS = new ArraySet<>(Arrays.asList("hello", "authenticate"));
+    public static final Set<String> EPG_METHODS = new ArraySet<>(Arrays.asList("channelAdd", "eventAdd", "channelUpdate", "eventUpdate", "initialSyncCompleted", "dvrEntryAdd", "dvrEntryUpdate"));
+    public static final Set<String> SUBSCRIPTION_METHODS = new ArraySet<>(Arrays.asList("subscriptionStart", "subscriptionStatus", "subscriptionStop", "subscriptionSkip", "subscriptionSpeed", "muxpkt", "timeshiftStatus"));
 
     // TVHeadEnd Audio Sample Rates
     public static final int[] AUDIO_SAMPLE_RATES = new int[]{
             96000, 88200, 64000, 48000,
             44100, 32000, 24000, 22050,
-            16000, 12000, 11025,  8000,
-            7350,     0,     0,     0
+            16000, 12000, 11025, 8000,
+            7350, 0, 0, 0
     };
 
     // Extended Extractors

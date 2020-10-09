@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
 import androidx.annotation.Nullable;
 
 import com.openiptv.code.DatabaseActions;
@@ -31,7 +32,7 @@ public class EPGService extends Service {
             Log.d("EPGService", "called!");
         }
 
-        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             Log.d("EPGService", "Creating Capture Task");
             epgCaptureTask = new EPGCaptureTask(this);
         }

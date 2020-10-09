@@ -31,16 +31,13 @@ public class Connection implements Runnable {
     /**
      *
      */
-    public interface Listener
-    {
+    public interface Listener {
         /**
-         *
          * @param connection
          */
         void setConnection(@NonNull Connection connection);
 
         /**
-         *
          * @param state
          */
         void onConnectionStateChange(@NonNull State state);
@@ -58,12 +55,10 @@ public class Connection implements Runnable {
     }
 
     /**
-     *
      * @param connectionInfo
      * @param socketIOHandler
      */
-    public Connection(ConnectionInfo connectionInfo, SocketIOHandler socketIOHandler)
-    {
+    public Connection(ConnectionInfo connectionInfo, SocketIOHandler socketIOHandler) {
         this.connectionInfo = connectionInfo;
         this.socketIOHandler = socketIOHandler;
     }
@@ -73,11 +68,9 @@ public class Connection implements Runnable {
         // Do the initial connection
         openConnection();
 
-        while(currentState == State.CONNECTING || currentState == State.CONNECTED)
-        {
+        while (currentState == State.CONNECTING || currentState == State.CONNECTED) {
 
-            if(channelSelector == null || !channelSelector.isOpen())
-            {
+            if (channelSelector == null || !channelSelector.isOpen()) {
                 // Exit and Close Connection
                 setState(State.FAILED);
                 closeConnection();
@@ -99,8 +92,7 @@ public class Connection implements Runnable {
     /**
      *
      */
-    public void openConnection()
-    {
+    public void openConnection() {
         setState(State.STARTED);
         ccLock.lock();
         try {
@@ -110,8 +102,7 @@ public class Connection implements Runnable {
             channelSelector = Selector.open();
             int operations = SelectionKey.OP_CONNECT | SelectionKey.OP_READ;
             socketChannel.register(channelSelector, operations);
-        } catch (UnresolvedAddressException e)
-        {
+        } catch (UnresolvedAddressException e) {
             setState(State.FAILED);
             return;
         } catch (IllegalArgumentException e) {
@@ -130,8 +121,7 @@ public class Connection implements Runnable {
     /**
      *
      */
-    public void closeConnection()
-    {
+    public void closeConnection() {
         if (currentState == State.CLOSED || currentState == State.FAILED) {
             //Log.w(TAG, "Attempting to close while already closed, closing or failed");
             return;
@@ -171,8 +161,7 @@ public class Connection implements Runnable {
     /**
      *
      */
-    public void manageChannel()
-    {
+    public void manageChannel() {
         try {
             channelSelector.select();
         } catch (IOException e) {
@@ -189,8 +178,7 @@ public class Connection implements Runnable {
             }
             Set<SelectionKey> selectionKeySet = channelSelector.selectedKeys();
             keyIterator = selectionKeySet.iterator();
-        } catch (ClosedSelectorException e)
-        {
+        } catch (ClosedSelectorException e) {
             // Connection is basically closed
             closeConnection();
             return;
@@ -242,11 +230,9 @@ public class Connection implements Runnable {
     }
 
     /**
-     *
      * @param selectionKey
      */
-    public void handleConnect(SelectionKey selectionKey)
-    {
+    public void handleConnect(SelectionKey selectionKey) {
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
         try {
@@ -261,11 +247,9 @@ public class Connection implements Runnable {
     }
 
     /**
-     *
      * @param selectionKey
      */
-    public void handleRead(SelectionKey selectionKey)
-    {
+    public void handleRead(SelectionKey selectionKey) {
         //System.out.println("processReadableSelectionKey()");
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
@@ -278,11 +262,9 @@ public class Connection implements Runnable {
     }
 
     /**
-     *
      * @param selectionKey
      */
-    public void handleWrite(SelectionKey selectionKey)
-    {
+    public void handleWrite(SelectionKey selectionKey) {
         //System.out.println("processWritableSelectionKey()");
 
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
@@ -299,29 +281,28 @@ public class Connection implements Runnable {
      *
      */
     public void setWritePending() {
-            if (currentState == State.CLOSED || currentState == State.FAILED) {
-                System.out.println("Attempting to write while closed, closing or failed - discarding");
-                return;
-            }
+        if (currentState == State.CLOSED || currentState == State.FAILED) {
+            System.out.println("Attempting to write while closed, closing or failed - discarding");
+            return;
+        }
 
-            ccLock.lock();
-            try {
-                if (socketChannel != null && socketChannel.isConnected() && !socketChannel.isConnectionPending()) {
-                    try {
-                        //System.out.println("Write has been triggered!");
-                        socketChannel.register(channelSelector, SelectionKey.OP_WRITE);
-                        channelSelector.wakeup();
-                    } catch (ClosedChannelException e) {
-                        setState(State.FAILED);
-                    }
+        ccLock.lock();
+        try {
+            if (socketChannel != null && socketChannel.isConnected() && !socketChannel.isConnectionPending()) {
+                try {
+                    //System.out.println("Write has been triggered!");
+                    socketChannel.register(channelSelector, SelectionKey.OP_WRITE);
+                    channelSelector.wakeup();
+                } catch (ClosedChannelException e) {
+                    setState(State.FAILED);
                 }
-            } finally {
-                ccLock.unlock();
             }
+        } finally {
+            ccLock.unlock();
+        }
     }
 
     /**
-     *
      * @param state
      */
     private void setState(final State state) {
@@ -338,7 +319,6 @@ public class Connection implements Runnable {
     }
 
     /**
-     *
      * @param listener
      */
     public void addConnectionListener(Listener listener) {
@@ -351,7 +331,6 @@ public class Connection implements Runnable {
     }
 
     /**
-     *
      * @param listener
      */
     public void removeConnectionListener(Listener listener) {

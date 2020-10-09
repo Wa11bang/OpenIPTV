@@ -1,24 +1,11 @@
 package com.openiptv.code;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.app.GuidedStepSupportFragment;
-import androidx.leanback.widget.GuidanceStylist;
-import androidx.leanback.widget.GuidedAction;
-import androidx.leanback.widget.GuidedActionsStylist;
 
-import com.openiptv.code.epg.EPGCaptureTask;
-import com.openiptv.code.epg.EPGService;
-
-import java.util.List;
-
-import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
+import com.openiptv.code.fragments.IntroFragment;
 
 public class SetupActivity extends FragmentActivity {
     private static final String TAG = SetupActivity.class.getName();
@@ -32,7 +19,7 @@ public class SetupActivity extends FragmentActivity {
         GuidedStepSupportFragment.addAsRoot(this, fragment, android.R.id.content);
     }
 
-    public static abstract class BaseGuidedStepFragment extends GuidedStepSupportFragment {
+    /*public static abstract class BaseGuidedStepFragment extends GuidedStepSupportFragment {
         @Override
         public int onProvideTheme() {
             return R.style.Theme_Setup;
@@ -42,9 +29,9 @@ public class SetupActivity extends FragmentActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
         }
-    }
+    }*/
 
-    public static class IntroFragment extends GuidedStepSupportFragment {
+    /*public static class IntroFragment extends GuidedStepSupportFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -79,9 +66,9 @@ public class SetupActivity extends FragmentActivity {
             fragment.setArguments(getArguments());
             add(getParentFragmentManager(), fragment);
         }
-    }
+    }*/
 
-    public static class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTask.Listener {
+    /*public static class SyncFragment extends BaseGuidedStepFragment implements EPGCaptureTask.Listener {
         EPGCaptureTask mEpgSyncTask;
 
         @Override
@@ -139,9 +126,9 @@ public class SetupActivity extends FragmentActivity {
                     .build();
             actions.add(action);
         }
-    }
+    }*/
 
-    public static class CompletedFragment extends GuidedStepSupportFragment {
+    /*public static class CompletedFragment extends GuidedStepSupportFragment {
         private static final int ACTION_ID_SETTINGS = 1;
         private static final int ACTION_ID_COMPLETE = 2;
 
@@ -185,5 +172,5 @@ public class SetupActivity extends FragmentActivity {
 
             }
         }
-    }
+    }*/
 }

@@ -13,6 +13,7 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
+import com.openiptv.code.fragments.SyncFragment;
 import com.openiptv.code.htsp.Authenticator;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
@@ -150,7 +151,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     databaseActions.setActiveAccount(accountId);
 
                     databaseActions.close();
-                    GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
+                    GuidedStepSupportFragment fragment = new SyncFragment();
                     fragment.setArguments(newAccountDetails);
                     add(getParentFragmentManager(), fragment);
                 }

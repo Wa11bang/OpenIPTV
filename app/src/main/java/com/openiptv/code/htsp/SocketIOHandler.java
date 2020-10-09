@@ -12,17 +12,18 @@ public class SocketIOHandler {
 
     /**
      * Constructor for SocketIOHandler Object
+     *
      * @param htspSerializer
      * @param htspMessageDispatcher
      */
-    public SocketIOHandler(HTSPSerializer htspSerializer, HTSPMessageDispatcher htspMessageDispatcher)
-    {
+    public SocketIOHandler(HTSPSerializer htspSerializer, HTSPMessageDispatcher htspMessageDispatcher) {
         this.htspSerializer = htspSerializer;
         this.htspMessageDispatcher = htspMessageDispatcher;
     }
 
     /**
      * Returns if the dispatcher has any available messages to writes.
+     *
      * @return whether any messages are waiting to be written.
      */
     public boolean hasWriteableData() {
@@ -30,7 +31,6 @@ public class SocketIOHandler {
     }
 
     /**
-     *
      * @param socketChannel
      * @return
      */
@@ -40,10 +40,10 @@ public class SocketIOHandler {
 
         HTSPMessage message = htspMessageDispatcher.getMessage();
 
-            // Write the message to the buffer
+        // Write the message to the buffer
         htspSerializer.write(writeBuffer, message);
 
-            // Flip the buffer, limit=position, position=0.
+        // Flip the buffer, limit=position, position=0.
         writeBuffer.flip();
 
         try {
@@ -58,7 +58,6 @@ public class SocketIOHandler {
     }
 
     /**
-     *
      * @param socketChannel
      * @return
      */

@@ -27,6 +27,7 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
 
         /**
          * Retrieves the current DataSource instance if it exists.
+         *
          * @return current DataSource instance
          */
         public HTSPDataSource getCurrentDataSource() {
@@ -49,6 +50,7 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
 
         /**
          * Abstract method used to create the initial DataSource object.
+         *
          * @return single instance of HTSPDataSource
          */
         protected abstract HTSPDataSource createDataSourceInternal();
@@ -60,7 +62,8 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
 
     /**
      * Constructor for a HTSPDataSource object
-     * @param context application context
+     *
+     * @param context    application context
      * @param connection BaseConnection used to subscribe to TV Channels
      */
     public HTSPDataSource(Context context, BaseConnection connection) {

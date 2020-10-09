@@ -65,7 +65,8 @@ public class TVPlayer implements Player.EventListener {
     public interface Listener {
         /**
          * Notifies listeners that a new set of tracks are available and the currently selected tracks.
-         * @param tracks all available tracks
+         *
+         * @param tracks         all available tracks
          * @param selectedTracks currently selected tracks
          */
         void onTracks(List<TvTrackInfo> tracks, SparseArray<String> selectedTracks);
@@ -73,11 +74,11 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Constructor for TVPlayer object
-     * @param context application context
+     *
+     * @param context    application context
      * @param connection BaseConnection used for subscribing to Channels/Recordings
      */
-    public TVPlayer(Context context, BaseConnection connection)
-    {
+    public TVPlayer(Context context, BaseConnection connection) {
         Log.d("TVPlayer", "Created!");
         this.context = context;
 
@@ -97,6 +98,7 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Sets the VideoSurface for ExoPlayer
+     *
      * @param surface videoSurface
      */
     public boolean setSurface(Surface surface) {
@@ -109,8 +111,9 @@ public class TVPlayer implements Player.EventListener {
     /**
      * Prepares the ExoPlayer MediaSource. Can be either a recording or Live TV Stream. Currently the
      * recording implementation is hard-coded, and can only play ONE stream.
+     *
      * @param channelUri to tune
-     * @param recording is this source a recording
+     * @param recording  is this source a recording
      */
     public void prepare(Uri channelUri, boolean recording) {
         this.recording = recording;
@@ -148,7 +151,7 @@ public class TVPlayer implements Player.EventListener {
         Log.d(TAG, "Released TVPlayer");
         player.release();
         //connection.stop();
-        if(surface != null) {
+        if (surface != null) {
             surface.release();
         }
         mediaSource.releaseSource(null);
@@ -192,10 +195,10 @@ public class TVPlayer implements Player.EventListener {
     /**
      * Sets the PlayBackParams for the DataSource AND ExoPlayer. Currently only FAST FORWARD can be
      * implemented due to Clock Limitations. FAST REWIND is being worked on using a runnable.
+     *
      * @param playbackParams to set
      */
-    public void setPlaybackParams(PlaybackParams playbackParams)
-    {
+    public void setPlaybackParams(PlaybackParams playbackParams) {
         player.setPlayWhenReady(false);
         /*if(seekableRunnable != null)
         {
@@ -208,8 +211,7 @@ public class TVPlayer implements Player.EventListener {
         if (dataSource != null) {
             Log.d(TAG, "Resuming HtspDataSource");
 
-            if(playbackParams.getSpeed() < 1)
-            {
+            if (playbackParams.getSpeed() < 1) {
                 Log.d(TAG, "REWINDING! - NOT SUPPORTED");
                 //((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
                 //seekableRunnable = new SeekableRunnable(player, (int) playbackParams.getSpeed(), (HTSPSubscriptionDataSource) mDataSource, (HTSPSubscriptionDataSource.Factory) mHtspSubscriptionDataSourceFactory);
@@ -217,8 +219,7 @@ public class TVPlayer implements Player.EventListener {
 
                 player.setPlayWhenReady(true);
                 Toast.makeText(context, "Fast Rewind not Supported!", Toast.LENGTH_SHORT).show();
-            }
-            else {
+            } else {
                 ((HTSPSubscriptionDataSource) dataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
                 player.setPlaybackParameters(new PlaybackParameters(playbackParams.getSpeed()));
                 player.setPlayWhenReady(true);
@@ -228,6 +229,7 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Returns the start position for the TV Input / ExoPlayer
+     *
      * @return startPosition
      */
     public long getTimeshiftStartPosition() {
@@ -250,6 +252,7 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Returns the current position in the TV input / ExoPlayer
+     *
      * @return currentPosition
      */
     public long getTimeshiftCurrentPosition() {
@@ -268,10 +271,10 @@ public class TVPlayer implements Player.EventListener {
     /**
      * Seeks the DataSource AND ExoPlayer by the given timeMs. The actual seek time is calculated by
      * the current position and offset.
+     *
      * @param timeMs to seek
      */
-    public void seek(long timeMs)
-    {
+    public void seek(long timeMs) {
         pause();
         if (dataSource != null) {
             Log.d(TAG, "Seeking to time: " + timeMs);
@@ -279,7 +282,7 @@ public class TVPlayer implements Player.EventListener {
             long seekPts = (timeMs * 1000) - ((HTSPSubscriptionDataSource) dataSource).getTimeshiftStartTime();
             seekPts = Math.max(seekPts, ((HTSPSubscriptionDataSource) dataSource).getTimeshiftStartPts()) / 1000;
             Log.d(TAG, "Seeking to PTS: " + seekPts);
-            Log.d(TAG, "BEFORE Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " +((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
+            Log.d(TAG, "BEFORE Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " + ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
 
 
             ((HTSPSubscriptionDataSource) dataSource).seek(seekPts);
@@ -291,7 +294,7 @@ public class TVPlayer implements Player.EventListener {
             }
 
             player.seekTo(seekPts);
-            Log.d(TAG, "AFTER Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " +((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
+            Log.d(TAG, "AFTER Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " + ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
 
             //mediaSource.releaseSource(null);
             //player.prepare(mediaSource, false, false);
@@ -312,6 +315,7 @@ public class TVPlayer implements Player.EventListener {
     /**
      * this method take input from the TVInputService class onSetStreamVolume method or
      * onSetStreamMute method change the volume of the player
+     *
      * @param volume to set
      */
     public void changeVolume(float volume) {
@@ -321,6 +325,7 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Returns the current volume
+     *
      * @return currentVolume
      */
     public float getCurrentVolume() {
@@ -329,45 +334,37 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Internal Helper Method which is used to convert the Android TV speeds to TVHeadEnd Speeds
+     *
      * @param speed android speed
      * @return TVHeadEnd speed
      */
-    public static int AndroidTVSpeedToTVH(float speed)
-    {
-        switch ((int) speed)
-        {
-            case 0:
-            {
+    public static int AndroidTVSpeedToTVH(float speed) {
+        switch ((int) speed) {
+            case 0: {
                 return 100; // 1X
             }
             case 2: {
                 return 200; // 2X
             }
-            case 8:
-            {
+            case 8: {
                 return 300; // 3X
             }
-            case 32:
-            {
+            case 32: {
                 return 400; // 4X
             }
-            case 128:
-            {
+            case 128: {
                 return 500; // 5X
             }
             case -2: {
                 return -200;
             }
-            case -8:
-            {
+            case -8: {
                 return -300;
             }
-            case -32:
-            {
+            case -32: {
                 return -400;
             }
-            case -128:
-            {
+            case -128: {
                 return -500;
             }
         }
@@ -377,12 +374,11 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Add a Player.Listener to the Listeners list
+     *
      * @param listener to add
      */
-    public void addListener(Listener listener)
-    {
-        if(DEBUG)
-        {
+    public void addListener(Listener listener) {
+        if (DEBUG) {
             Log.d(TAG, "Added Listener");
         }
         this.listeners.add(listener);
@@ -390,7 +386,7 @@ public class TVPlayer implements Player.EventListener {
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-        if(DEBUG) {
+        if (DEBUG) {
             Log.d(TAG, "Tracks Changed");
         }
         MappingTrackSelector.MappedTrackInfo currentMappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
@@ -438,15 +434,14 @@ public class TVPlayer implements Player.EventListener {
         }
 
         // Notify all Listeners that the tracks have been changed
-        for(Listener listener : listeners)
+        for (Listener listener : listeners)
             listener.onTracks(tracks, selectedTracks);
     }
 
     /**
      * This is going to be used for the a custom fast rewind implementation.
      */
-    private static class SeekableRunnable
-    {
+    private static class SeekableRunnable {
         private Handler repeatUpdateHandler = new Handler();
         public int value;
         private boolean rewind = false;
@@ -455,8 +450,7 @@ public class TVPlayer implements Player.EventListener {
         private HTSPSubscriptionDataSource dataSource;
         private HTSPSubscriptionDataSource.Factory htspDataSourceFactory;
 
-        public SeekableRunnable(SimpleExoPlayer player, int speed, HTSPSubscriptionDataSource dataSource, HTSPSubscriptionDataSource.Factory htspDataSourceFactory)
-        {
+        public SeekableRunnable(SimpleExoPlayer player, int speed, HTSPSubscriptionDataSource dataSource, HTSPSubscriptionDataSource.Factory htspDataSourceFactory) {
             this.player = player;
             this.value = speed;
             this.dataSource = dataSource;
@@ -465,28 +459,25 @@ public class TVPlayer implements Player.EventListener {
 
         private class Updater implements Runnable {
             public void run() {
-                if(rewind)
-                {
+                if (rewind) {
                     dataSource = (HTSPSubscriptionDataSource) htspDataSourceFactory.getCurrentDataSource();
                     long seekPtsPlayer = player.getContentBufferedPosition() + (value * 15); // TODO: Figure out the actual time conversion for ExoPlayer seekTo,
-                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer +", OFFSET: " + dataSource.getTimeshiftOffsetPts());
+                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer + ", OFFSET: " + dataSource.getTimeshiftOffsetPts());
 
                     //dataSource.seek(seekPtsPlayer * 1000);
                     //player.seekTo(seekPtsPlayer);
-                    repeatUpdateHandler.postDelayed( new Updater(), 100 );
+                    repeatUpdateHandler.postDelayed(new Updater(), 100);
                 }
             }
         }
 
-        public void startRewind()
-        {
+        public void startRewind() {
             rewind = true;
-            repeatUpdateHandler.post( new Updater() );
+            repeatUpdateHandler.post(new Updater());
             player.setPlayWhenReady(false);
         }
 
-        public void stopRewind()
-        {
+        public void stopRewind() {
             rewind = false;
             player.setPlayWhenReady(true);
         }
@@ -494,6 +485,7 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Create the TvTrackInfo object for a given Format
+     *
      * @param format to parse into TvTrackInfo object
      * @return TvTrackInfo
      */

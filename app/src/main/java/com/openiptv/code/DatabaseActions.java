@@ -226,6 +226,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * Remove all accounts with a certain name rather than just the first.
+     *
      * @param clientName
      */
     public void clearAccountsClientName(String clientName) {

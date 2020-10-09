@@ -9,6 +9,7 @@ public class HTSPException extends Exception {
 
     /**
      * Constructor for HTSPException, sends a message describing the exception,
+     *
      * @param message description of exception
      */
     public HTSPException(String message) {
@@ -17,8 +18,9 @@ public class HTSPException extends Exception {
 
     /**
      * Constructor with message and a cause of Throwable type.
+     *
      * @param message description of exception
-     * @param cause throwable cause of exception
+     * @param cause   throwable cause of exception
      */
     public HTSPException(String message, Throwable cause) {
         super(message, cause);
@@ -26,6 +28,7 @@ public class HTSPException extends Exception {
 
     /**
      * Constructor with cause of Throwable type.
+     *
      * @param cause throwable cause of exception
      */
     public HTSPException(Throwable cause) {

@@ -53,15 +53,14 @@ public class TVInputService extends TvInputService {
             databaseActions.close();
 
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
-            
+
             createConnection();
         }
     }
 
     @Override
     public final Session onCreateSession(String inputId) {
-        if(connection == null)
-        {
+        if (connection == null) {
             createConnection();
         }
         TVSession session = new TVSession(this, inputId, connection);
@@ -93,14 +92,14 @@ public class TVInputService extends TvInputService {
         }
 
         @Override
-        public void onTune (Uri channelUri){
+        public void onTune(Uri channelUri) {
             notifyTuned(channelUri);
             Log.d(TAG, "Recording added to server.");
             this.channel = channelUri;
         }
 
         @Override
-        public void onStartRecording (@Nullable Uri programUri){
+        public void onStartRecording(@Nullable Uri programUri) {
             int eventID = Program.getProgramIdFromProgramUri(context, programUri);
             int channelID = Channel.getChannelIdFromChannelUri(context, channel);
             Log.d(TAG, "eventID " + eventID);
@@ -120,12 +119,12 @@ public class TVInputService extends TvInputService {
         }
 
         @Override
-        public void onStopRecording () {
+        public void onStopRecording() {
             notifyRecordingStopped(program);
         }
 
         @Override
-        public void onRelease () {
+        public void onRelease() {
 
         }
     }
@@ -157,7 +156,7 @@ public class TVInputService extends TvInputService {
         String port = DatabaseActions.activeAccount.getString("port");
         String clientName = DatabaseActions.activeAccount.getString("clientName");
 
-        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName+"_Subscription", String.valueOf(Build.VERSION.SDK_INT)));
+        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName + "_Subscription", String.valueOf(Build.VERSION.SDK_INT)));
         connection.start();
     }
 

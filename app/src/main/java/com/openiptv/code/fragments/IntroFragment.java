@@ -1,30 +1,19 @@
 package com.openiptv.code.fragments;
 
 import android.os.Bundle;
-import android.text.InputType;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
 import com.openiptv.code.R;
-import com.openiptv.code.SetupActivity;
+import com.openiptv.code.SetupSelectAccount;
 
 import java.util.List;
 
 public class IntroFragment extends GuidedStepSupportFragment {
-
-    private FragmentManager fragmentManager;
-
-    public IntroFragment(FragmentManager fragmentManager) {
-        this.fragmentManager = fragmentManager;
-    }
-
-    private static final String TAG = IntroFragment.class.getName();
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +24,8 @@ public class IntroFragment extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                getResources().getString(R.string.IntroFragment_guidance_title),
-                getResources().getString(R.string.IntroFragment_guidance_description),
+                getString(R.string.setup_activity_welcome),
+                getString(R.string.setup_activity_description),
                 getString(R.string.account_label),
                 ContextCompat.getDrawable(getActivity(), R.drawable.standard));
     }
@@ -44,10 +33,9 @@ public class IntroFragment extends GuidedStepSupportFragment {
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
         GuidedAction action = new GuidedAction.Builder(getActivity())
-                .title(getResources().getString(R.string.IntroFragment_action_title))
-                .description(getResources().getString(R.string.IntroFragment_action_description))
+                .title(getString(R.string.setup_activity_select_account))
+                .description(getString(R.string.setup_activity_select_account_description))
                 .editable(false)
-                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .build();
 
         actions.add(action);
@@ -56,8 +44,8 @@ public class IntroFragment extends GuidedStepSupportFragment {
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         // Move onto the next step
-        GuidedStepSupportFragment fragment = new AccountFragment(getFragmentManager());
+        GuidedStepSupportFragment fragment = new SetupSelectAccount();
         fragment.setArguments(getArguments());
-        add(this.fragmentManager, fragment);
+        add(getParentFragmentManager(), fragment);
     }
 }

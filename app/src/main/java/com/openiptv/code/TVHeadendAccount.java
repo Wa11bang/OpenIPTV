@@ -10,7 +10,7 @@ public class TVHeadendAccount {
     private String port;
     private String clientName;
 
-    public TVHeadendAccount(Bundle bundle){
+    public TVHeadendAccount(Bundle bundle) {
         this.setUsername(bundle.getString("username"));
         this.setPassword(bundle.getString("password"));
         this.setHostname(bundle.getString("hostname"));

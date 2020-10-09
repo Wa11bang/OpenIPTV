@@ -20,7 +20,6 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     }
 
     /**
-     *
      * @param connection
      */
     public void setConnection(Connection connection) {
@@ -28,7 +27,6 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     }
 
     /**
-     *
      * @param listener
      */
     public void addMessageListener(MessageListener listener) {
@@ -36,13 +34,12 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
             listeners.add(listener);
             return;
         }
-        if(DEBUG) {
+        if (DEBUG) {
             System.out.println("Listener already exists!");
         }
     }
 
     /**
-     *
      * @param listener
      */
     public void removeMessageListener(MessageListener listener) {
@@ -50,13 +47,12 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
             listeners.remove(listener);
             return;
         }
-        if(DEBUG) {
+        if (DEBUG) {
             System.out.println("Listener to remove does not exist!");
         }
     }
 
     /**
-     *
      * @param message
      */
     public void onMessage(final HTSPMessage message) {
@@ -67,12 +63,11 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
 
     @Override
     public void sendMessage(HTSPMessage message) throws HTSPException {
-        if(!pendingMessages.contains(message))
-        {
+        if (!pendingMessages.contains(message)) {
             if (connection != null) {
                 connection.setWritePending();
                 pendingMessages.add(message);
-                if(DEBUG) {
+                if (DEBUG) {
                     Log.d(TAG, "Added message to queue");
                 }
                 return;
@@ -83,7 +78,6 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     }
 
     /**
-     *
      * @return
      */
     public boolean hasPendingMessages() {
@@ -91,14 +85,13 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
     }
 
     /**
-     *
      * @return
      */
     public HTSPMessage getMessage() {
-        if(DEBUG) {
+        if (DEBUG) {
             System.out.println("Dequeueing message for sending");
         }
-        if(pendingMessages.size() != 0) {
+        if (pendingMessages.size() != 0) {
             return pendingMessages.remove();
         }
         return null;

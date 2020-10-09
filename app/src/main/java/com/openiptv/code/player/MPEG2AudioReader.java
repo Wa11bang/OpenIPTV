@@ -15,6 +15,7 @@ public class MPEG2AudioReader extends AudioReader {
 
     /**
      * Extracts initialization data from an htsp message.
+     *
      * @param message htsp Message to extract the data from.
      */
     @Override

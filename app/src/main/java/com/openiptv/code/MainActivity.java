@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
 
         PreferenceUtils preferenceUtils = new PreferenceUtils(this);
 
-        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             String accountId = databaseActions.getActiveAccount();
             databaseActions.setActiveAccount(accountId);
@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 
         Intent i;
 
-        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             i = new Intent(this, PreferenceActivity.class);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

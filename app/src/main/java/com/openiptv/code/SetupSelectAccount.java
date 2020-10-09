@@ -10,6 +10,8 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
+import com.openiptv.code.fragments.SyncFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -128,7 +130,7 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
             databaseActions.setActiveAccount(accountSelected.getString(0));
 
             databaseActions.close();
-            GuidedStepSupportFragment fragment = new SetupActivity.SyncFragment();
+            GuidedStepSupportFragment fragment = new SyncFragment();
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);
 
