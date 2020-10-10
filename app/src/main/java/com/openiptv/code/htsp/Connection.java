@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
@@ -21,20 +20,48 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Connection implements Runnable {
     private ConnectionInfo connectionInfo;
-    private ConnectionState currentState;
+    private Connection.State currentState;
     private SocketChannel socketChannel;
     private SocketIOHandler socketIOHandler;
     private Selector channelSelector;
     private final Lock ccLock = new ReentrantLock();
-    private Set<ConnectionListener> connectionListeners = new CopyOnWriteArraySet<>();
+    private Set<Listener> listeners = new CopyOnWriteArraySet<>();
     private final static String TAG = Connection.class.getSimpleName();
 
-    public interface ConnectionListener
+    /**
+     *
+     */
+    public interface Listener
     {
+        /**
+         *
+         * @param connection
+         */
         void setConnection(@NonNull Connection connection);
-        void onConnectionStateChange(@NonNull ConnectionState state);
+
+        /**
+         *
+         * @param state
+         */
+        void onConnectionStateChange(@NonNull State state);
     }
 
+    /**
+     *
+     */
+    public enum State {
+        STARTED,
+        CONNECTED,
+        CONNECTING,
+        CLOSED,
+        FAILED
+    }
+
+    /**
+     *
+     * @param connectionInfo
+     * @param socketIOHandler
+     */
     public Connection(ConnectionInfo connectionInfo, SocketIOHandler socketIOHandler)
     {
         this.connectionInfo = connectionInfo;
@@ -46,13 +73,13 @@ public class Connection implements Runnable {
         // Do the initial connection
         openConnection();
 
-        while(currentState == ConnectionState.CONNECTING || currentState == ConnectionState.CONNECTED)
+        while(currentState == State.CONNECTING || currentState == State.CONNECTED)
         {
 
             if(channelSelector == null || !channelSelector.isOpen())
             {
                 // Exit and Close Connection
-                setState(ConnectionState.FAILED);
+                setState(State.FAILED);
                 closeConnection();
                 break;
             }
@@ -62,15 +89,19 @@ public class Connection implements Runnable {
 
         //System.out.println("Exited loop!");
 
-        if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
+        if (currentState == State.CLOSED || currentState == State.FAILED) {
             //System.out.println("HTSP Connection thread wrapping up without already being closed");
-            setState(ConnectionState.FAILED);
+            setState(State.FAILED);
         }
 
     }
 
-    public boolean openConnection()
+    /**
+     *
+     */
+    public void openConnection()
     {
+        setState(State.STARTED);
         ccLock.lock();
         try {
             socketChannel = SocketChannel.open();
@@ -81,25 +112,27 @@ public class Connection implements Runnable {
             socketChannel.register(channelSelector, operations);
         } catch (UnresolvedAddressException e)
         {
-            setState(ConnectionState.FAILED);
-            return false;
+            setState(State.FAILED);
+            return;
         } catch (IllegalArgumentException e) {
-            setState(ConnectionState.FAILED);
-            return false;
+            setState(State.FAILED);
+            return;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
+            return;
         } finally {
             ccLock.unlock();
         }
 
-        setState(ConnectionState.CONNECTING);
-        return true;
+        setState(State.CONNECTING);
     }
 
+    /**
+     *
+     */
     public void closeConnection()
     {
-        if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
+        if (currentState == State.CLOSED || currentState == State.FAILED) {
             //Log.w(TAG, "Attempting to close while already closed, closing or failed");
             return;
         }
@@ -129,12 +162,15 @@ public class Connection implements Runnable {
                 }
             }
 
-            setState(ConnectionState.CLOSED);
+            setState(State.CLOSED);
         } finally {
             ccLock.unlock();
         }
     }
 
+    /**
+     *
+     */
     public void manageChannel()
     {
         try {
@@ -146,9 +182,9 @@ public class Connection implements Runnable {
         Iterator<SelectionKey> keyIterator = null;
 
         try {
-            if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
+            if (currentState == State.CLOSED || currentState == State.FAILED) {
                 //System.out.println("HTSP Connection thread wrapping up without already being closed");
-                setState(ConnectionState.FAILED);
+                setState(State.FAILED);
                 return;
             }
             Set<SelectionKey> selectionKeySet = channelSelector.selectedKeys();
@@ -166,7 +202,7 @@ public class Connection implements Runnable {
             keyIterator.remove();
 
             if (!selectionKey.isValid()) {
-                setState(ConnectionState.FAILED);
+                setState(State.FAILED);
                 break;
             }
 
@@ -185,7 +221,7 @@ public class Connection implements Runnable {
                 handleWrite(selectionKey);
             }
 
-            if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
+            if (currentState == State.CLOSED || currentState == State.FAILED) {
                 break;
             }
 
@@ -205,6 +241,10 @@ public class Connection implements Runnable {
         }
     }
 
+    /**
+     *
+     * @param selectionKey
+     */
     public void handleConnect(SelectionKey selectionKey)
     {
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
@@ -212,43 +252,54 @@ public class Connection implements Runnable {
         try {
             socketChannel.finishConnect();
         } catch (IOException e) {
-            setState(ConnectionState.FAILED);
+            setState(State.FAILED);
             return;
         }
 
         //System.out.println("HTSP Connected");
-        setState(ConnectionState.CONNECTED);
+        setState(State.CONNECTED);
     }
 
+    /**
+     *
+     * @param selectionKey
+     */
     public void handleRead(SelectionKey selectionKey)
     {
         //System.out.println("processReadableSelectionKey()");
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
-        if (currentState != ConnectionState.CLOSED || currentState != ConnectionState.FAILED) {
+        if (currentState != State.CLOSED || currentState != State.FAILED) {
             if (!socketIOHandler.read(socketChannel)) {
                 //System.out.println("Failed to process readable selection key");
-                setState(ConnectionState.FAILED);
+                setState(State.FAILED);
             }
         }
     }
 
+    /**
+     *
+     * @param selectionKey
+     */
     public void handleWrite(SelectionKey selectionKey)
     {
         //System.out.println("processWritableSelectionKey()");
 
         SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 
-        if (currentState != ConnectionState.CLOSED || currentState != ConnectionState.FAILED) {
+        if (currentState != State.CLOSED || currentState != State.FAILED) {
             if (!socketIOHandler.write(socketChannel)) {
                 System.out.println("Failed to process writeable selection key");
-                setState(ConnectionState.FAILED);
+                setState(State.FAILED);
             }
         }
     }
 
+    /**
+     *
+     */
     public void setWritePending() {
-            if (currentState == ConnectionState.CLOSED || currentState == ConnectionState.FAILED) {
+            if (currentState == State.CLOSED || currentState == State.FAILED) {
                 System.out.println("Attempting to write while closed, closing or failed - discarding");
                 return;
             }
@@ -261,7 +312,7 @@ public class Connection implements Runnable {
                         socketChannel.register(channelSelector, SelectionKey.OP_WRITE);
                         channelSelector.wakeup();
                     } catch (ClosedChannelException e) {
-                        setState(ConnectionState.FAILED);
+                        setState(State.FAILED);
                     }
                 }
             } finally {
@@ -269,7 +320,11 @@ public class Connection implements Runnable {
             }
     }
 
-    private void setState(final ConnectionState state) {
+    /**
+     *
+     * @param state
+     */
+    private void setState(final State state) {
         ccLock.lock();
         try {
             currentState = state;
@@ -277,25 +332,33 @@ public class Connection implements Runnable {
             ccLock.unlock();
         }
 
-        for (final ConnectionListener listener : connectionListeners) {
+        for (final Listener listener : listeners) {
             listener.onConnectionStateChange(state);
         }
     }
 
-    public void addConnectionListener(ConnectionListener listener) {
-        if (connectionListeners.contains(listener)) {
+    /**
+     *
+     * @param listener
+     */
+    public void addConnectionListener(Listener listener) {
+        if (listeners.contains(listener)) {
             Log.w(TAG, "Attempted to add duplicate connection listener");
             return;
         }
         listener.setConnection(this);
-        connectionListeners.add(listener);
+        listeners.add(listener);
     }
 
-    public void removeConnectionListener(ConnectionListener listener) {
-        if (!connectionListeners.contains(listener)) {
+    /**
+     *
+     * @param listener
+     */
+    public void removeConnectionListener(Listener listener) {
+        if (!listeners.contains(listener)) {
             Log.w(TAG, "Attempted to remove non existing connection listener");
             return;
         }
-        connectionListeners.remove(listener);
+        listeners.remove(listener);
     }
 }

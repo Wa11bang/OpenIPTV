@@ -12,47 +12,150 @@ import android.util.Log;
 import com.openiptv.code.Constants;
 import com.openiptv.code.htsp.HTSPMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.NULL_CHANNEL;
 
 public class Program {
     private static final String TAG = Program.class.getSimpleName();
 
-    private final int eventId;
-    private final int channelId;
-    private final long start;
-    private final long end;
+    private int eventId;
+    private int channelId;
+    private long start;
+    private long end;
     private String title;
     private String summary;
     private String desc;
     private int ageRating; // Minimum-age rating
     private String programImage;
     private ContentValues contentValues;
+    private Context context;
 
-    public Program(Context context, int eventId, int channelId, long start, long end, String title, String summary, String desc, int ageRating, String programImage) {
+    /**
+     * Constructor for a Program object
+     * @param context application context
+     */
+    public Program(Context context)
+    {
+        this.context = context;
+    }
+
+    /**
+     * Sets the eventId
+     * @param eventId of object
+     * @return this instance
+     */
+    public Program setEventId(int eventId)
+    {
         this.eventId = eventId;
+        return this;
+    }
+
+    /**
+     * Sets the channelId
+     * @param channelId of object
+     * @return this instance
+     */
+    public Program setChannelId(int channelId)
+    {
         this.channelId = channelId;
+        return this;
+    }
+
+    /**
+     * Sets the start value (nanosecs)
+     * @param start of the recording
+     * @return this instance
+     */
+    public Program setStart(long start)
+    {
         this.start = start;
+        return this;
+    }
+
+    /**
+     * Sets the end value (nanosecs)
+     * @param end of the recording
+     * @return this instance
+     */
+    public Program setEnd(long end)
+    {
         this.end = end;
+        return this;
+    }
+
+    /**
+     * Sets the title
+     * @param title of the recording
+     * @return this instance
+     */
+    public Program setTitle(String title)
+    {
         this.title = title;
+        return this;
+    }
+
+    /**
+     * Sets the summary
+     * @param summary of the recording
+     * @return this instance
+     */
+    public Program setSummary(String summary)
+    {
         this.summary = summary;
+        return this;
+    }
+
+    /**
+     * Sets the description
+     * @param desc of the recording
+     * @return this instance
+     */
+    public Program setDescription(String desc)
+    {
         this.desc = desc;
+        return this;
+    }
+
+    /**
+     * Sets the description
+     * @param ageRating of the recording
+     * @return this instance
+     */
+    public Program setAgeRating(int ageRating)
+    {
         this.ageRating = ageRating;
+        return this;
+    }
+
+    /**
+     * Sets the description
+     * @param programImage of the recording
+     * @return this instance
+     */
+    public Program setProgramImage(String programImage)
+    {
         this.programImage = programImage;
-
-        generateContentValues(context);
+        return this;
     }
 
-    public Program(Context context, int eventId, int channelId, long start, long end) {
-        this.eventId = eventId;
-        this.channelId = channelId;
-        this.start = start;
-        this.end = end;
-
+    /**
+     * Builds the RecordedProgram Object. Runs an internal method to build ContextValues.
+     * @return this instance
+     */
+    public Program build() {
         generateContentValues(context);
+        return this;
     }
 
-
+    /**
+     * Constructor for a Program object, takes in a HTSPMessage which is then parsed
+     * into program data.
+     * @param context application context
+     * @param message program parsable HTSPMessage object
+     */
     public Program(Context context, HTSPMessage message)
     {
         this.eventId = message.getInteger(Constants.PROGRAM_ID);
@@ -68,6 +171,10 @@ public class Program {
         generateContentValues(context);
     }
 
+    /**
+     * Internal Method to generate ContentValues bundle
+     * @param context of the application
+     */
     private void generateContentValues(Context context)
     {
         contentValues = new ContentValues();
@@ -116,42 +223,82 @@ public class Program {
         }
     }
 
+    /**
+     * Returns the eventId
+     * @return eventId
+     */
     public int getEventId() {
         return eventId;
     }
 
+    /**
+     * Returns the channelId
+     * @return channelId
+     */
     public int getChannelId() {
         return channelId;
     }
 
+    /**
+     * Returns the start value
+     * @return start
+     */
     public long getStart() {
         return start;
     }
 
+    /**
+     * Returns the end value
+     * @return end
+     */
     public long getEnd() {
         return end;
     }
 
+    /**
+     * Returns the title
+     * @return title
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Returns the summary
+     * @return summary
+     */
     public String getSummary() {
         return summary;
     }
 
+    /**
+     * Returns the description
+     * @return desc
+     */
     public String getDesc() {
         return desc;
     }
 
+    /**
+     * Returns the Age Rating for the Program (min age in years)
+     * @return ageRating
+     */
     public int getAgeRating() {
         return ageRating;
     }
 
+    /**
+     * Returns the Program Image
+     * @return programImage
+     */
     public String getProgramImage() {
         return programImage;
     }
 
+    /**
+     * Returns the ContentValues
+     * @return contentValues
+     */
     public ContentValues getContentValues() {
         return contentValues;
     }
@@ -187,12 +334,24 @@ public class Program {
         return null;
     }
 
+    /**
+     * Gets the Internal TvProvider URI for a given Program
+     * @param context application context
+     * @param program Program object to locate in TvProvider database
+     * @return Program URI
+     */
     public static Uri getUri(Context context, Program program)
     {
         return getUri(context, program.getChannelId(), program.getEventId());
     }
-<<<<<<< HEAD
 
+    /**
+     * Returns the TvHeadEnd eventId from a given Program Uri. The method searches
+     * the TvProvider database for the stored eventId.
+     * @param context application context
+     * @param programUri uri used to locate eventId in TvProvider database
+     * @return TvHeadEnd eventId
+     */
     public static Integer getProgramIdFromProgramUri(Context context, Uri programUri) {
         ContentResolver resolver = context.getContentResolver();
 
@@ -213,6 +372,13 @@ public class Program {
         return null;
     }
 
+    /**
+     * Returns the TvHeadEnd start time from a given Program Uri. The method searches
+     * the TvProvider database for the stored start time.
+     * @param context application context
+     * @param programUri uri used to locate start time in TvProvider database
+     * @return TvHeadEnd start time
+     */
     public static Integer getProgramStartFromProgramUri(Context context, Uri programUri) {
         ContentResolver resolver = context.getContentResolver();
 
@@ -233,6 +399,13 @@ public class Program {
         return null;
     }
 
+    /**
+     * Returns the TvHeadEnd end time from a given Program Uri. The method searches
+     * the TvProvider database for the stored end time.
+     * @param context application context
+     * @param programUri uri used to locate end time in TvProvider database
+     * @return TvHeadEnd end time
+     */
     public static Integer getProgramEndFromProgramUri(Context context, Uri programUri) {
         ContentResolver resolver = context.getContentResolver();
 
@@ -252,6 +425,4 @@ public class Program {
 
         return null;
     }
-=======
->>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
 }

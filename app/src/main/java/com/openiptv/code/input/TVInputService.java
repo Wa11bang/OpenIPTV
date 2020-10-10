@@ -19,20 +19,17 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-<<<<<<< HEAD
 import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.PreferenceUtils;
-=======
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.openiptv.code.Constants;
-import com.openiptv.code.DatabaseActions;
->>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
 import com.openiptv.code.R;
 import com.openiptv.code.epg.Channel;
 import com.openiptv.code.epg.EPGService;
+import com.openiptv.code.epg.Program;
 import com.openiptv.code.epg.RecordedProgram;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
+import com.openiptv.code.htsp.HTSPException;
+import com.openiptv.code.htsp.HTSPMessage;
 import com.openiptv.code.player.TVPlayer;
 
 import java.util.List;
@@ -48,17 +45,13 @@ public class TVInputService extends TvInputService {
     @Override
     public void onCreate() {
         super.onCreate();
-
-<<<<<<< HEAD
         PreferenceUtils preferenceUtils = new PreferenceUtils(this);
 
         if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
-=======
-        if (isSetupComplete(this)) {
->>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
             DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
             databaseActions.syncActiveAccount();
             databaseActions.close();
+
             getApplicationContext().startService(new Intent(getApplicationContext(), EPGService.class));
             
             createConnection();
@@ -77,9 +70,72 @@ public class TVInputService extends TvInputService {
     }
 
     @Override
+    public TvInputService.RecordingSession onCreateRecordingSession(String inputId) {
+        RecordingSession session = new RecordingSession(this, connection);
+        return session;
+    }
+
+    class RecordingSession extends TvInputService.RecordingSession {
+        private BaseConnection connection;
+        private Context context;
+        private Uri program;
+        private Uri channel;
+
+        /**
+         * Creates a new RecordingSession.
+         *
+         * @param context The context of the application
+         */
+        public RecordingSession(Context context, BaseConnection connection) {
+            super(context);
+            this.context = context;
+            this.connection = connection;
+        }
+
+        @Override
+        public void onTune (Uri channelUri){
+            notifyTuned(channelUri);
+            Log.d(TAG, "Recording added to server.");
+            this.channel = channelUri;
+        }
+
+        @Override
+        public void onStartRecording (@Nullable Uri programUri){
+            int eventID = Program.getProgramIdFromProgramUri(context, programUri);
+            int channelID = Channel.getChannelIdFromChannelUri(context, channel);
+            Log.d(TAG, "eventID " + eventID);
+            this.program = programUri;
+
+            HTSPMessage message = new HTSPMessage();
+            message.put("method", "addDvrEntry");
+            message.put("eventId", eventID);
+            message.put("start", (Program.getProgramStartFromProgramUri(context, programUri) / 1000));
+            message.put("stop", (Program.getProgramEndFromProgramUri(context, programUri) / 1000));
+
+            try {
+                connection.getHTSPMessageDispatcher().sendMessage(message);
+            } catch (HTSPException ignored) {
+
+            }
+        }
+
+        @Override
+        public void onStopRecording () {
+            notifyRecordingStopped(program);
+        }
+
+        @Override
+        public void onRelease () {
+
+        }
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         connection.stop();
+
+        Log.d(TAG, "TVINPUTSERVICE KILLED");
 
         if (RESTART_SERVICES)
             startService(new Intent(this, TvInputService.class));
@@ -101,11 +157,7 @@ public class TVInputService extends TvInputService {
         String port = DatabaseActions.activeAccount.getString("port");
         String clientName = DatabaseActions.activeAccount.getString("clientName");
 
-<<<<<<< HEAD
         connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, clientName+"_Subscription", String.valueOf(Build.VERSION.SDK_INT)));
-=======
-        connection = new BaseConnection(new ConnectionInfo(hostname, Integer.parseInt(port), username, password, "Subscription", "23"));
->>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
         connection.start();
     }
 
@@ -138,9 +190,15 @@ public class TVInputService extends TvInputService {
             return player.setSurface(surface);
         }
 
+        //change the stream volume, this method just simply call method in the TVPlayer class
         @Override
         public void onSetStreamVolume(float volume) {
+            player.changeVolume(volume);
+        }
 
+        // mute the stream, using the same method with onSetStreamVolume
+        public void onSetStreamMute() {
+            player.changeVolume(0.0f);
         }
 
         @Override
@@ -169,7 +227,6 @@ public class TVInputService extends TvInputService {
         @Override
         public void onTimeShiftSetPlaybackParams(PlaybackParams params) {
             super.onTimeShiftSetPlaybackParams(params);
-<<<<<<< HEAD
             Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
             player.setPlaybackParams(params);
         }
@@ -186,26 +243,6 @@ public class TVInputService extends TvInputService {
             player.pause();
         }
 
-=======
-
-
-            Log.d(TAG, "SET PLAYBACK PARAMS" + params.getSpeed());
-            player.setPlaybackParams(params);
-        }
-
-        @Override
-        public void onTimeShiftSeekTo(long timeMs) {
-            Log.d(TAG, "Wanting to seek " + (timeMs - System.currentTimeMillis()) + "ms");
-            player.seek(timeMs);
-        }
-
-        @Override
-        public void onTimeShiftPause() {
-            Log.d(TAG, "PAUSE");
-            player.pause();
-        }
-
->>>>>>> 1eb6e27f070974340a1fd65931e4e8ca665a9f54
         @Override
         public void onTimeShiftResume() {
             Log.d(TAG, "RESUME");
@@ -252,8 +289,8 @@ public class TVInputService extends TvInputService {
 
     // TODO: Not use some shady code from the interwebs
     private void startMyOwnForeground() {
-        String NOTIFICATION_CHANNEL_ID = "com.example.simpleapp";
-        String channelName = "My Background Service";
+        String NOTIFICATION_CHANNEL_ID = "com.openiptv.code";
+        String channelName = "My Foreground Service";
         NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
         chan.setLightColor(Color.BLUE);
         chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);

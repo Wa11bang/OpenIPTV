@@ -13,11 +13,18 @@ import com.openiptv.code.htsp.HTSPMessage;
 
 import static com.openiptv.code.Constants.DEBUG;
 
+/**
+ * Creates a new AVC (H.264) Video Stream Reader.
+ */
 public class AVCReader extends VideoReader {
     public AVCReader(Context context) {
         super(context, MimeTypes.VIDEO_H264);
     }
 
+    /**
+     * Extracts initialization data from an htsp message.
+     * @param message htsp Message to extract the data from.
+     */
     @Override
     protected void buildInitializationData(@NonNull HTSPMessage message) {
         // Build H264 Metadata

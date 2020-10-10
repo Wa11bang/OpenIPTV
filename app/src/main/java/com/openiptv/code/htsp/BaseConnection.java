@@ -3,6 +3,8 @@ package com.openiptv.code.htsp;
 import android.util.Log;
 
 public class BaseConnection {
+    private static final String TAG = BaseConnection.class.getSimpleName();
+
     private final ConnectionInfo connectionInfo;
     private final SocketIOHandler socketIOHandler;
     private final HTSPMessageDispatcher htspMessageDispatcher;
@@ -10,8 +12,11 @@ public class BaseConnection {
     private final Connection connection;
     private Thread connectionThread;
     private Authenticator authenticator;
-    private static final String TAG = BaseConnection.class.getSimpleName();
 
+    /**
+     * Constructor for a BaseConnection Object
+     * @param connectionInfo account details for TVH server
+     */
     public BaseConnection(ConnectionInfo connectionInfo) {
         this.connectionInfo = connectionInfo;
 
@@ -28,6 +33,9 @@ public class BaseConnection {
         htspMessageDispatcher.addMessageListener(authenticator);
     }
 
+    /**
+     * Starts the current BaseConnection
+     */
     public void start() {
         if (connectionThread != null) {
             Log.w(TAG, "BaseConnection has already started");
@@ -40,6 +48,9 @@ public class BaseConnection {
         Log.w(TAG, "BaseConnection has started");
     }
 
+    /**
+     * Nicely stops the current BaseConnection
+     */
     public void stop() {
         if (connectionThread == null) {
             Log.w(TAG, "BaseConnection has not started");
@@ -50,18 +61,29 @@ public class BaseConnection {
         connectionThread.interrupt();
     }
 
+    /**
+     * Returns the current HTSPMessageDispatcher instance
+     * @return dispatcher reference
+     */
     public HTSPMessageDispatcher getHTSPMessageDispatcher()
     {
         return htspMessageDispatcher;
     }
 
+    /**
+     * Returns the current Authenticator instance
+     * @return authenticator reference
+     */
     public Authenticator getAuthenticator() {
         return authenticator;
     }
 
-    public boolean addMessageListener(MessageListener listener)
+    /**
+     * Public link to the dispatcher method.
+     * @param listener to add
+     */
+    public void addMessageListener(MessageListener listener)
     {
         htspMessageDispatcher.addMessageListener(listener);
-        return true;
     }
 }

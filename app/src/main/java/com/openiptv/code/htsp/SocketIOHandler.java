@@ -10,16 +10,30 @@ public class SocketIOHandler {
     private final HTSPSerializer htspSerializer;
     private final HTSPMessageDispatcher htspMessageDispatcher;
 
-    SocketIOHandler(HTSPSerializer htspSerializer, HTSPMessageDispatcher htspMessageDispatcher)
+    /**
+     * Constructor for SocketIOHandler Object
+     * @param htspSerializer
+     * @param htspMessageDispatcher
+     */
+    public SocketIOHandler(HTSPSerializer htspSerializer, HTSPMessageDispatcher htspMessageDispatcher)
     {
         this.htspSerializer = htspSerializer;
         this.htspMessageDispatcher = htspMessageDispatcher;
     }
 
+    /**
+     * Returns if the dispatcher has any available messages to writes.
+     * @return whether any messages are waiting to be written.
+     */
     public boolean hasWriteableData() {
         return htspMessageDispatcher.hasPendingMessages();
     }
 
+    /**
+     *
+     * @param socketChannel
+     * @return
+     */
     public boolean write(SocketChannel socketChannel) {
         //System.out.println("writing");
         writeBuffer.clear();
@@ -43,6 +57,11 @@ public class SocketIOHandler {
         return true;
     }
 
+    /**
+     *
+     * @param socketChannel
+     * @return
+     */
     public boolean read(SocketChannel socketChannel) {
         int bufferStartPosition = readBuffer.position();
         int bytesRead;

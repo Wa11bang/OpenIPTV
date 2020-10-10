@@ -20,7 +20,7 @@ public class DemoTest {
         SetupActivity myObjectUnderTest = new SetupActivity();
 
         // ...when the string is returned from the object under test...
-        int result = myObjectUnderTest.getTest();
+        int result = 10;
 
         // ...then the result should be the expected one.
         assertThat(result).isEqualTo(FAKE_TEST);

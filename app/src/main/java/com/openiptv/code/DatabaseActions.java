@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 public class DatabaseActions extends SQLiteOpenHelper {
 
-    private static final String TAG = "DatabaseActions";
+    private static final String TAG = DatabaseActions.class.getSimpleName();
 
     public static Bundle activeAccount;
 

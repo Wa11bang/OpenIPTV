@@ -16,7 +16,6 @@ import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.openiptv.code.htsp.HTSPMessage;
-import com.openiptv.code.player.SourceReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,7 +27,11 @@ import static com.openiptv.code.Constants.DEBUG;
 class HTSPSubscriptionDataExtractor implements Extractor {
     private static final String TAG = HTSPSubscriptionDataExtractor.class.getName();
 
-    private class HtspSeekMap implements SeekMap {
+    /**
+     * HTSPSeekMap which fakes seeking ability. The seeking should only occur on the server
+     * side.
+     */
+    private class HTSPSeekMap implements SeekMap {
         @Override
         public boolean isSeekable() {
             return true;
@@ -43,21 +46,26 @@ class HTSPSubscriptionDataExtractor implements Extractor {
         public SeekPoints getSeekPoints(long timeUs) {
             return new SeekPoints(new SeekPoint(timeUs, timeUs));
         }
-
     }
 
-    private final Context mContext;
-    private ExtractorOutput mOutput;
+    private final Context context;
+    private ExtractorOutput output;
     private final SparseArray<SourceReader> streamReaders = new SparseArray<>();
 
-    private final byte[] mRawBytes = new byte[1024 * 1024 * 5];
+    /*
+        Currently the byte buffer is set to 5MB
+     */
+    private final byte[] rawBytes = new byte[1024 * 1024 * 5];
 
+    /**
+     * Constructor for HTSPSubscriptionDataExtractor
+     * @param context application context
+     */
     public HTSPSubscriptionDataExtractor(Context context) {
-        mContext = context;
+        this.context = context;
         Log.d(TAG, "New HtspExtractor instantiated");
     }
 
-    // Extractor Methods
     @Override
     public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
         ParsableByteArray scratch = new ParsableByteArray(HTSPSubscriptionDataSource.HEADER.length);
@@ -72,13 +80,13 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     @Override
     public void init(ExtractorOutput output) {
         Log.i(TAG, "Initializing HTSP Extractor");
-        mOutput = output;
-        mOutput.seekMap(new HtspSeekMap());
+        this.output = output;
+        this.output.seekMap(new HTSPSeekMap());
     }
 
     @Override
     public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException, InterruptedException {
-        int bytesRead = input.read(mRawBytes, 0, mRawBytes.length);
+        int bytesRead = input.read(rawBytes, 0, rawBytes.length);
         if (DEBUG)
             Log.v(TAG, "Read " + bytesRead + " bytes");
 
@@ -86,7 +94,7 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
         try (
                 // N.B. Don't add the objectInput to this bit, it breaks stuff
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(mRawBytes, 0, bytesRead)
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(rawBytes, 0, bytesRead)
         ) {
             while (inputStream.available() > 0) {
                 objectInput = new ObjectInputStream(inputStream);
@@ -118,7 +126,10 @@ class HTSPSubscriptionDataExtractor implements Extractor {
         streamReaders.clear();
     }
 
-    // Internal Methods
+    /**
+     * Internal Wrapper method used to identify the type of incoming HTSPMessage.
+     * @param message incoming message
+     */
     private void handleMessage(@NonNull final HTSPMessage message) {
         final String method = message.getString("method");
 
@@ -129,6 +140,11 @@ class HTSPSubscriptionDataExtractor implements Extractor {
         }
     }
 
+    /**
+     * Internal method used to parse a subscriptionStart HTSPMessage. This message indicates to the
+     * application all of the available streams and their metadata.
+     * @param message subscriptionStart message
+     */
     private void handleSubscriptionStart(@NonNull final HTSPMessage message) {
         Log.i(TAG, "Handling Subscription Start");
 
@@ -153,10 +169,10 @@ class HTSPSubscriptionDataExtractor implements Extractor {
                 }
             }
 
-            SourceReader streamReader = new SourceReader.Factory(mContext).build(streamType, mimeType);
+            SourceReader streamReader = new SourceReader.Factory(context).build(streamType, mimeType);
             if (streamReader != null) {
                 Log.d(TAG, "Creating StreamReader for " + streamType + " stream at index " + streamIndex);
-                streamReader.buildTrackOutput(mOutput, stream);
+                streamReader.buildTrackOutput(output, stream);
                 streamReaders.put(streamIndex, streamReader);
             } else {
                 Log.d(TAG, "Discarding stream at index " + streamIndex + ", no suitable StreamReader");
@@ -165,9 +181,13 @@ class HTSPSubscriptionDataExtractor implements Extractor {
         }
 
         Log.d(TAG, "All streams have now been handled");
-        mOutput.endTracks();
+        output.endTracks();
     }
 
+    /**
+     * Internal method used to parse a given HTSPMessage that has stream data.
+     * @param message stream data message
+     */
     private void handleMuxpkt(@NonNull final HTSPMessage message) {
         int streamIndex = message.getInteger("stream");
         SourceReader streamReader = streamReaders.get(streamIndex);

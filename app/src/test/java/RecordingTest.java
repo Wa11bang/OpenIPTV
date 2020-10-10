@@ -3,7 +3,7 @@ import android.os.Build;
 import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPMessage;
-import com.openiptv.code.htsp.HTSPNotConnectedException;
+import com.openiptv.code.htsp.HTSPException;
 import com.openiptv.code.htsp.MessageListener;
 
 import org.junit.BeforeClass;
@@ -80,6 +80,9 @@ public class RecordingTest {
         await().until(() -> connection.getAuthenticator().getState() != null);
     }
 
+    /**
+     * Adds a recording to the server, checks if the recording is successfully added onto the server.
+     */
     @Test
     public void addRecordingToServer() {
         HTSPMessage addRecordingMessage = new HTSPMessage();
@@ -118,7 +121,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(addRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
@@ -129,6 +132,9 @@ public class RecordingTest {
         assertThat(result[1]).isEqualTo(EXPECTED_RESULT_1);
     }
 
+    /**
+     * Removes a recording to the server, checks if the recording is successfully removed from the server.
+     */
     @Test
     public void removeRecordingToServer() {
         HTSPMessage removeRecordingMessage = new HTSPMessage();
@@ -162,7 +168,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(removeRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
@@ -173,6 +179,10 @@ public class RecordingTest {
         assertThat(result[1]).isEqualTo(EXPECTED_RESULT_2);
     }
 
+    /**
+     * Adds a recording to the server, checks if the recording is successfully added onto the server.
+     * INVALID/ERROR test case. The given recording information is invalid
+     */
     @Test
     public void addRecordingToServerInvalid() {
         HTSPMessage addRecordingMessage = new HTSPMessage();
@@ -207,7 +217,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(addRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
@@ -218,6 +228,10 @@ public class RecordingTest {
         assertThat(result[1]).isEqualTo(EXPECTED_RESULT_3);
     }
 
+    /**
+     * Removes a recording from the server, checks if the recording is successfully removed from the server.
+     * INVALID/ERROR test case. The recording does not exist on the server
+     */
     @Test
     public void removeRecordingFromServerInvalid() {
         HTSPMessage removeRecordingMessage = new HTSPMessage();
@@ -249,7 +263,7 @@ public class RecordingTest {
 
         try {
             connection.getHTSPMessageDispatcher().sendMessage(removeRecordingMessage);
-        } catch (HTSPNotConnectedException e) {
+        } catch (HTSPException e) {
             // Ignore - We will always be connecting in the case of this test
         }
 
