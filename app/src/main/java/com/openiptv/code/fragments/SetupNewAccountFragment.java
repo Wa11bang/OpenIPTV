@@ -155,11 +155,17 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     databaseActions.setActiveAccount(accountId);
 
                     databaseActions.close();
-                    GuidedStepSupportFragment fragment = new SyncFragment();
+                    /**
+                     * modified here
+                     *
+                     * GuidedStepSupportFragment fragment = new SyncFragment();
+                     * fragment.setArguments(newAccountDetails);
+                     * add(getParentFragmentManager(), fragment);
+                     * */
+                    GuidedStepSupportFragment fragment = new ParentControlFragment();
                     fragment.setArguments(newAccountDetails);
                     add(getParentFragmentManager(), fragment);
-                }
-                else{
+                } else {
                     Log.d("AddAccount", "Error, adding account. Check field is not empty");
                 }
             }
@@ -172,6 +178,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
      * @param account
      */
     private static Authenticator.State state;
+
     public boolean addAccountToDatabase(TVHeadendAccount account) {
         // Check if user login is successful
 
@@ -189,11 +196,9 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         connection.getAuthenticator().addListener(listener);
         connection.start();
 
-        long timeoutTime = System.currentTimeMillis() + (20*100);
-        while(state == null)
-        {
-            if(timeoutTime < System.currentTimeMillis())
-            {
+        long timeoutTime = System.currentTimeMillis() + (20 * 100);
+        while (state == null) {
+            if (timeoutTime < System.currentTimeMillis()) {
                 state = Authenticator.State.FAILED;
             }
             Log.v("BW", "Waiting for Server Response");
@@ -205,16 +210,14 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
         ContentResolver resolver = getActivity().getContentResolver();
         PreferenceUtils preferenceUtils = new PreferenceUtils(getActivity());
 
-        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE))
-        {
+        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
             // TODO: Make sure logo directories for the channels get deleted as well.
             getActivity().getContentResolver().delete(TvContract.Channels.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.Programs.CONTENT_URI, null, null);
             getActivity().getContentResolver().delete(TvContract.RecordedPrograms.CONTENT_URI, null, null);
         }
 
-        if(state == Authenticator.State.AUTHENTICATED)
-        {
+        if (state == Authenticator.State.AUTHENTICATED) {
             DatabaseActions databaseActions = new DatabaseActions(getContext());
             boolean status = databaseActions.addAccount(account);
             databaseActions.close();
