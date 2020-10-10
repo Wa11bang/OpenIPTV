@@ -32,6 +32,7 @@ public class Program {
     private String programImage;
     private ContentValues contentValues;
     private Context context;
+    private String contentType;
 
     /**
      * Constructor for a Program object
@@ -167,6 +168,7 @@ public class Program {
         this.desc = message.getString(Constants.PROGRAM_DESCRIPTION);
         this.ageRating = message.getInteger(Constants.PROGRAM_AGE_RATING);
         this.programImage = message.getString(Constants.PROGRAM_IMAGE);
+        this.contentType = new DvbContentType().getType(message.getInteger(Constants.PROGRAM_CONTENT_TYPE));
 
         generateContentValues(context);
     }
@@ -178,7 +180,7 @@ public class Program {
     private void generateContentValues(Context context)
     {
         contentValues = new ContentValues();
-
+        contentValues.put(TvContract.Programs.COLUMN_CANONICAL_GENRE,contentType);
         contentValues.put(TvContract.Programs.COLUMN_CHANNEL_ID, Channel.getTvProviderId(channelId, context));
         contentValues.put(TvContract.Programs.COLUMN_INTERNAL_PROVIDER_DATA, eventId);
 
