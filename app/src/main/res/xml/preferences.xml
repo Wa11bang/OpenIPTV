@@ -26,7 +26,7 @@
 
     </androidx.preference.PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory android:title="Guide" >
+    <androidx.preference.PreferenceCategory android:title="Guide">
         <SwitchPreference
 
             android:defaultValue="false"
@@ -38,12 +38,12 @@
         <EditTextPreference
 
             android:dependency="QUICK_SYNC"
-            android:dialogTitle="EPG Sync"
             android:dialogMessage="Enter time in seconds"
+            android:dialogTitle="EPG Sync"
             android:inputType="number"
             android:key="EPG_SYNC"
-            android:title="EPG Sync"
-            android:summary="Changes the set delay for updating the guide."/>
+            android:summary="Changes the set delay for updating the guide."
+            android:title="EPG Sync" />
 
 
     </androidx.preference.PreferenceCategory>
@@ -58,7 +58,7 @@
 
             android:key="BUFFER_SIZE"
             android:summary="Adjusts the size of the buffer."
-            android:title="Buffer Size"/>
+            android:title="Buffer Size" />
 
         <ListPreference
 
@@ -68,7 +68,15 @@
 
             android:key="DVR_STORAGE"
             android:summary="Changes the location for recordings to be saved to."
-            android:title="DVR Storage Location"/>
+            android:title="DVR Storage Location" />
+
+        <Preference
+            android:summary="Edit and delete accounts."
+            android:title="Manage Accounts">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.openiptv.code.manage.account.ManageAccountActivity"
+            android:targetPackage="com.openiptv.code" /></Preference>
 
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

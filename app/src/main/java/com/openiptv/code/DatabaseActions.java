@@ -19,8 +19,10 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     public static Bundle activeAccount;
 
+    // Just stores the active account ID
     private static final String ACTIVE_ACCOUNT_TABLE = "activeAccountTable";
 
+    // Stores the actual user data.
     private static final String TABLE_NAME = "userDatabase";
     private static final String COL1 = "ID";
     private static final String COL2 = "username";
@@ -39,6 +41,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * When the application is opened for the first time, create the database(s) using these parameters
+     *
      * @param sqLiteDatabase (Ignore automatically filled)
      */
     @Override
@@ -53,6 +56,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * When the database is upgraded drop and recreate the databases.
+     *
      * @param sqLiteDatabase
      * @param i
      * @param i1
@@ -81,6 +85,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
      * Mark an account as active by using its id.
      * Drops the original table, recreates it with no entries, and then adds the account to it
      * (Marking it active)
+     *
      * @param id The id of the account to mark as active
      * @return true if successful, otherwise return false
      */
@@ -108,6 +113,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
     /**
      * Gets the active account and adds it to the static variable
      * Used to make sure that the variable is accurate after the application is closed.
+     *
      * @return
      */
     public boolean syncActiveAccount() {
@@ -118,6 +124,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * Returns the id of the active account currently stored in the database.
+     *
      * @return id of the account marked active in the database
      */
     public String getActiveAccount() {
@@ -131,6 +138,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
     /**
      * This method converts a Cursor containing an account to a Bundle to simplify editing and
      * deleting entries
+     *
      * @param account The account to convert to a Bundle
      * @return The Bundle with the account details
      */
@@ -149,13 +157,35 @@ public class DatabaseActions extends SQLiteOpenHelper {
     }
 
     /**
-     * Add and account to the database
+     * Updates an account with new details
      *
-     * @param account
-     * @return true on success, false on error thrown
+     * @param id      Original account ID
+     * @param account Account Details to replace it with
      */
-    public boolean addAccount(TVHeadendAccount account) {
+    public Boolean updateAccount(String id, TVHeadendAccount account) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_NAME + " WHERE " + COL1 + " = '" + id+"'";
 
+        sqLiteDatabase.execSQL(query);
+
+        checkAccountValid(account);
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL2, account.getUsername());
+        contentValues.put(COL3, account.getPassword());
+        contentValues.put(COL4, account.getHostname());
+        contentValues.put(COL5, account.getPort());
+        contentValues.put(COL6, account.getClientName());
+        try {
+            sqLiteDatabase.insertOrThrow(TABLE_NAME, null, contentValues);
+
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public Boolean checkAccountValid(TVHeadendAccount account) {
         /**
          * If any entries are equal to "", return false
          */
@@ -172,35 +202,49 @@ public class DatabaseActions extends SQLiteOpenHelper {
         } catch (NumberFormatException e) {
             return false;
         }
-
-        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COL2, account.getUsername());
-        contentValues.put(COL3, account.getPassword());
-        contentValues.put(COL4, account.getHostname());
-        contentValues.put(COL5, account.getPort());
-        contentValues.put(COL6, account.getClientName());
-        try {
-            sqLiteDatabase.insertOrThrow(TABLE_NAME, null, contentValues);
-
-        } catch (Exception e) {
-            return false;
-        }
-
-        // Get id of just added and set it to active account
-        String query = "SELECT  * FROM " + TABLE_NAME + " ORDER BY " + COL1 + " DESC";
-        Cursor accountIDs = sqLiteDatabase.rawQuery(query, null);
-        accountIDs.moveToFirst();
-        setActiveAccount(accountIDs.getString(0));
-
-        activeAccount = accountToBundle(accountIDs);
-
         return true;
     }
 
     /**
+     * Add and account to the database
+     *
+     * @param account
+     * @return true on success, false on error thrown
+     */
+    public boolean addAccount(TVHeadendAccount account) {
+        if (checkAccountValid(account)) {
+
+            SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(COL2, account.getUsername());
+            contentValues.put(COL3, account.getPassword());
+            contentValues.put(COL4, account.getHostname());
+            contentValues.put(COL5, account.getPort());
+            contentValues.put(COL6, account.getClientName());
+            try {
+                sqLiteDatabase.insertOrThrow(TABLE_NAME, null, contentValues);
+
+            } catch (Exception e) {
+                return false;
+            }
+
+            // Get id of just added and set it to active account
+            String query = "SELECT  * FROM " + TABLE_NAME + " ORDER BY " + COL1 + " DESC";
+            Cursor accountIDs = sqLiteDatabase.rawQuery(query, null);
+            accountIDs.moveToFirst();
+            setActiveAccount(accountIDs.getString(0));
+
+            activeAccount = accountToBundle(accountIDs);
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Return all accounts in the database
+     *
      * @return
      */
     public Cursor getAccounts() {
@@ -212,6 +256,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * Returns an account after being passed an ID
+     *
      * @param name id of the account
      * @return Cursor with the account
      */
@@ -225,6 +270,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * Returns the first account after being passed the client name (Not reliable due to possible duplicates)
+     *
      * @param name
      * @return
      */
@@ -251,6 +297,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     /**
      * Remove all accounts with a certain name rather than just the first.
+     *
      * @param clientName
      */
     public void clearAccountsClientName(String clientName) {
@@ -259,5 +306,24 @@ public class DatabaseActions extends SQLiteOpenHelper {
         while (accounts.moveToNext()) {
             deleteAccount(Integer.parseInt(accounts.getString(0)), accounts.getString(5));
         }
+    }
+
+    /**
+     * Checks if the accounts database is empty
+     *
+     * @return If it is empty, return true, else return false.
+     */
+    public Boolean isAccountsEmpty() {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME;
+        Cursor accounts = sqLiteDatabase.rawQuery(query, null);
+
+        accounts.moveToFirst();
+
+        int count = accounts.getInt(0);
+        if (count <= 1) {
+            return true;
+        }
+        return false;
     }
 }
