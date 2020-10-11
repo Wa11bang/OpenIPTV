@@ -112,13 +112,7 @@ public class ManageAccountActivity extends FragmentActivity {
                     .subActions(availableAccounts)
                     .build();
             actions.add(accountSelector);
-
-            GuidedAction addNewAccount = new GuidedAction.Builder(getActivity())
-                    .title(R.string.setup_select_account_add_new_account)
-                    .editable(false)
-                    .build();
-
-            actions.add(addNewAccount);
+            
             databaseActions.close();
         }
 
