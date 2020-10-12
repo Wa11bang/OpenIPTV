@@ -18,6 +18,19 @@ import java.util.List;
 public class ParentControlFragment extends GuidedStepSupportFragment {
     final long NEXT = 0L;
     final long SKIP = 1L;
+    /**
+     * this bundle contain account information such as client name, port....
+     * <p>
+     * this bundle is passed from SetupNewAccountFragment or SetupSelectAccountFragment
+     * <p>
+     * the meaning of this is if a user want to use parent control function and want to set up a
+     * password for it then the link the password with account
+     */
+    Bundle accountInfor;
+
+    public ParentControlFragment(Bundle accountInfor) {
+        this.accountInfor = accountInfor;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,12 +72,14 @@ public class ParentControlFragment extends GuidedStepSupportFragment {
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
+        //escape the set parent control fragment and move to sync
         if (action.getId() == SKIP) {
             GuidedStepSupportFragment fragment = new SyncFragment();
             fragment.setArguments(getArguments());
             add(getParentFragmentManager(), fragment);
         } else if (action.getId() == NEXT) {
-            GuidedStepSupportFragment fragment = new SetParentControlPassword();
+            //pass the account information into the set parent control fragment
+            GuidedStepSupportFragment fragment = new SetParentControlPassword(accountInfor);
             fragment.setArguments(getArguments());
             add(getParentFragmentManager(), fragment);
         }

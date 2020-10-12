@@ -1,7 +1,9 @@
 package com.openiptv.code.fragments;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -10,15 +12,30 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
+import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.R;
 import com.openiptv.code.ParentControlPassword;
 
+import java.util.Date;
 import java.util.List;
 
 public class SetParentControlPassword extends GuidedStepSupportFragment {
     final long PASSWORD = 0L;
     final long CONFIRM_PASSWORD = 1L;
     final long NEXT = 1L;
+    /**
+     * this bundle contain account information such as client name, port....
+     * <p>
+     * this bundle is passed from SetupNewAccountFragment or SetupSelectAccountFragment
+     * <p>
+     * the meaning of this is if a user want to use parent control function and want to set up a
+     * password for it then the link the password with account
+     */
+    Bundle accountInfor;
+
+    public SetParentControlPassword(Bundle accountInfor) {
+        this.accountInfor = accountInfor;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,9 +90,36 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
             if (password.getPass() == false) {
                 Toast.makeText(getContext(), "Passwords are not identical or has space", Toast.LENGTH_SHORT).show();
             } else {
-                GuidedStepSupportFragment fragment = new SyncFragment();
-                fragment.setArguments(getArguments());
-                add(getParentFragmentManager(), fragment);
+                this.accountInfor.putString("parentControl", findActionById(PASSWORD).getTitle().toString());
+
+                DatabaseActions dbAction = new DatabaseActions(getContext());
+
+                boolean result = dbAction.addParentControlPasswordToDB(this.accountInfor);
+
+                /**
+                 * this commented code are for testing purpose, see if the parent control password saved
+                 * in the database
+                 * */
+               /* Cursor search = dbAction.getAccountByClientName(accountInfor.getString("clientName"));
+
+                while (search.moveToNext())
+                {
+                    String text = search.getString(search.getColumnIndex("parent"));
+                    if (text.length()!=0)
+                    {
+                        Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+                    }
+                }*/
+
+
+                dbAction.close();
+                if (result == true) {
+                    GuidedStepSupportFragment fragment = new SyncFragment();
+                    fragment.setArguments(getArguments());
+                    add(getParentFragmentManager(), fragment);
+                } else {
+                    Toast.makeText(getContext(), "Database action failure", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

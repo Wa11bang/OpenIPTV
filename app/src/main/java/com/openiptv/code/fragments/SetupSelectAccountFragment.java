@@ -139,7 +139,7 @@ public class SetupSelectAccountFragment extends GuidedStepSupportFragment {
              * add(getFragmentManager(), fragment);
              *
              * */
-            GuidedStepSupportFragment fragment = new ParentControlFragment();
+            GuidedStepSupportFragment fragment = new ParentControlFragment(accountDetails);
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);
 

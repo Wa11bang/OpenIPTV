@@ -19,6 +19,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
 
     private static final String ACTIVE_ACCOUNT_TABLE = "activeAccountTable";
 
+
     private static final String TABLE_NAME = "userDatabase";
     private static final String COL1 = "ID";
     private static final String COL2 = "username";
@@ -26,6 +27,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
     private static final String COL4 = "hostname";
     private static final String COL5 = "port";
     private static final String COL6 = "clientName";
+    private static final String COL7 = "parent";
 
 
     public DatabaseActions(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
@@ -39,7 +41,7 @@ public class DatabaseActions extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createTable = "CREATE TABLE " + TABLE_NAME + " (" + COL1 + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COL2 + " TEXT, " + COL3 + " TEXT, " + COL4 + " TEXT, " + COL5 + " TEXT, " + COL6 + " TEXT)";
+                COL2 + " TEXT, " + COL3 + " TEXT, " + COL4 + " TEXT, " + COL5 + " TEXT, " + COL6 + " TEXT, " + COL7 + " TEXT)";
         sqLiteDatabase.execSQL(createTable);
 
         createTable = "CREATE TABLE " + ACTIVE_ACCOUNT_TABLE + " (" + COL1 + " INTEGER)";
@@ -235,5 +237,26 @@ public class DatabaseActions extends SQLiteOpenHelper {
         while (accounts.moveToNext()) {
             deleteAccount(Integer.parseInt(accounts.getString(0)), accounts.getString(5));
         }
+    }
+
+    /**
+     * this method is used to put the parent control password into db
+     *
+     * @param accountInfor
+     */
+    public boolean addParentControlPasswordToDB(Bundle accountInfor) {
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(COL7, accountInfor.getString("parentControl"));
+
+        try {
+            sqLiteDatabase.update(TABLE_NAME, values, "ID=" + accountInfor.getString("id"), null);
+
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 }

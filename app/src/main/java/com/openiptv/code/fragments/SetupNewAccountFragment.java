@@ -162,7 +162,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                      * fragment.setArguments(newAccountDetails);
                      * add(getParentFragmentManager(), fragment);
                      * */
-                    GuidedStepSupportFragment fragment = new ParentControlFragment();
+                    GuidedStepSupportFragment fragment = new ParentControlFragment(newAccountDetails);
                     fragment.setArguments(newAccountDetails);
                     add(getParentFragmentManager(), fragment);
                 } else {
