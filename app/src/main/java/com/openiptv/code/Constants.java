@@ -41,6 +41,17 @@ public class Constants {
     public static final String RECORDED_PROGRAM_ID = "id";
     public static final String RECORDED_PROGRAM_CHANNEL = "channel";
 
+    public static final String SUBSCRIPTION_ERROR = "subscriptionError";
+    public static final String NO_FREE_ADAPTOR = "noFreeAdapter";
+    public static final String SCRAMBLED = "scrambled";
+    public static final String BAD_SIGNAL = "badSignal";
+    public static final String TUNING_FAILED = "tuningFailed";
+    public static final String SUBSCRIPTION_OVERRIDDEN = "subscriptionOverridden";
+    public static final String MUX_NOT_ENABLED= "muxNotEnabled";
+    public static final String INVALID_TARGET = "invalidTarget";
+    public static final String USER_ACCESS = "userAccess";
+    public static final String USER_LIMIT = "userLimit";
+    
     public static final int NULL_CHANNEL = -5;
     public static final int NULL_PROGRAM = -5;
     public static final int NULL_RECORDING = -5;
