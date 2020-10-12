@@ -26,7 +26,7 @@
 
     </androidx.preference.PreferenceCategory>
 
-    <androidx.preference.PreferenceCategory android:title="Guide" >
+    <androidx.preference.PreferenceCategory android:title="Guide">
         <SwitchPreference
 
             android:defaultValue="false"
@@ -38,12 +38,12 @@
         <EditTextPreference
 
             android:dependency="QUICK_SYNC"
-            android:dialogTitle="EPG Sync"
             android:dialogMessage="Enter time in seconds"
+            android:dialogTitle="EPG Sync"
             android:inputType="number"
             android:key="EPG_SYNC"
-            android:title="EPG Sync"
-            android:summary="Changes the set delay for updating the guide."/>
+            android:summary="Changes the set delay for updating the guide."
+            android:title="EPG Sync" />
 
 
     </androidx.preference.PreferenceCategory>
@@ -58,7 +58,7 @@
 
             android:key="BUFFER_SIZE"
             android:summary="Adjusts the size of the buffer."
-            android:title="Buffer Size"/>
+            android:title="Buffer Size" />
 
         <ListPreference
 
@@ -68,7 +68,19 @@
 
             android:key="DVR_STORAGE"
             android:summary="Changes the location for recordings to be saved to."
-            android:title="DVR Storage Location"/>
+            android:title="DVR Storage Location" />
 
+
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory android:title="Parent Control">
+        <Preference
+            android:key="changePassword"
+            android:summary="Change the Password"
+            android:title="Change Password" />
+
+        <Preference
+            android:key="timer"
+            android:summary="Set the timer"
+            android:title="Timer" />
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

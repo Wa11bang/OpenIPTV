@@ -1,7 +1,9 @@
 package com.openiptv.code.fragments;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.preference.BaseLeanbackPreferenceFragmentCompat;
 import androidx.leanback.preference.LeanbackPreferenceFragmentCompat;
@@ -56,6 +58,22 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             // Load the preferences from an XML resource
             setPreferencesFromResource(R.xml.preferences, rootKey);
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(Preference preference) {
+            if (preference.getKey().equals("changePassword"))
+            {
+                Toast.makeText(getContext(),"Your clicked the change password", Toast.LENGTH_SHORT).show();
+
+            }
+            if (preference.getKey().equals("timer"))
+            {
+
+            }
+
+
+            return super.onPreferenceTreeClick(preference);
         }
     }
 }

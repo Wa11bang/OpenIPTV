@@ -50,4 +50,9 @@
     <string name="parent_control_password">Password</string>
     <string name="parent_control_confirm_password">Confirm your password</string>
     <string name="parent_control_next">Next</string>
+    //preference parent control
+    <string name="preference_change_pass">Change Password</string>
+    <string name="preference_change_pass_des">Change the parent control password</string>
+    <string name="preference_timer">Timer</string>
+    <string name="preference_timer_des">Set a timer to limit the viewing</string>
 </resources>
