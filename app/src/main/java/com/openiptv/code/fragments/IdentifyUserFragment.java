@@ -2,6 +2,7 @@ package com.openiptv.code.fragments;
 
 import android.os.Bundle;
 import android.text.InputType;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -9,11 +10,12 @@ import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
 
+import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.R;
 
 import java.util.List;
 
-public class ChangeParentControlPassword extends GuidedStepSupportFragment {
+public class IdentifyUserFragment extends GuidedStepSupportFragment {
 
     final static long USERNAME = 1L;
     final static long PASSWORD = 2L;
@@ -63,9 +65,20 @@ public class ChangeParentControlPassword extends GuidedStepSupportFragment {
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
-        if (action.getId() == NEXT)
-        {
+        if (action.getId() == NEXT) {
+            DatabaseActions db = new DatabaseActions(getContext());
+            String username = findActionById(USERNAME).getTitle().toString();
+            String password = findActionById(PASSWORD).getTitle().toString();
+            boolean result = db.checkUsernamePassword(username, password);
 
+            db.close();
+            if (result == true) {
+                GuidedStepSupportFragment fragment = new SetParentControlPassword(username, password);
+                fragment.setArguments(getArguments());
+                add(getParentFragmentManager(), fragment);
+            } else {
+                Toast.makeText(getContext(), "Your username or password is incorrect!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

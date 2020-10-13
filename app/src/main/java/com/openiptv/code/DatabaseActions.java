@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -246,17 +247,89 @@ public class DatabaseActions extends SQLiteOpenHelper {
      */
     public boolean addParentControlPasswordToDB(Bundle accountInfor) {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
 
-        values.put(COL7, accountInfor.getString("parentControl"));
+        String username = accountInfor.getString("username");
+        String password = accountInfor.getString("password");
 
-        try {
-            sqLiteDatabase.update(TABLE_NAME, values, "ID=" + accountInfor.getString("id"), null);
+        String query = "SELECT * FROM " + TABLE_NAME +
+                " WHERE " + COL2 + " = '" + username + "'" + " AND " + COL3 + " = '" + password + "'";
+        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
 
-        } catch (Exception e) {
-            return false;
+        while (cursor.moveToNext()) {
+            int usernameIndex = cursor.getColumnIndex(COL2);
+            String search1 = cursor.getString(usernameIndex);
+            int passwordIndex = cursor.getColumnIndex(COL3);
+            String search2 = cursor.getString(passwordIndex);
+
+            if (search1.equals(username) && search2.equals(password)) {
+                ContentValues values = new ContentValues();
+
+                values.put(COL7, accountInfor.getString("parentControl"));
+
+                try {
+                    sqLiteDatabase.update(TABLE_NAME, values, COL2 + " = '" + username + "' AND password = '" + password + "'", null);
+
+                } catch (Exception e) {
+                    return false;
+                }
+            }
         }
 
         return true;
     }
+
+    /**
+     * check if the user input correct username and password
+     */
+    public boolean checkUsernamePassword(String username, String password) {
+        boolean result = false;
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME +
+                " WHERE " + COL2 + " = '" + username + "'" + " AND " + COL3 + " = '" + password + "'";
+        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            int index1 = cursor.getColumnIndex(COL2);
+            String search1 = cursor.getString(index1);
+            int index2 = cursor.getColumnIndex(COL3);
+            String search2 = cursor.getString(index2);
+            if (search1.equals(username) && search2.equals(password)) {
+                result = true;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * check user if parent control password updated
+     * <p>
+     * at this moment, this is for testing purpose
+     */
+
+    public String checkPasswordUpdated(String username, String password) {
+        String PCpassword = "";
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME +
+                " WHERE " + COL2 + " = '" + username + "'" + " AND " + COL3 + " = '" + password + "'";
+        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            int index1 = cursor.getColumnIndex(COL2);
+            String search1 = cursor.getString(index1);
+
+            int index2 = cursor.getColumnIndex(COL3);
+            String search2 = cursor.getString(index2);
+
+            if (search1.equals(username) && search2.equals(password)) {
+                int index3 = cursor.getColumnIndex(COL7);
+                PCpassword = cursor.getString(index3);
+            }
+        }
+
+        return PCpassword;
+    }
+
 }
