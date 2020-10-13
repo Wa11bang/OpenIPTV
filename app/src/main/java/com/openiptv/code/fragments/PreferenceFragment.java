@@ -1,10 +1,12 @@
 package com.openiptv.code.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.preference.BaseLeanbackPreferenceFragmentCompat;
 import androidx.leanback.preference.LeanbackPreferenceFragmentCompat;
 import androidx.leanback.preference.LeanbackSettingsFragmentCompat;
@@ -14,6 +16,8 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
 import com.openiptv.code.R;
+
+import static androidx.leanback.app.GuidedStepSupportFragment.add;
 
 //LeanbackSettingsFragmentCompat
 public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
@@ -64,12 +68,12 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
         public boolean onPreferenceTreeClick(Preference preference) {
             if (preference.getKey().equals("changePassword"))
             {
-                Toast.makeText(getContext(),"Your clicked the change password", Toast.LENGTH_SHORT).show();
-
+                Intent intent = new Intent(getContext(), ParentControlActivity.class);
+                startActivity(intent);
             }
             if (preference.getKey().equals("timer"))
             {
-
+                Toast.makeText(getContext(),"Your clicked the timer", Toast.LENGTH_SHORT).show();
             }
 
 

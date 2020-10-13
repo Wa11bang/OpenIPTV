@@ -55,4 +55,8 @@
     <string name="preference_change_pass_des">Change the parent control password</string>
     <string name="preference_timer">Timer</string>
     <string name="preference_timer_des">Set a timer to limit the viewing</string>
+    //change parent control password
+    <string name="change_parent_control_username_des">Enter your account username</string>
+    <string name="change_parent_control_password_des">Enter your account password</string>
+    <string name="change_parent_control_next">Next</string>
 </resources>
