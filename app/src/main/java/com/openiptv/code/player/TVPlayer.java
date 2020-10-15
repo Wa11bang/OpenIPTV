@@ -5,6 +5,7 @@ import android.media.PlaybackParams;
 import android.media.tv.TvTrackInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.openiptv.code.epg.RecordedProgram;
 import com.openiptv.code.htsp.BaseConnection;
+import com.openiptv.code.player.utils.TimeshiftUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +55,7 @@ public class TVPlayer implements Player.EventListener {
     private List<Listener> listeners;
     private DefaultTrackSelector trackSelector;
     private float currentVolume;
+    private TimeshiftUtils.Rewinder rewinder;
 
     // Hard Coded Recording URL
     private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
@@ -93,6 +96,8 @@ public class TVPlayer implements Player.EventListener {
         extractorsFactory = new ExtendedExtractorsFactory(context);
 
         listeners = new ArrayList<>();
+
+        rewinder = new TimeshiftUtils.Rewinder(new Handler(), player, this);
     }
 
     /**
@@ -165,8 +170,9 @@ public class TVPlayer implements Player.EventListener {
             seekableRunnable = null;
         }*/
 
-        player.setPlayWhenReady(true);
+        rewinder.stop();
         player.setPlaybackParameters(new PlaybackParameters(1));
+
 
         dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
@@ -175,6 +181,8 @@ public class TVPlayer implements Player.EventListener {
         } else {
             Log.w(TAG, "Unable to resume, no HtspDataSource available");
         }
+
+        player.setPlayWhenReady(true);
     }
 
     /**
@@ -182,6 +190,7 @@ public class TVPlayer implements Player.EventListener {
      */
     public void pause() {
         player.setPlayWhenReady(false);
+        rewinder.stop();
 
         dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
@@ -197,25 +206,21 @@ public class TVPlayer implements Player.EventListener {
     public void setPlaybackParams(PlaybackParams playbackParams)
     {
         player.setPlayWhenReady(false);
-        /*if(seekableRunnable != null)
-        {
-            seekableRunnable.stopRewind();
-            seekableRunnable = null;
-        }*/
+        rewinder.stop();
 
-        //this.playbackParams = playbackParams;
         dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
             Log.d(TAG, "Resuming HtspDataSource");
 
             if(playbackParams.getSpeed() < 1)
             {
-                Log.d(TAG, "REWINDING! - NOT SUPPORTED");
-                //((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
+                //Log.d(TAG, "REWINDING! - NOT SUPPORTED");
+                ((HTSPSubscriptionDataSource) dataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
                 //seekableRunnable = new SeekableRunnable(player, (int) playbackParams.getSpeed(), (HTSPSubscriptionDataSource) mDataSource, (HTSPSubscriptionDataSource.Factory) mHtspSubscriptionDataSourceFactory);
                 //seekableRunnable.startRewind();
+                rewinder.start(playbackParams.getSpeed());
 
-                player.setPlayWhenReady(true);
+                //player.setPlayWhenReady(true);
                 Toast.makeText(context, "Fast Rewind not Supported!", Toast.LENGTH_SHORT).show();
             }
             else {
@@ -255,7 +260,13 @@ public class TVPlayer implements Player.EventListener {
     public long getTimeshiftCurrentPosition() {
         dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
+            if(rewinder.isRunning())
+            {
+                Log.d(TAG, "Calculated CurrentPos R: " + rewinder.getCurrentPos());
+                return rewinder.getCurrentPos();
+            }
             long offset = ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts();
+            Log.d(TAG, "Calculated CurrentPos: " + Math.max((System.currentTimeMillis() + (offset / 1000)), getTimeshiftStartPosition()));
             return Math.max((System.currentTimeMillis() + (offset / 1000)), getTimeshiftStartPosition());
 
         } else {
@@ -440,56 +451,6 @@ public class TVPlayer implements Player.EventListener {
         // Notify all Listeners that the tracks have been changed
         for(Listener listener : listeners)
             listener.onTracks(tracks, selectedTracks);
-    }
-
-    /**
-     * This is going to be used for the a custom fast rewind implementation.
-     */
-    private static class SeekableRunnable
-    {
-        private Handler repeatUpdateHandler = new Handler();
-        public int value;
-        private boolean rewind = false;
-
-        private SimpleExoPlayer player;
-        private HTSPSubscriptionDataSource dataSource;
-        private HTSPSubscriptionDataSource.Factory htspDataSourceFactory;
-
-        public SeekableRunnable(SimpleExoPlayer player, int speed, HTSPSubscriptionDataSource dataSource, HTSPSubscriptionDataSource.Factory htspDataSourceFactory)
-        {
-            this.player = player;
-            this.value = speed;
-            this.dataSource = dataSource;
-            this.htspDataSourceFactory = htspDataSourceFactory;
-        }
-
-        private class Updater implements Runnable {
-            public void run() {
-                if(rewind)
-                {
-                    dataSource = (HTSPSubscriptionDataSource) htspDataSourceFactory.getCurrentDataSource();
-                    long seekPtsPlayer = player.getContentBufferedPosition() + (value * 15); // TODO: Figure out the actual time conversion for ExoPlayer seekTo,
-                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer +", OFFSET: " + dataSource.getTimeshiftOffsetPts());
-
-                    //dataSource.seek(seekPtsPlayer * 1000);
-                    //player.seekTo(seekPtsPlayer);
-                    repeatUpdateHandler.postDelayed( new Updater(), 100 );
-                }
-            }
-        }
-
-        public void startRewind()
-        {
-            rewind = true;
-            repeatUpdateHandler.post( new Updater() );
-            player.setPlayWhenReady(false);
-        }
-
-        public void stopRewind()
-        {
-            rewind = false;
-            player.setPlayWhenReady(true);
-        }
     }
 
     /**
