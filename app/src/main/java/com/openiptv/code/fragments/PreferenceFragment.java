@@ -66,14 +66,13 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
 
         @Override
         public boolean onPreferenceTreeClick(Preference preference) {
-            if (preference.getKey().equals("changePassword"))
-            {
+            if (preference.getKey().equals("changePassword")) {
                 Intent intent = new Intent(getContext(), ParentControlActivity.class);
                 startActivity(intent);
             }
-            if (preference.getKey().equals("timer"))
-            {
-                Toast.makeText(getContext(),"Your clicked the timer", Toast.LENGTH_SHORT).show();
+            if (preference.getKey().equals("timer")) {
+                Intent intent = new Intent(getContext(), TimerActivity.class);
+                startActivity(intent);
             }
 
 

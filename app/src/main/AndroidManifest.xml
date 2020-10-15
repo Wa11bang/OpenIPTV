@@ -75,6 +75,9 @@
         <activity
             android:name=".fragments.ParentControlActivity"
             android:label="@string/app_name"></activity>
+        <activity
+            android:name=".fragments.TimerActivity"
+            android:label="@string/app_name"></activity>
 
         <service
             android:name=".input.TVInputService"

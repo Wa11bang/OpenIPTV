@@ -59,4 +59,7 @@
     <string name="change_parent_control_username_des">Enter your account username</string>
     <string name="change_parent_control_password_des">Enter your account password</string>
     <string name="change_parent_control_next">Next</string>
+    //sign in fragment
+    <string name="signin">Sign in</string>
+    <string name="cancel">Cancel</string>
 </resources>
