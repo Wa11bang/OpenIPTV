@@ -20,6 +20,7 @@ public class SigninFragment extends DialogFragment {
         // Get the layout inflater
         LayoutInflater inflater = requireActivity().getLayoutInflater();
 
+
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         builder.setView(inflater.inflate(R.layout.dialog_signin, null))
@@ -32,9 +33,11 @@ public class SigninFragment extends DialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        SigninFragment.this.getDialog().cancel();
+                        //SigninFragment.this.getDialog().cancel();
+                        getActivity().finish();
                     }
                 });
         return builder.create();
     }
+
 }

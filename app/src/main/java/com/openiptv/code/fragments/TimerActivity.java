@@ -6,8 +6,9 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
-public class TimerActivity extends Activity {
+public class TimerActivity extends FragmentActivity {
     private static final int CONTENT_VIEW_ID = 20202020;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -18,6 +19,9 @@ public class TimerActivity extends Activity {
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 
         if (savedInstanceState == null) {
+            SigninFragment fragment = new SigninFragment();
+            fragment.show(getSupportFragmentManager(),null);
+
 
             /*TimerFragment fragment = new TimerFragment();
             fragment.show(getSupportFragmentManager(),null);*/

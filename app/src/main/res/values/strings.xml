@@ -62,4 +62,6 @@
     //sign in fragment
     <string name="signin">Sign in</string>
     <string name="cancel">Cancel</string>
+    <string name="sign_in_hint">Please enter the your username and parent control password!</string>
+    <string name="username">Username</string>
 </resources>

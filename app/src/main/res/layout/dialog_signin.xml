@@ -3,13 +3,21 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-    <ImageView
-        android:src="@drawable/standard"
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:scaleType="center"
-        android:background="#FFFFBB33"
-        android:contentDescription="@string/app_name" />
+        android:layout_height="match_parent"
+        android:text="@string/sign_in_hint"
+        android:gravity="center"/>
+    <EditText
+        android:id="@+id/username"
+        android:inputType="textEmailAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="4dp"
+        android:hint="@string/username" />
     <EditText
         android:id="@+id/signin_password"
         android:inputType="textPassword"
