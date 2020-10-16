@@ -211,6 +211,8 @@ public class DatabaseActions extends SQLiteOpenHelper {
         String query = "SELECT * FROM " + TABLE_NAME +
                 " WHERE " + COL6 + " = '" + name + "'";
         Cursor account = sqLiteDatabase.rawQuery(query, null);
+
+
         return account;
     }
 
@@ -332,4 +334,25 @@ public class DatabaseActions extends SQLiteOpenHelper {
         return PCpassword;
     }
 
+    public boolean checkParentControlPassword(String username, String parentControlPassword) {
+        boolean result = false;
+
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME +
+                " WHERE " + COL2 + " = '" + username + "'" + " AND " + COL7 + " = '" + parentControlPassword + "'";
+        Cursor cursor = sqLiteDatabase.rawQuery(query, null);
+        while (cursor.moveToNext()) {
+            int usernameIndex = cursor.getColumnIndex(COL2);
+            String searchUsername = cursor.getString(usernameIndex);
+
+            int passwordIndex = cursor.getColumnIndex(COL7);
+            String searchParentControlPassword = cursor.getString(passwordIndex);
+
+            if (searchUsername.equals(username) && searchParentControlPassword.equals(parentControlPassword)) {
+                result = true;
+            }
+        }
+
+        return result;
+    }
 }
