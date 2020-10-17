@@ -3,6 +3,7 @@ package com.openiptv.code.fragments;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,31 +34,31 @@ public class SigninFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         DatabaseActions dbAction = new DatabaseActions(getContext());
 
-                        TextView textView = (TextView)getDialog().findViewById(R.id.username);
+                        TextView textView = (TextView) getDialog().findViewById(R.id.username);
                         String username = textView.getText().toString();
 
-                        TextView pcTextView = (TextView)getDialog().findViewById(R.id.signin_password);
+                        TextView pcTextView = (TextView) getDialog().findViewById(R.id.signin_password);
                         String password = pcTextView.getText().toString();
 
-                        boolean result = dbAction.checkParentControlPassword(username,password);
+                        boolean result = dbAction.checkParentControlPassword(username, password);
 
                         dbAction.close();
 
-                        if (result == false)
-                        {
-                            Toast.makeText(getContext(),"Username or parent control password not correct!",Toast.LENGTH_SHORT);
-                        }
-                        else if (result)
-                        {
-                            
+                        if (result == false) {
+                            textView.setText("");
+                            pcTextView.setText("");
+                            //Toast.makeText(getDialog().getContext(), "Username or parent control password not correct!", Toast.LENGTH_SHORT);
+                        } else if (result) {
+
                             TimerFragment fragment = new TimerFragment();
-                            fragment.show(getActivity().getSupportFragmentManager(),null);
+                            fragment.show(getActivity().getSupportFragmentManager(), null);
                         }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         //SigninFragment.this.getDialog().cancel();
+
                         getActivity().finish();
                     }
                 });

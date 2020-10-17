@@ -30,6 +30,7 @@ public class TimerFragment extends DialogFragment implements TimePickerDialog.On
 
     @Override
     public void onTimeSet(TimePicker timePicker, int i, int i1) {
+        this.getActivity().finish();
 
     }
 }
