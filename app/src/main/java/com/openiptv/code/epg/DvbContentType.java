@@ -23,10 +23,14 @@ import static android.media.tv.TvContract.Programs.Genres.TECH_SCIENCE;
 import static android.media.tv.TvContract.Programs.Genres.SPORTS;
 import static android.media.tv.TvContract.Programs.Genres.TRAVEL;
 
-
+//
 public class DvbContentType {
     private HashMap<Integer, String> contentTypes = new LinkedHashMap<>();
 
+    /**
+     * Constructor for a Program object
+     * Classification number for each channel
+     */
     public DvbContentType()
     {
         contentTypes.put(16,TvContract.Programs.Genres.encode(MOVIES));
@@ -98,6 +102,11 @@ public class DvbContentType {
 
     }
 
+
+    /**
+     * Rreturn The contentType
+     * @return contentType
+     */
     public String getType(Integer key)
     {
         return contentTypes.get(key);
