@@ -75,32 +75,31 @@ public class DvbContentType {
         contentTypes.put(0x65,TvContract.Programs.Genres.encode(MUSIC));
         contentTypes.put(0x66,TvContract.Programs.Genres.encode(MUSIC));
         contentTypes.put(0x70,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(113,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(114,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(115,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(116,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(117,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(118,TvContract.Programs.Genres.encode(MOVIES));
-        contentTypes.put(120,TvContract.Programs.Genres.encode(NEWS));
-        contentTypes.put(121,TvContract.Programs.Genres.encode(NEWS));
-        contentTypes.put(122,TvContract.Programs.Genres.encode(NEWS));
-        contentTypes.put(129,TvContract.Programs.Genres.encode(TECH_SCIENCE));
-        contentTypes.put(144,TvContract.Programs.Genres.encode(TECH_SCIENCE));
-        contentTypes.put(145,TvContract.Programs.Genres.encode(ANIMAL_WILDLIFE));
-        contentTypes.put(146,TvContract.Programs.Genres.encode(TECH_SCIENCE));
-        contentTypes.put(147,TvContract.Programs.Genres.encode(TECH_SCIENCE));
-        contentTypes.put(148,TvContract.Programs.Genres.encode(TECH_SCIENCE));
-        contentTypes.put(150,TvContract.Programs.Genres.encode(EDUCATION));
-        contentTypes.put(160,TvContract.Programs.Genres.encode(LIFE_STYLE));
-        contentTypes.put(161,TvContract.Programs.Genres.encode(TRAVEL));
-        contentTypes.put(162,TvContract.Programs.Genres.encode(ARTS));
-        contentTypes.put(163,TvContract.Programs.Genres.encode(LIFE_STYLE));
-        contentTypes.put(164,TvContract.Programs.Genres.encode(LIFE_STYLE));
-        contentTypes.put(165,TvContract.Programs.Genres.encode(LIFE_STYLE));
-        contentTypes.put(166,TvContract.Programs.Genres.encode(SHOPPING));
-        contentTypes.put(167,TvContract.Programs.Genres.encode(LIFE_STYLE));
-
-
+        contentTypes.put(0x71,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0x72,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0x73,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0x74,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0x75,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0x76,TvContract.Programs.Genres.encode(MOVIES));
+        contentTypes.put(0x78,TvContract.Programs.Genres.encode(NEWS));
+        contentTypes.put(0x79,TvContract.Programs.Genres.encode(NEWS));
+        contentTypes.put(0x7A,TvContract.Programs.Genres.encode(NEWS));
+        contentTypes.put(0x81,TvContract.Programs.Genres.encode(TECH_SCIENCE));
+        contentTypes.put(0x90,TvContract.Programs.Genres.encode(TECH_SCIENCE));
+        contentTypes.put(0x91,TvContract.Programs.Genres.encode(ANIMAL_WILDLIFE));
+        contentTypes.put(0x92,TvContract.Programs.Genres.encode(TECH_SCIENCE));
+        contentTypes.put(0x93,TvContract.Programs.Genres.encode(TECH_SCIENCE));
+        contentTypes.put(0x95,TvContract.Programs.Genres.encode(TECH_SCIENCE));
+        contentTypes.put(0x96,TvContract.Programs.Genres.encode(EDUCATION));
+        contentTypes.put(0xA0,TvContract.Programs.Genres.encode(LIFE_STYLE));
+        contentTypes.put(0xA1,TvContract.Programs.Genres.encode(TRAVEL));
+        contentTypes.put(0xA2,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0xA3,TvContract.Programs.Genres.encode(LIFE_STYLE));
+        contentTypes.put(0xA4,TvContract.Programs.Genres.encode(LIFE_STYLE));
+        contentTypes.put(0xA5,TvContract.Programs.Genres.encode(LIFE_STYLE));
+        contentTypes.put(0xA6,TvContract.Programs.Genres.encode(SHOPPING));
+        contentTypes.put(0xA7,TvContract.Programs.Genres.encode(LIFE_STYLE));
+        
     }
 
 
