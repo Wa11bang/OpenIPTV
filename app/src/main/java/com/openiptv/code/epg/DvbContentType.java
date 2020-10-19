@@ -33,48 +33,48 @@ public class DvbContentType {
      */
     public DvbContentType()
     {
-        contentTypes.put(16,TvContract.Programs.Genres.encode(MOVIES));
-        contentTypes.put(17,TvContract.Programs.Genres.encode(MOVIES));
-        contentTypes.put(18,TvContract.Programs.Genres.encode(MOVIES));
-        contentTypes.put(19,TvContract.Programs.Genres.encode(MOVIES));
-        contentTypes.put(20,TvContract.Programs.Genres.encode(COMEDY));
-        contentTypes.put(21,TvContract.Programs.Genres.encode(ENTERTAINMENT));
-        contentTypes.put(22,TvContract.Programs.Genres.encode(MOVIES));
-        contentTypes.put(23,TvContract.Programs.Genres.encode(DRAMA));
-        contentTypes.put(32,TvContract.Programs.Genres.encode(NEWS));
-        contentTypes.put(33,TvContract.Programs.Genres.encode(NEWS));
-        contentTypes.put(34,TvContract.Programs.Genres.encode(NEWS));
-        contentTypes.put(35,TvContract.Programs.Genres.encode(TECH_SCIENCE));
-        contentTypes.put(48,TvContract.Programs.Genres.encode(ENTERTAINMENT));
-        contentTypes.put(49,TvContract.Programs.Genres.encode(ENTERTAINMENT));
-        contentTypes.put(50,TvContract.Programs.Genres.encode(ENTERTAINMENT));
-        contentTypes.put(51,TvContract.Programs.Genres.encode(ENTERTAINMENT));
-        contentTypes.put(64,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(65,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(66,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(67,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(68,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(69,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(70,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(71,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(72,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(73,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(74,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(75,TvContract.Programs.Genres.encode(SPORTS));
-        contentTypes.put(80,TvContract.Programs.Genres.encode(FAMILY_KIDS));
-        contentTypes.put(81,TvContract.Programs.Genres.encode(FAMILY_KIDS));
-        contentTypes.put(82,TvContract.Programs.Genres.encode(FAMILY_KIDS));
-        contentTypes.put(83,TvContract.Programs.Genres.encode(FAMILY_KIDS));
-        contentTypes.put(84,TvContract.Programs.Genres.encode(FAMILY_KIDS));
-        contentTypes.put(85,TvContract.Programs.Genres.encode(FAMILY_KIDS));
-        contentTypes.put(96,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(97,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(98,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(99,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(100,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(101,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(102,TvContract.Programs.Genres.encode(MUSIC));
-        contentTypes.put(112,TvContract.Programs.Genres.encode(ARTS));
+        contentTypes.put(0x10,TvContract.Programs.Genres.encode(MOVIES));
+        contentTypes.put(0x11,TvContract.Programs.Genres.encode(MOVIES));
+        contentTypes.put(0x12,TvContract.Programs.Genres.encode(MOVIES));
+        contentTypes.put(0x13,TvContract.Programs.Genres.encode(MOVIES));
+        contentTypes.put(0x14,TvContract.Programs.Genres.encode(COMEDY));
+        contentTypes.put(0x15,TvContract.Programs.Genres.encode(ENTERTAINMENT));
+        contentTypes.put(0x16,TvContract.Programs.Genres.encode(MOVIES));
+        contentTypes.put(0x17,TvContract.Programs.Genres.encode(DRAMA));
+        contentTypes.put(0x20,TvContract.Programs.Genres.encode(NEWS));
+        contentTypes.put(0x21,TvContract.Programs.Genres.encode(NEWS));
+        contentTypes.put(0x22,TvContract.Programs.Genres.encode(NEWS));
+        contentTypes.put(0x23,TvContract.Programs.Genres.encode(TECH_SCIENCE));
+        contentTypes.put(0x30,TvContract.Programs.Genres.encode(ENTERTAINMENT));
+        contentTypes.put(0x31,TvContract.Programs.Genres.encode(ENTERTAINMENT));
+        contentTypes.put(0x32,TvContract.Programs.Genres.encode(ENTERTAINMENT));
+        contentTypes.put(0x33,TvContract.Programs.Genres.encode(ENTERTAINMENT));
+        contentTypes.put(0x40,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x41,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x42,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x43,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x44,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x45,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x46,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x47,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x48,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x49,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x4A,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x4B,TvContract.Programs.Genres.encode(SPORTS));
+        contentTypes.put(0x50,TvContract.Programs.Genres.encode(FAMILY_KIDS));
+        contentTypes.put(0x51,TvContract.Programs.Genres.encode(FAMILY_KIDS));
+        contentTypes.put(0x52,TvContract.Programs.Genres.encode(FAMILY_KIDS));
+        contentTypes.put(0x53,TvContract.Programs.Genres.encode(FAMILY_KIDS));
+        contentTypes.put(0x54,TvContract.Programs.Genres.encode(FAMILY_KIDS));
+        contentTypes.put(0x55,TvContract.Programs.Genres.encode(FAMILY_KIDS));
+        contentTypes.put(0x60,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x61,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x62,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x63,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x64,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x65,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x66,TvContract.Programs.Genres.encode(MUSIC));
+        contentTypes.put(0x70,TvContract.Programs.Genres.encode(ARTS));
         contentTypes.put(113,TvContract.Programs.Genres.encode(ARTS));
         contentTypes.put(114,TvContract.Programs.Genres.encode(ARTS));
         contentTypes.put(115,TvContract.Programs.Genres.encode(ARTS));
@@ -99,6 +99,7 @@ public class DvbContentType {
         contentTypes.put(165,TvContract.Programs.Genres.encode(LIFE_STYLE));
         contentTypes.put(166,TvContract.Programs.Genres.encode(SHOPPING));
         contentTypes.put(167,TvContract.Programs.Genres.encode(LIFE_STYLE));
+
 
     }
 
