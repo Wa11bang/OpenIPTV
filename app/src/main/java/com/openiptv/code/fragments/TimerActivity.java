@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 public class TimerActivity extends FragmentActivity {
     private static final int CONTENT_VIEW_ID = 20202020;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,7 +21,8 @@ public class TimerActivity extends FragmentActivity {
 
         if (savedInstanceState == null) {
             SigninFragment fragment = new SigninFragment();
-            fragment.show(getSupportFragmentManager(),null);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(CONTENT_VIEW_ID, fragment).commit();
 
 
             /*TimerFragment fragment = new TimerFragment();

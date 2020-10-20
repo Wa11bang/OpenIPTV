@@ -63,5 +63,6 @@
     <string name="signin">Sign in</string>
     <string name="cancel">Cancel</string>
     <string name="sign_in_hint">Please enter the your username and parent control password!</string>
-    <string name="username">Username</string>
+    <string name="username">Account Username</string>
+    <string name="password">Parent Control Password</string>
 </resources>

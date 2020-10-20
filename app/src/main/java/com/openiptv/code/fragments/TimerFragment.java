@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,7 +31,9 @@ public class TimerFragment extends DialogFragment implements TimePickerDialog.On
 
     @Override
     public void onTimeSet(TimePicker timePicker, int i, int i1) {
-        this.getActivity().finish();
+        int hour = timePicker.getHour();
+        int minute = timePicker.getMinute();
 
+        Toast.makeText(getContext(),"Time: "+ hour+" : "+ minute, Toast.LENGTH_SHORT).show();
     }
 }
