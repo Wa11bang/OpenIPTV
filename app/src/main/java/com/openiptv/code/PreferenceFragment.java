@@ -1,5 +1,6 @@
 package com.openiptv.code;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -22,18 +23,7 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
 
     @Override
     public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
-        final Bundle args = pref.getExtras();
-        final Fragment f = getChildFragmentManager().getFragmentFactory().instantiate(
-                requireActivity().getClassLoader(), pref.getFragment());
-        f.setArguments(args);
-        f.setTargetFragment(caller, 0);
-        if (f instanceof PreferenceFragmentCompat
-                || f instanceof PreferenceDialogFragmentCompat) {
-            startPreferenceFragment(f);
-        } else {
-            startImmersiveFragment(f);
-        }
-        return true;
+        return false;
     }
 
     @Override
@@ -54,8 +44,14 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            getPreferenceManager().setSharedPreferencesName(Constants.ACCOUNT);
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_PRIVATE);
             // Load the preferences from an XML resource
-            setPreferencesFromResource(R.xml.preferences, rootKey);
+            if (rootKey == null){
+                addPreferencesFromResource(R.xml.preferences);
+            } else {
+                setPreferencesFromResource(R.xml.preferences, rootKey);
+            }
         }
     }
 }

@@ -19,6 +19,7 @@
             android:dialogTitle="Stream Profile"
             android:entries="@array/streamProfiles"
             android:entryValues="@array/profileValues"
+            android:defaultValue="HTSP"
 
             android:key="STREAM_PROFILE"
             android:summary="Changes the stream profile from available profiles."
@@ -28,7 +29,6 @@
 
     <androidx.preference.PreferenceCategory android:title="Guide" >
         <SwitchPreference
-
             android:defaultValue="false"
             android:dialogTitle="Quick Sync"
             android:key="QUICK_SYNC"

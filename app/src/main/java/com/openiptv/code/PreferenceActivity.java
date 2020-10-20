@@ -34,11 +34,10 @@ public class PreferenceActivity extends FragmentActivity {
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals()){
-
+                if (key.equals("STREAM_PROFILE")){
+                    System.out.println("Testing for stream profile.");
                 }
             }
-
         };
 
     }
