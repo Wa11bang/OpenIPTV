@@ -30,10 +30,16 @@ import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPException;
 import com.openiptv.code.htsp.HTSPMessage;
+import com.openiptv.code.htsp.MessageListener;
 import com.openiptv.code.player.TVPlayer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
+import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 import static com.openiptv.code.Constants.RESTART_SERVICES;
 
@@ -41,6 +47,7 @@ import static com.openiptv.code.Constants.RESTART_SERVICES;
 public class TVInputService extends TvInputService {
     private static final String TAG = TVInputService.class.getSimpleName();
     private BaseConnection connection;
+    private long time = 0L;
 
     @Override
     public void onCreate() {
@@ -203,6 +210,16 @@ public class TVInputService extends TvInputService {
         @Override
         public boolean onTune(Uri channelUri) {
             notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
+            if (null)
+            {
+                if (DEBUG)
+                {
+                    Log.d(TAG,"The channel is blocked due to the timer");
+                }
+                notifyContentBlocked(null);
+                notifyVideoAvailable();
+                return  false;
+            }
             player.prepare(channelUri, false);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));
@@ -210,6 +227,8 @@ public class TVInputService extends TvInputService {
             player.start();
             notifyContentAllowed();
             notifyVideoAvailable();
+
+
             return true;
         }
 
@@ -283,6 +302,55 @@ public class TVInputService extends TvInputService {
         public boolean onSelectTrack(int type, String trackId) {
             Log.d(TAG, "Session selectTrack: " + type + " / " + trackId);
             return true;
+        }
+
+        public boolean checkParentControlTime() {
+            boolean result = true;
+
+            //get time that is set up by parent control
+            PreferenceUtils preferenceUtils = new PreferenceUtils(getBaseContext());
+            int hourToCheck = preferenceUtils.getInteger("Hour");
+            int minuteToCheck = preferenceUtils.getInteger("Minute");
+
+            //new connection
+            ConnectionInfo info = new ConnectionInfo("tv.theron.co.nz", 9982, "development",
+                    "development", "testExample", "23");
+            BaseConnection connection = new BaseConnection(info);
+
+            //start connection and add listener
+            connection.start();
+            connection.addMessageListener(new MessageListener() {
+                @Override
+                public void onMessage(HTSPMessage message) {
+                    if (message.containsKey("time")) {
+                        time = message.getLong("time");
+                        Log.d("disk", time + "");
+                    }
+                }
+            });
+
+            //get server system time
+            HTSPMessage message = new HTSPMessage();
+            message.put("method", "getSysTime");
+            try {
+                connection.getHTSPMessageDispatcher().sendMessage(message);
+            } catch (HTSPException e) {
+                e.printStackTrace();
+            }
+            //because the time we get from system is unix time, so format is needed
+            Date date = new Date(time * 1000L);
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+12"));
+            String formattedDate = sdf.format(date);
+            StringTokenizer stringTokenizer = new StringTokenizer(formattedDate, ":");
+            int hour = Integer.parseInt(stringTokenizer.nextToken());
+            int minute = Integer.parseInt(stringTokenizer.nextToken());
+
+            if (hour > hourToCheck && minute > minuteToCheck) {
+                result = false;
+            }
+
+            return result;
         }
     }
 

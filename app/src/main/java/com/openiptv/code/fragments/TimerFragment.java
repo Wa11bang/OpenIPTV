@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.openiptv.code.PreferenceUtils;
+
 import java.util.Calendar;
 
 public class TimerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
@@ -23,8 +25,6 @@ public class TimerFragment extends DialogFragment implements TimePickerDialog.On
         int hour = current.get(Calendar.HOUR_OF_DAY);
         int minute = current.get(Calendar.MINUTE);
 
-
-
         return new TimePickerDialog(getActivity(), this, hour, minute,
                 DateFormat.is24HourFormat(getActivity()));
     }
@@ -34,6 +34,12 @@ public class TimerFragment extends DialogFragment implements TimePickerDialog.On
         int hour = timePicker.getHour();
         int minute = timePicker.getMinute();
 
-        Toast.makeText(getContext(),"Time: "+ hour+" : "+ minute, Toast.LENGTH_SHORT).show();
+
+        Toast.makeText(getContext(), "Time: " + hour + " : " + minute, Toast.LENGTH_SHORT).show();
+        /*
+        PreferenceUtils preferenceUtils = new PreferenceUtils(getContext());
+
+        preferenceUtils.setInteger("Hour", hour);
+        preferenceUtils.setInteger("Minute", minute);*/
     }
 }
