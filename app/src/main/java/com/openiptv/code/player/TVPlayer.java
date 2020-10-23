@@ -154,7 +154,13 @@ public class TVPlayer implements Player.EventListener {
         if (surface != null) {
             surface.release();
         }
-        mediaSource.releaseSource(null);
+        if (mediaSource != null) {
+            mediaSource.releaseSource(null);
+        }
+        if (dataSource!=null)
+        {
+            dataSource.release();
+        }
     }
 
     /**

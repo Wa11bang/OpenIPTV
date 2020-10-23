@@ -66,5 +66,5 @@
     <string name="username">Account Username</string>
     <string name="password">Parent Control Password</string>
     <string name="time_range">Time Range</string>
-    <string name="time_range_des">Please select the time range that limit the the viewing time.</string>
+    <string name="time_range_des">Please select the time range that block the viewing time.</string>
 </resources>

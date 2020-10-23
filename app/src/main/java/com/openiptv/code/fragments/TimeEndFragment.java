@@ -37,6 +37,7 @@ public class TimeEndFragment extends DialogFragment implements TimePickerDialog.
         PreferenceUtils preferenceUtils = new PreferenceUtils(getContext());
         preferenceUtils.setInteger("endHour", endHour);
         preferenceUtils.setInteger("endMinute", endMinute);
+        preferenceUtils.setBoolean("pcEnable", true);
 
         String start = preferenceUtils.getInteger("startHour")+":"+preferenceUtils.getInteger("startMinute");
         String end = preferenceUtils.getInteger("endHour")+":"+preferenceUtils.getInteger("endMinute");
