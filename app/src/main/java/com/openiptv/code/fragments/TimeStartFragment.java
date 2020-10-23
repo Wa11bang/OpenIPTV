@@ -15,7 +15,7 @@ import com.openiptv.code.PreferenceUtils;
 
 import java.util.Calendar;
 
-public class TimerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+public class TimeStartFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
     @NonNull
     @Override
@@ -31,15 +31,14 @@ public class TimerFragment extends DialogFragment implements TimePickerDialog.On
 
     @Override
     public void onTimeSet(TimePicker timePicker, int i, int i1) {
-        int hour = timePicker.getHour();
-        int minute = timePicker.getMinute();
+        int startHour = timePicker.getHour();
+        int startMinute = timePicker.getMinute();
 
-
-        Toast.makeText(getContext(), "Time: " + hour + " : " + minute, Toast.LENGTH_SHORT).show();
-        /*
         PreferenceUtils preferenceUtils = new PreferenceUtils(getContext());
+        preferenceUtils.setInteger("startHour", startHour);
+        preferenceUtils.setInteger("startMinute", startMinute);
 
-        preferenceUtils.setInteger("Hour", hour);
-        preferenceUtils.setInteger("Minute", minute);*/
+        TimeEndFragment fragment = new TimeEndFragment();
+        fragment.show(getActivity().getSupportFragmentManager(), null);
     }
 }

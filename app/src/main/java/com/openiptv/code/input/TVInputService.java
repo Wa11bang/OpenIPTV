@@ -210,7 +210,7 @@ public class TVInputService extends TvInputService {
         @Override
         public boolean onTune(Uri channelUri) {
             notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
-            if (null)
+            /*if (null)
             {
                 if (DEBUG)
                 {
@@ -219,7 +219,7 @@ public class TVInputService extends TvInputService {
                 notifyContentBlocked(null);
                 notifyVideoAvailable();
                 return  false;
-            }
+            }*/
             player.prepare(channelUri, false);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));

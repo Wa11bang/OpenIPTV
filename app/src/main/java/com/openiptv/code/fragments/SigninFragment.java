@@ -32,8 +32,8 @@ public class SigninFragment extends GuidedStepSupportFragment {
     public GuidanceStylist.Guidance onCreateGuidance(Bundle savedInstanceState) {
 
         return new GuidanceStylist.Guidance(
-                getString(R.string.parent_control_title),
-                getString(R.string.parent_control_des),
+                getString(R.string.time_range),
+                getString(R.string.time_range_des),
                 getString(R.string.account_label),
                 ContextCompat.getDrawable(getActivity(), R.drawable.standard));
     }
@@ -86,7 +86,7 @@ public class SigninFragment extends GuidedStepSupportFragment {
             if (result == false) {
                 Toast.makeText(getContext(), "The username or parent control password are not correct" + result, Toast.LENGTH_SHORT).show();
             } else if (result) {
-                TimerFragment fragment = new TimerFragment();
+                TimeStartFragment fragment = new TimeStartFragment();
                 fragment.show(getActivity().getSupportFragmentManager(), null);
             }
         } else if (id == CANCEL) {

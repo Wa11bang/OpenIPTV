@@ -25,7 +25,7 @@ public class TimerActivity extends FragmentActivity {
             ft.add(CONTENT_VIEW_ID, fragment).commit();
 
 
-            /*TimerFragment fragment = new TimerFragment();
+            /*TimeStartFragment fragment = new TimeStartFragment();
             fragment.show(getSupportFragmentManager(),null);*/
             //FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             //ft.add(CONTENT_VIEW_ID, fragment).commit();
