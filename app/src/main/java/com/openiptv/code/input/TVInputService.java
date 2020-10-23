@@ -15,6 +15,7 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Surface;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -210,16 +211,16 @@ public class TVInputService extends TvInputService {
         @Override
         public boolean onTune(Uri channelUri) {
             notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
-            /*if (null)
-            {
-                if (DEBUG)
-                {
-                    Log.d(TAG,"The channel is blocked due to the timer");
+            boolean result = checkParentControlTime();
+            if (result==false) {
+                if (DEBUG) {
+                    Log.d(TAG, "The channel is blocked due to the timer");
                 }
                 notifyContentBlocked(null);
                 notifyVideoAvailable();
-                return  false;
-            }*/
+
+                return false;
+            }
             player.prepare(channelUri, false);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));
@@ -305,12 +306,14 @@ public class TVInputService extends TvInputService {
         }
 
         public boolean checkParentControlTime() {
-            boolean result = true;
+            boolean result = false;
 
             //get time that is set up by parent control
             PreferenceUtils preferenceUtils = new PreferenceUtils(getBaseContext());
-            int hourToCheck = preferenceUtils.getInteger("Hour");
-            int minuteToCheck = preferenceUtils.getInteger("Minute");
+            int startHour = preferenceUtils.getInteger("startHour");
+            int startMinute = preferenceUtils.getInteger("startMinute");
+            int endHour = preferenceUtils.getInteger("endHour");
+            int endMinute = preferenceUtils.getInteger("endMinute");
 
             //new connection
             ConnectionInfo info = new ConnectionInfo("tv.theron.co.nz", 9982, "development",
@@ -324,7 +327,7 @@ public class TVInputService extends TvInputService {
                 public void onMessage(HTSPMessage message) {
                     if (message.containsKey("time")) {
                         time = message.getLong("time");
-                        Log.d("disk", time + "");
+                        Log.d("time", time + "");
                     }
                 }
             });
@@ -346,8 +349,18 @@ public class TVInputService extends TvInputService {
             int hour = Integer.parseInt(stringTokenizer.nextToken());
             int minute = Integer.parseInt(stringTokenizer.nextToken());
 
-            if (hour > hourToCheck && minute > minuteToCheck) {
-                result = false;
+            Toast.makeText(getApplicationContext(),"the time is "+hour+":"+minute,Toast.LENGTH_SHORT).show();
+
+            if (startHour < endHour && startMinute < endMinute) {
+                if (hour >= startHour && minute >= startMinute
+                        && hour <= endHour && minute <= endMinute) {
+                    result = true;
+                }
+            } else if (startHour > endHour && startMinute > endMinute) {
+                if (hour <= startHour && minute <= startMinute
+                        && hour >= endHour && minute >= endMinute) {
+                    result = true;
+                }
             }
 
             return result;
