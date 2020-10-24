@@ -237,8 +237,6 @@ public class TVInputService extends TvInputService {
 
                 Log.d(TAG, "The channel is blocked due to the timer");
 
-                //notifyContentBlocked(TvContentRating.UNRATED);
-
                 notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
 
                 return false;
@@ -257,11 +255,6 @@ public class TVInputService extends TvInputService {
             int endHour = preferenceUtils.getInteger("endHour");
             int endMinute = preferenceUtils.getInteger("endMinute");
 
-
-            //new connection
-            /*ConnectionInfo info = new ConnectionInfo("tv.theron.co.nz", 9982, "development",
-                    "development", "testExample", "23");
-            BaseConnection connection = new BaseConnection(info);*/
 
             //start connection and add listener
             connection.addMessageListener(new MessageListener() {
@@ -283,14 +276,7 @@ public class TVInputService extends TvInputService {
             } catch (HTSPException e) {
                 e.printStackTrace();
             }
-            //because the time we get from system is unix time, so format is needed
-            /*Date date = new Date(time * 1000L);
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-            sdf.setTimeZone(java.util.TimeZone.getTimeZone("GMT+12"));
-            String formattedDate = sdf.format(date);
-            StringTokenizer stringTokenizer = new StringTokenizer(formattedDate, ":");
-            int hour = Integer.parseInt(stringTokenizer.nextToken());
-            int minute = Integer.parseInt(stringTokenizer.nextToken());*/
+
             ZoneOffset offset = OffsetDateTime.now().getOffset();
             LocalTime serverTime = Instant.ofEpochSecond(time).atOffset(offset).toLocalTime();
 
@@ -300,25 +286,10 @@ public class TVInputService extends TvInputService {
 
             Log.d("system_time", "" + serverTime);
 
-            //Log.d("systime", "systime" + hour + ":" + minute);
-
             Boolean isBetweenTime = (serverTime.isAfter(start) && serverTime.isBefore(end));
 
-            Log.d("between", isBetweenTime+"");
+            Log.d("between", isBetweenTime + "");
 
-            /*Toast.makeText(context, "the time is " + hour + ":" + minute, Toast.LENGTH_SHORT).show();
-
-            if (startHour < endHour) {
-                if (hour >= startHour && minute >= startMinute
-                        && hour <= endHour && minute <= endMinute) {
-                    pass = true;
-                }
-            } else if (startHour > endHour) {
-                if (hour <= startHour && minute <= startMinute
-                        && hour >= endHour && minute >= endMinute) {
-                    pass = true;
-                }
-            }*/
 
             return isBetweenTime;
         }

@@ -131,14 +131,6 @@ public class SetupSelectAccountFragment extends GuidedStepSupportFragment {
 
             databaseActions.close();
 
-            /**
-             * modified here
-             *
-             * GuidedStepSupportFragment fragment = new SyncFragment();
-             * fragment.setArguments(accountDetails);
-             * add(getFragmentManager(), fragment);
-             *
-             * */
             GuidedStepSupportFragment fragment = new ParentControlFragment(accountDetails);
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);

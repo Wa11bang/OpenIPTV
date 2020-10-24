@@ -13,10 +13,12 @@ public class ParentControlActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         FrameLayout frame = new FrameLayout(this);
         frame.setId(CONTENT_VIEW_ID);
         setContentView(frame, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+
         if (savedInstanceState == null) {
             IdentifyUserFragment fragment = new IdentifyUserFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

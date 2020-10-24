@@ -152,7 +152,7 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
                     dbAction.close();
 
                     if (result == true) {
-                        Toast.makeText(getContext(),"Parent Control password update successfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Parent Control password update successfully!", Toast.LENGTH_SHORT).show();
                         getActivity().finish();
                     } else {
                         Toast.makeText(getContext(), "Database action failure, from preference sides", Toast.LENGTH_SHORT).show();

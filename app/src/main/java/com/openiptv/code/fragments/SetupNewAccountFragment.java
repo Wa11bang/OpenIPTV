@@ -155,13 +155,7 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     databaseActions.setActiveAccount(accountId);
 
                     databaseActions.close();
-                    /**
-                     * modified here
-                     *
-                     * GuidedStepSupportFragment fragment = new SyncFragment();
-                     * fragment.setArguments(newAccountDetails);
-                     * add(getParentFragmentManager(), fragment);
-                     * */
+
                     GuidedStepSupportFragment fragment = new ParentControlFragment(newAccountDetails);
                     fragment.setArguments(newAccountDetails);
                     add(getParentFragmentManager(), fragment);

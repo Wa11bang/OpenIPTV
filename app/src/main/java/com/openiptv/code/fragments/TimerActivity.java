@@ -23,12 +23,6 @@ public class TimerActivity extends FragmentActivity {
             SigninFragment fragment = new SigninFragment();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.add(CONTENT_VIEW_ID, fragment).commit();
-
-
-            /*TimeStartFragment fragment = new TimeStartFragment();
-            fragment.show(getSupportFragmentManager(),null);*/
-            //FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            //ft.add(CONTENT_VIEW_ID, fragment).commit();
         }
     }
 }
