@@ -31,8 +31,6 @@ public class SetupSelectAccount extends GuidedStepSupportFragment {
         DatabaseActions databaseActions = new DatabaseActions(getContext());
 
         //get the data and append to a list
-
-
         Cursor accountList = databaseActions.getAccounts();
 
         ArrayList<String> accountClientNames = new ArrayList<>();

@@ -40,9 +40,6 @@
     <string name="setup_select_account_available_accounts">Available Accounts</string>
     <string name="setup_select_account_add_new_account">Add new Account</string>
     <string name="setup_select_account_skip">Skip</string>
-    <string name="edit_account_title">Edit an Account</string>
-    <string name="edit_account_description">Edit your TVHeadend Credentials</string>
-    <string name="edit_account_delete">Delete Account</string>
-    <string name="manage_account_description">Please select an account to manage</string>
-    <string name="manage_account_title">Account Management</string>
+    <string name="success">Success</string>
+    <string name="select_language">Select language</string>
 </resources>

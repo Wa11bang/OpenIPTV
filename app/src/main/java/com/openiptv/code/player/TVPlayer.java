@@ -153,7 +153,7 @@ public class TVPlayer implements Player.EventListener {
         }
         if (dataSource != null)
         {
-            dataSource.release();
+            dataSource.release(); // Releasing the dataSource fixes duplication of subscriptions.
         }
         if(mediaSource != null)
         {
