@@ -159,7 +159,6 @@ public class SetupNewAccountFragment extends GuidedStepSupportFragment {
                     GuidedStepSupportFragment fragment = new ParentControlFragment(newAccountDetails);
                     fragment.setArguments(newAccountDetails);
                     add(getParentFragmentManager(), fragment);
-
                 } else {
                     Log.d("AddAccount", "Error, adding account. Check field is not empty");
                 }

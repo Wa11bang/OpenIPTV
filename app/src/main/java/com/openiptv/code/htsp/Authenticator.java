@@ -43,6 +43,7 @@ public class Authenticator implements MessageListener, Connection.Listener {
 
     /**
      * Constructor for Authenticator Object
+     *
      * @param dispatcher     messageDispatcher, used for sending and receiving messages
      * @param connectionInfo used for the data when sending messages.
      */

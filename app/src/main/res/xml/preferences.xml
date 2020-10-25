@@ -70,15 +70,6 @@
             android:summary="Changes the location for recordings to be saved to."
             android:title="DVR Storage Location" />
 
-        <Preference
-            android:summary="Edit and delete accounts."
-            android:title="Manage Accounts">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetClass="com.openiptv.code.manage.account.ManageAccountActivity"
-            android:targetPackage="com.openiptv.code" /></Preference>
-
-
 
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory android:title="Parent Control">

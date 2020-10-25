@@ -151,11 +151,16 @@ public class TVPlayer implements Player.EventListener {
         Log.d(TAG, "Released TVPlayer");
         player.release();
         //connection.stop();
-        if(surface != null) {
+        if (surface != null) {
             surface.release();
         }
-        dataSource.release(); // Releasing the dataSource fixes duplication of subscriptions.
-        mediaSource.releaseSource(null);
+        if (mediaSource != null) {
+            mediaSource.releaseSource(null);
+        }
+        if (dataSource!=null)
+        {
+            dataSource.release();
+        }
     }
 
     /**
@@ -284,6 +289,7 @@ public class TVPlayer implements Player.EventListener {
             seekPts = Math.max(seekPts, ((HTSPSubscriptionDataSource) dataSource).getTimeshiftStartPts()) / 1000;
             Log.d(TAG, "Seeking to PTS: " + seekPts);
             Log.d(TAG, "BEFORE Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " + ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
+
 
             ((HTSPSubscriptionDataSource) dataSource).seek(seekPts);
 

@@ -37,7 +37,6 @@ public class Constants {
     public static final String PROGRAM_START_TIME = "start";
     public static final String PROGRAM_FINISH_TIME = "stop";
     public static final String PROGRAM_IMAGE = "image";
-    public static final String PROGRAM_TYPE = "contentType";
 
     public static final String RECORDED_PROGRAM_ID = "id";
     public static final String RECORDED_PROGRAM_CHANNEL = "channel";

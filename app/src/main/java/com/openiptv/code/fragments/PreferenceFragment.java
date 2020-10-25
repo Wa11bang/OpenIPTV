@@ -43,7 +43,8 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
     }
 
     @Override
-    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref) {
+    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,
+                                           PreferenceScreen pref) {
         final Fragment fragment = new DemoFragment();
         final Bundle args = new Bundle(1);
         args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());

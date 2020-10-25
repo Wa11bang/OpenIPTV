@@ -73,7 +73,7 @@ public class HTSPMessageDispatcher implements MessageDispatcher {
                 return;
             }
 
-            throw new HTSPException("MessageDispatcher has no open Connection!");
+            throw new HTSPException("MessageDispatcher has no oper Connection!");
         }
     }
 

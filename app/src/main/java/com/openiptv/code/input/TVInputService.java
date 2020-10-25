@@ -16,6 +16,7 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Surface;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -31,7 +32,6 @@ import com.openiptv.code.htsp.BaseConnection;
 import com.openiptv.code.htsp.ConnectionInfo;
 import com.openiptv.code.htsp.HTSPException;
 import com.openiptv.code.htsp.HTSPMessage;
-
 import com.openiptv.code.htsp.MessageListener;
 import com.openiptv.code.player.TVPlayer;
 
@@ -47,7 +47,6 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import static com.openiptv.code.Constants.DEBUG;
-
 import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 import static com.openiptv.code.Constants.RESTART_SERVICES;
 

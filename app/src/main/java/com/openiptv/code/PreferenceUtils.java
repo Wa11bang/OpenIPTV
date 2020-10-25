@@ -69,7 +69,7 @@ public class PreferenceUtils {
      * Returns a String type value from a given preference key
      *
      * @param key preference key
-     * @return    stored value
+     * @return stored value
      */
     public String getString(String key) {
         return sharedPreferences.getString(key, PREFERENCE_NOT_SET_STRING);

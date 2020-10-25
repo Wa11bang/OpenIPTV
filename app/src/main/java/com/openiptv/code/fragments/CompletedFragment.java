@@ -13,6 +13,7 @@ import androidx.leanback.widget.GuidedAction;
 
 import com.openiptv.code.PreferenceUtils;
 import com.openiptv.code.R;
+import com.openiptv.code.SetupActivity;
 import com.openiptv.code.epg.EPGService;
 
 import java.util.List;
