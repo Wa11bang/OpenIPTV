@@ -45,13 +45,13 @@ public class TimeshiftUtils {
         private void tick() {
             currentPos = (currentPos + (long) speed);
             long seekPos = -(tvPlayer.getTimeshiftStartPosition() - currentPos);
-            Log.d(TAG, "SEEKPOS: " + seekPos + ", Speed: " + speed);
+            //Log.d(TAG, "SEEKPOS: " + seekPos + ", Speed: " + speed);
             if (seekPos >= 0) {
                 player.seekTo(seekPos);
             }
 
             if (started) {
-                handler.postDelayed(doTick, 1000);
+                handler.postDelayed(doTick, 1);
             }
         }
 
@@ -60,6 +60,7 @@ public class TimeshiftUtils {
                 return;
             }
             reset();
+            tick();
         }
 
         public void reset() {
@@ -69,7 +70,7 @@ public class TimeshiftUtils {
 
         public void postTick() {
             // I wonder what changing THIS delay does :/
-            handler.postDelayed(doTick, 100);
+            handler.post(doTick);
         }
 
         public boolean isRunning()
