@@ -74,7 +74,10 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
                 Intent intent = new Intent(getContext(), TimerActivity.class);
                 startActivity(intent);
             }
-
+            if(preference.getKey().equals("disable")){
+                Intent intent = new Intent(getContext(), DisableTimerActivity.class);
+                startActivity(intent);
+            }
 
             return super.onPreferenceTreeClick(preference);
         }

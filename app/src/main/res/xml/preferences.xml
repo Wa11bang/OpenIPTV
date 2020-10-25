@@ -82,5 +82,9 @@
             android:key="timer"
             android:summary="Set the timer"
             android:title="Timer" />
+        <Preference
+            android:key="disable"
+            android:summary="Disable the Timer"
+            android:title="Disable Timer"/>
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

@@ -67,4 +67,7 @@
     <string name="password">Parent Control Password</string>
     <string name="time_range">Time Range</string>
     <string name="time_range_des">Please select the time range that block the viewing time.</string>
+    //disable timer
+    <string name="disable">Disable the timer?</string>
+    <string name="disable_des">Disable the timer</string>
 </resources>

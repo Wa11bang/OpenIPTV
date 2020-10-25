@@ -62,7 +62,7 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
 
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
-        actions.add(new GuidedAction.Builder(getActivity())
+        /*actions.add(new GuidedAction.Builder(getActivity())
                 .title("")
                 .description(R.string.parent_control_password)
                 .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
@@ -77,18 +77,38 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
                 .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
                 .editable(true)
                 .id(CONFIRM_PASSWORD)
-                .build());
-        actions.add(new GuidedAction.Builder(getActivity())
+                .build());*/
+        GuidedAction password = new GuidedAction.Builder(getActivity())
+                .title("")
+                .description(R.string.parent_control_password)
+                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                .editable(true)
+                .id(PASSWORD)
+                .build();
+        GuidedAction confirm = new GuidedAction.Builder(getActivity())
+                .title("")
+                .description(R.string.parent_control_confirm_password)
+                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                .editable(true)
+                .id(CONFIRM_PASSWORD)
+                .build();
+        GuidedAction next = new GuidedAction.Builder(getActivity())
                 .title(R.string.parent_control_next)
                 .editable(false)
                 .id(NEXT)
-                .build());
+                .build();
+        actions.add(password);
+        actions.add(confirm);
+        actions.add(next);
+
     }
 
     @Override
     public void onGuidedActionClicked(GuidedAction action) {
         if (this.password == null && username == null) {
-            if (action.getId() == NEXT) {
+            if (action.getTitle().toString().equals("Next")) {
                 ParentControlPassword password = new ParentControlPassword(
                         findActionById(PASSWORD).getTitle().toString(),
                         findActionById(CONFIRM_PASSWORD).getTitle().toString());
@@ -104,22 +124,6 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
 
                     boolean result = dbAction.addParentControlPasswordToDB(this.accountInfor);
 
-                    /**
-                     * this commented code are for testing purpose, see if the parent control password saved
-                     * in the database
-                     * */
-               /* Cursor search = dbAction.getAccountByClientName(accountInfor.getString("clientName"));
-
-                while (search.moveToNext())
-                {
-                    String text = search.getString(search.getColumnIndex("parent"));
-                    if (text.length()!=0)
-                    {
-                        Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
-                    }
-                }*/
-
-
                     dbAction.close();
                     if (result == true) {
                         GuidedStepSupportFragment fragment = new SyncFragment();
@@ -131,7 +135,7 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
                 }
             }
         } else if (username != null && password != null) {
-            if (action.getId() == NEXT) {
+            if (action.getTitle().toString().equals("Next")) {
                 ParentControlPassword password = new ParentControlPassword(
                         findActionById(PASSWORD).getTitle().toString(),
                         findActionById(CONFIRM_PASSWORD).getTitle().toString());
