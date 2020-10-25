@@ -1,11 +1,23 @@
 package com.openiptv.code;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.app.GuidedStepSupportFragment;
 
+
 import com.openiptv.code.fragments.IntroFragment;
+
+import com.openiptv.code.epg.EPGCaptureTask;
+import com.openiptv.code.epg.EPGService;
+
+import java.util.List;
+
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
+
 
 public class SetupActivity extends FragmentActivity {
     private static final String TAG = SetupActivity.class.getName();

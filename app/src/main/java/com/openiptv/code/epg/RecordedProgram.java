@@ -34,104 +34,103 @@ public class RecordedProgram {
 
     /**
      * Constructor for a RecordedProgram object
-     *
      * @param context application context
      */
-    public RecordedProgram(Context context) {
+    public RecordedProgram(Context context)
+    {
         this.context = context;
     }
 
     /**
      * Sets the recordingId
-     *
      * @param recordingId of object
      * @return this instance
      */
-    public RecordedProgram setRecordingId(int recordingId) {
+    public RecordedProgram setRecordingId(int recordingId)
+    {
         this.recordingId = recordingId;
         return this;
     }
 
     /**
      * Sets the channelId
-     *
      * @param channelId of object
      * @return this instance
      */
-    public RecordedProgram setChannelId(int channelId) {
+    public RecordedProgram setChannelId(int channelId)
+    {
         this.channelId = channelId;
         return this;
     }
 
     /**
      * Sets the eventId
-     *
      * @param eventId of object
      * @return this instance
      */
-    public RecordedProgram setEventId(int eventId) {
+    public RecordedProgram setEventId(int eventId)
+    {
         this.eventId = eventId;
         return this;
     }
 
     /**
      * Sets the start value (nanosecs)
-     *
      * @param start of the recording
      * @return this instance
      */
-    public RecordedProgram setStart(long start) {
+    public RecordedProgram setStart(long start)
+    {
         this.start = start;
         return this;
     }
 
     /**
      * Sets the end value (nanosecs)
-     *
      * @param end of the recording
      * @return this instance
      */
-    public RecordedProgram setEnd(long end) {
+    public RecordedProgram setEnd(long end)
+    {
         this.end = end;
         return this;
     }
 
     /**
      * Sets the title
-     *
      * @param title of the recording
      * @return this instance
      */
-    public RecordedProgram setTitle(String title) {
+    public RecordedProgram setTitle(String title)
+    {
         this.title = title;
         return this;
     }
 
     /**
      * Sets the summary
-     *
      * @param summary of the recording
      * @return this instance
      */
-    public RecordedProgram setSummary(String summary) {
+    public RecordedProgram setSummary(String summary)
+    {
         this.summary = summary;
         return this;
     }
 
     /**
      * Sets the description
-     *
      * @param desc of the recording
      * @return this instance
      */
-    public RecordedProgram setDescription(String desc) {
+    public RecordedProgram setDescription(String desc)
+    {
         this.desc = desc;
         return this;
     }
 
     /**
      * Builds the RecordedProgram Object. Runs an internal method to build ContextValues.
-     *
      * @return this instance
      */
     public RecordedProgram build() {
@@ -142,11 +141,11 @@ public class RecordedProgram {
     /**
      * Constructor for a RecordedProgram object, takes in a HTSPMessage which is then parsed
      * into recording data.
-     *
      * @param context application context
      * @param message recording parsable HTSPMessage object
      */
-    public RecordedProgram(Context context, HTSPMessage message) {
+    public RecordedProgram(Context context, HTSPMessage message)
+    {
         this.recordingId = message.getInteger(Constants.RECORDED_PROGRAM_ID);
         this.eventId = message.getInteger(Constants.PROGRAM_ID);
         this.channelId = message.getInteger(Constants.RECORDED_PROGRAM_CHANNEL);
@@ -174,10 +173,10 @@ public class RecordedProgram {
 
     /**
      * Internal Method to generate ContentValues bundle
-     *
      * @param context of the application
      */
-    private void generateContentValues(Context context) {
+    private void generateContentValues(Context context)
+    {
         contentValues = new ContentValues();
 
         contentValues.put(TvContract.RecordedPrograms.COLUMN_INPUT_ID, TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS)));
@@ -204,16 +203,15 @@ public class RecordedProgram {
 
     /**
      * Returns the recordingId
-     *
      * @return recordingId
      */
-    public int getRecordingId() {
+    public int getRecordingId()
+    {
         return recordingId;
     }
 
     /**
      * Returns the eventId
-     *
      * @return eventId
      */
     public int getEventId() {
@@ -222,7 +220,6 @@ public class RecordedProgram {
 
     /**
      * Returns the channelId
-     *
      * @return channelId
      */
     public int getChannelId() {
@@ -231,7 +228,6 @@ public class RecordedProgram {
 
     /**
      * Returns the start value
-     *
      * @return start
      */
     public long getStart() {
@@ -240,7 +236,6 @@ public class RecordedProgram {
 
     /**
      * Returns the end value
-     *
      * @return end
      */
     public long getEnd() {
@@ -249,7 +244,6 @@ public class RecordedProgram {
 
     /**
      * Returns the title
-     *
      * @return title
      */
     public String getTitle() {
@@ -258,7 +252,6 @@ public class RecordedProgram {
 
     /**
      * Returns the summary
-     *
      * @return summary
      */
     public String getSummary() {
@@ -267,7 +260,6 @@ public class RecordedProgram {
 
     /**
      * Returns the description
-     *
      * @return desc
      */
     public String getDesc() {
@@ -276,7 +268,6 @@ public class RecordedProgram {
 
     /**
      * Returns the ContentValues
-     *
      * @return contentValues
      */
     public ContentValues getContentValues() {
@@ -317,20 +308,19 @@ public class RecordedProgram {
 
     /**
      * Gets the Internal TvProvider URI for a given RecordedProgram
-     *
      * @param context application context
      * @param program RecordedProgram object to locate in TvProvider database
      * @return RecordedProgram URI
      */
-    public static Uri getUri(Context context, RecordedProgram program) {
+    public static Uri getUri(Context context, RecordedProgram program)
+    {
         return getUri(context, program.getChannelId(), program.getRecordingId());
     }
 
     /**
      * Returns the TvHeadEnd recordingId from a given RecordedProgram Uri. The method searches
      * the TvProvider database for the stored recordingId.
-     *
-     * @param context      application context
+     * @param context application context
      * @param recordingUri uri used to locate recordingId in TvProvider database
      * @return TvHeadEnd recordingId
      */
@@ -346,7 +336,8 @@ public class RecordedProgram {
             }
         }
 
-        if (recordingIds.size() == 1) {
+        if(recordingIds.size() == 1)
+        {
             return recordingIds.get(0);
         }
 
