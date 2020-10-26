@@ -43,7 +43,7 @@
 
     //parent control
     <string name="parent_control_title">Parent Control</string>
-    <string name="parent_control_des">The parent control allows parent to set a time lock to limit their children watching time.</string>
+    <string name="parent_control_des">Allows setup of a time-lock to limit watching time.</string>
     <string name="parent_control_set_password_title">Set Password</string>
     <string name="parent_control_set_password_des">Move forward to set your password</string>
     <string name="parent_control_skip">Skip</string>
@@ -69,5 +69,5 @@
     <string name="time_range_des">Please select the time range that block the viewing time.</string>
     //disable timer
     <string name="disable">Disable the timer?</string>
-    <string name="disable_des">Disable the timer</string>
+    <string name="disable_des">Disable the parental-control timer</string>
 </resources>

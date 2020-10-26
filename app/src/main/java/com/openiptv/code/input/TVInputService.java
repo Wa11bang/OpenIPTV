@@ -220,10 +220,10 @@ public class TVInputService extends TvInputService {
             boolean pcEnable = preferenceUtils.getBoolean("pcEnable");
             boolean checkResult = false;
 
-            if (pcEnable == true) {
+            if (pcEnable) {
                 checkResult = checkParentControlTime();
             }
-            Log.d("testing", "" + checkResult);
+
             if (!checkResult) {
                 notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
                 player.prepare(channelUri, false);
@@ -233,12 +233,11 @@ public class TVInputService extends TvInputService {
                 player.start();
                 notifyContentAllowed();
                 notifyVideoAvailable();
+
             } else {
 
                 Log.d(TAG, "The channel is blocked due to the timer");
-
                 notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
-
                 return false;
             }
 
