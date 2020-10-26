@@ -242,11 +242,11 @@ public class Subscriber implements MessageListener {
 
             switch (method) {
                 case "subscriptionStart":
+                    startTime = (System.currentTimeMillis() * 1000);
+
                     for (final Listener listener : listeners) {
                         listener.onSubscriptionStart(message);
                     }
-                    // Using 1000 Ms as a buffer to prevent incorrect timestamp.
-                    startTime = (System.currentTimeMillis() * 1000) - 1000;
                     break;
                 case "subscriptionStatus":
                     for (final Listener listener : listeners) {
