@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.openiptv.code.Constants;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -34,103 +35,104 @@ public class RecordedProgram {
 
     /**
      * Constructor for a RecordedProgram object
+     *
      * @param context application context
      */
-    public RecordedProgram(Context context)
-    {
+    public RecordedProgram(Context context) {
         this.context = context;
     }
 
     /**
      * Sets the recordingId
+     *
      * @param recordingId of object
      * @return this instance
      */
-    public RecordedProgram setRecordingId(int recordingId)
-    {
+    public RecordedProgram setRecordingId(int recordingId) {
         this.recordingId = recordingId;
         return this;
     }
 
     /**
      * Sets the channelId
+     *
      * @param channelId of object
      * @return this instance
      */
-    public RecordedProgram setChannelId(int channelId)
-    {
+    public RecordedProgram setChannelId(int channelId) {
         this.channelId = channelId;
         return this;
     }
 
     /**
      * Sets the eventId
+     *
      * @param eventId of object
      * @return this instance
      */
-    public RecordedProgram setEventId(int eventId)
-    {
+    public RecordedProgram setEventId(int eventId) {
         this.eventId = eventId;
         return this;
     }
 
     /**
      * Sets the start value (nanosecs)
+     *
      * @param start of the recording
      * @return this instance
      */
-    public RecordedProgram setStart(long start)
-    {
+    public RecordedProgram setStart(long start) {
         this.start = start;
         return this;
     }
 
     /**
      * Sets the end value (nanosecs)
+     *
      * @param end of the recording
      * @return this instance
      */
-    public RecordedProgram setEnd(long end)
-    {
+    public RecordedProgram setEnd(long end) {
         this.end = end;
         return this;
     }
 
     /**
      * Sets the title
+     *
      * @param title of the recording
      * @return this instance
      */
-    public RecordedProgram setTitle(String title)
-    {
+    public RecordedProgram setTitle(String title) {
         this.title = title;
         return this;
     }
 
     /**
      * Sets the summary
+     *
      * @param summary of the recording
      * @return this instance
      */
-    public RecordedProgram setSummary(String summary)
-    {
+    public RecordedProgram setSummary(String summary) {
         this.summary = summary;
         return this;
     }
 
     /**
      * Sets the description
+     *
      * @param desc of the recording
      * @return this instance
      */
-    public RecordedProgram setDescription(String desc)
-    {
+    public RecordedProgram setDescription(String desc) {
         this.desc = desc;
         return this;
     }
 
     /**
      * Builds the RecordedProgram Object. Runs an internal method to build ContextValues.
+     *
      * @return this instance
      */
     public RecordedProgram build() {
@@ -141,11 +143,11 @@ public class RecordedProgram {
     /**
      * Constructor for a RecordedProgram object, takes in a HTSPMessage which is then parsed
      * into recording data.
+     *
      * @param context application context
      * @param message recording parsable HTSPMessage object
      */
-    public RecordedProgram(Context context, HTSPMessage message)
-    {
+    public RecordedProgram(Context context, HTSPMessage message) {
         this.recordingId = message.getInteger(Constants.RECORDED_PROGRAM_ID);
         this.eventId = message.getInteger(Constants.PROGRAM_ID);
         this.channelId = message.getInteger(Constants.RECORDED_PROGRAM_CHANNEL);
@@ -155,7 +157,41 @@ public class RecordedProgram {
         this.summary = message.getString(Constants.PROGRAM_SUMMARY);
         this.desc = message.getString(Constants.PROGRAM_DESCRIPTION);
 
-        if(DEBUG) {
+        // If an subscription error is received, it will be show as a toast to the user.
+        // If no subscription error is found it will skip the switch statement.
+        if (message.containsKey(Constants.SUBSCRIPTION_ERROR)) {
+            switch (message.getString(Constants.SUBSCRIPTION_ERROR)) {
+                case Constants.NO_FREE_ADAPTOR:
+                    Toast.makeText(context, "No free adaptor for this service", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.SCRAMBLED:
+                    Toast.makeText(context, "Service is scrambled", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.BAD_SIGNAL:
+                    Toast.makeText(context, "Bad signal status", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.TUNING_FAILED:
+                    Toast.makeText(context, "Tuning of this service failed", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.SUBSCRIPTION_OVERRIDDEN:
+                    Toast.makeText(context, "Subscription overridden by another one.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.MUX_NOT_ENABLED:
+                    Toast.makeText(context, "No mux enabled for this service.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.INVALID_TARGET:
+                    Toast.makeText(context, "Recording/livestream cannot be saved to filesystem or recording/streaming configuration is incorrect.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.USER_ACCESS:
+                    Toast.makeText(context, "User does not have access rights for this service.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.USER_LIMIT:
+                    Toast.makeText(context, "Error user limit reached", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+
+        if (DEBUG) {
             if (message.getHtspMessageArray("files", null) != null) {
 
                 HTSPMessage[] files = message.getHtspMessageArray("files", null);
@@ -173,10 +209,10 @@ public class RecordedProgram {
 
     /**
      * Internal Method to generate ContentValues bundle
+     *
      * @param context of the application
      */
-    private void generateContentValues(Context context)
-    {
+    private void generateContentValues(Context context) {
         contentValues = new ContentValues();
 
         contentValues.put(TvContract.RecordedPrograms.COLUMN_INPUT_ID, TvContract.buildInputId(new ComponentName(Constants.COMPONENT_PACKAGE, Constants.COMPONENT_CLASS)));
@@ -196,23 +232,23 @@ public class RecordedProgram {
 
         contentValues.put(TvContract.RecordedPrograms.COLUMN_RECORDING_DATA_URI, String.valueOf(eventId));
 
-        if(Constants.DEBUG)
-        {
+        if (Constants.DEBUG) {
             Log.d(TAG, "Generated ContentValues for Program: " + this.eventId);
         }
     }
 
     /**
      * Returns the recordingId
+     *
      * @return recordingId
      */
-    public int getRecordingId()
-    {
+    public int getRecordingId() {
         return recordingId;
     }
 
     /**
      * Returns the eventId
+     *
      * @return eventId
      */
     public int getEventId() {
@@ -221,6 +257,7 @@ public class RecordedProgram {
 
     /**
      * Returns the channelId
+     *
      * @return channelId
      */
     public int getChannelId() {
@@ -229,6 +266,7 @@ public class RecordedProgram {
 
     /**
      * Returns the start value
+     *
      * @return start
      */
     public long getStart() {
@@ -237,6 +275,7 @@ public class RecordedProgram {
 
     /**
      * Returns the end value
+     *
      * @return end
      */
     public long getEnd() {
@@ -245,6 +284,7 @@ public class RecordedProgram {
 
     /**
      * Returns the title
+     *
      * @return title
      */
     public String getTitle() {
@@ -253,6 +293,7 @@ public class RecordedProgram {
 
     /**
      * Returns the summary
+     *
      * @return summary
      */
     public String getSummary() {
@@ -261,6 +302,7 @@ public class RecordedProgram {
 
     /**
      * Returns the description
+     *
      * @return desc
      */
     public String getDesc() {
@@ -269,6 +311,7 @@ public class RecordedProgram {
 
     /**
      * Returns the ContentValues
+     *
      * @return contentValues
      */
     public ContentValues getContentValues() {
@@ -277,10 +320,10 @@ public class RecordedProgram {
 
     /**
      * Returns URI in TvProvider database, else NULL
+     *
      * @return Program URI
      */
-    public static Uri getUri(Context context, int channelId, int recordingId)
-    {
+    public static Uri getUri(Context context, int channelId, int recordingId) {
         ContentResolver resolver = context.getContentResolver();
         long tvProviderChannelId = Channel.getTvProviderId(channelId, context);
 
@@ -297,7 +340,7 @@ public class RecordedProgram {
         try (Cursor cursor = resolver.query(programsUri, projection, null, null, null)) {
             while (cursor != null && cursor.moveToNext()) {
                 if (strRecordingId.equals(cursor.getString(1))) {
-                    if(DEBUG) {
+                    if (DEBUG) {
                         Log.d(TAG, "Found existing Recording URI");
                     }
                     return TvContract.buildProgramUri(cursor.getLong(0));
@@ -309,19 +352,20 @@ public class RecordedProgram {
 
     /**
      * Gets the Internal TvProvider URI for a given RecordedProgram
+     *
      * @param context application context
      * @param program RecordedProgram object to locate in TvProvider database
      * @return RecordedProgram URI
      */
-    public static Uri getUri(Context context, RecordedProgram program)
-    {
+    public static Uri getUri(Context context, RecordedProgram program) {
         return getUri(context, program.getChannelId(), program.getRecordingId());
     }
 
     /**
      * Returns the TvHeadEnd recordingId from a given RecordedProgram Uri. The method searches
      * the TvProvider database for the stored recordingId.
-     * @param context application context
+     *
+     * @param context      application context
      * @param recordingUri uri used to locate recordingId in TvProvider database
      * @return TvHeadEnd recordingId
      */
@@ -331,14 +375,13 @@ public class RecordedProgram {
         String[] projection = {TvContract.RecordedPrograms._ID, TvContract.RecordedPrograms.COLUMN_INTERNAL_PROVIDER_DATA};
         List<Integer> recordingIds = new ArrayList<>();
 
-        try (Cursor cursor = resolver.query(recordingUri, projection, null,null, null)) {
+        try (Cursor cursor = resolver.query(recordingUri, projection, null, null, null)) {
             while (cursor != null && cursor.moveToNext()) {
                 recordingIds.add(cursor.getInt(1));
             }
         }
 
-        if(recordingIds.size() == 1)
-        {
+        if (recordingIds.size() == 1) {
             return recordingIds.get(0);
         }
 
