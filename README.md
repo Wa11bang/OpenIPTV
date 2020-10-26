@@ -9,7 +9,9 @@ many features that other, commercial solutions have.
 
 Currently TVHeadEnd using HTSP is the only supported IPTV server at the moment.
 
-Screenshot 1,2,3 here
+[![](./Screenshots/Screenshot-1)](https://raw.githubusercontent.com/Wa11bang/OpenIPTV/master/Screenshots/Screenshot-1.png)
+[![](./Screenshots/Screenshot-2)](https://raw.githubusercontent.com/Wa11bang/OpenIPTV/master/Screenshots/Screenshot-2.png)
+[![](./Screenshots/Screenshot-3)](https://raw.githubusercontent.com/Wa11bang/OpenIPTV/master/Screenshots/Screenshot-3.png)
 
 ## Features
 
