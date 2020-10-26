@@ -1,6 +1,7 @@
 package com.openiptv.code.player;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -65,6 +66,14 @@ public abstract class SourceReader {
                 case "MPEG2AUDIO":
                 {
                     return new MPEG2AudioReader(context, mpegVersion);
+                }
+                case "TELETEXT":
+                {
+                    return new TeletextReader(context);
+                }
+                case "DVBSUB":
+                {
+                    return new DVBSubReader(context);
                 }
                 default:
                 {
