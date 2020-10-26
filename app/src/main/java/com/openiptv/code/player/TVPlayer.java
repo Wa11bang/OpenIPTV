@@ -429,6 +429,9 @@ public class TVPlayer implements Player.EventListener {
                                         case C.TRACK_TYPE_AUDIO:
                                             selectedTracks.put(TvTrackInfo.TYPE_AUDIO, format.id);
                                             break;
+                                        case C.TRACK_TYPE_TEXT:
+                                            selectedTracks.put(TvTrackInfo.TYPE_SUBTITLE, format.id);
+                                            break;
                                     }
                                 }
                             }
