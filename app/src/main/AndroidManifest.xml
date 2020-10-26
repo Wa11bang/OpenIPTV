@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2015 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2015 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,11 +13,10 @@
      limitations under the License.
 -->
 
-<manifest
-    package="com.openiptv.code"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.openiptv.code">
 
-    <uses-sdk android:targetSdkVersion="29"/>
+    <uses-sdk android:targetSdkVersion="29" />
 
     <!-- Required to play internet-based streaming contents. -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +29,7 @@
 
     <!-- Required to sync EPG data after reboot. For details,
     please see {@link JobInfo.Builder#setPersisted}-->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-permission android:name="com.google.android.assistant.READ_HOTWORD_STATE" />
     <uses-permission android:name="com.google.android.assistant.WRITE_HOTWORD_STATE" />
@@ -53,10 +51,10 @@
 
     <application
         android:allowBackup="false"
+        android:banner="@drawable/standard"
         android:icon="@drawable/standard"
         android:label="@string/app_name"
         android:theme="@style/Theme.Leanback"
-        android:banner="@drawable/standard"
         android:usesCleartextTraffic="true">
         <activity android:name="com.openiptv.code.MainActivity">
             <intent-filter>
@@ -68,14 +66,14 @@
         <activity
             android:name=".PreferenceActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Preferences">
-        </activity>
+            android:theme="@style/Theme.Preferences"></activity>
 
         <activity
             android:name=".SetupActivity"
             android:exported="true"
-            android:label="@string/app_name">
-        </activity>
+            android:label="@string/app_name"></activity>
+
+        <activity android:name=".manage.account.ManageAccountActivity" />
 
         <service
             android:name=".input.TVInputService"
@@ -95,15 +93,15 @@
         <!-- used to get channel and program data -->
         <service
             android:name=".epg.EPGService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true" />
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
     </application>

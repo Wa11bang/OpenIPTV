@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name"> OpenIPTV </string>
+    <string name="company_name" translatable="false">你的公司</string>
+    <string name="rich_input_label" translatable="false">OpenIPTV </string>
+    <string name="rich_input_feed_url" translatable="false">http://commondatastorage.googleapis.com/android-tv/rich_tv_input_xmltv_feed.xml</string>
+    <string name="rich_setup_first_step_title">欢迎来到富文本输入</string>
+    <string name="rich_setup_first_step_description">"贵公司的电视频道"</string>
+    <string name="rich_setup_add_channel">添加频道</string>
+    <string name="rich_setup_cancel">取消设置</string>
+    <string name="rich_setup_in_progress">进行中... </string>
+    <string name="feed_error_message">没有提要，检查您的连接！</string>
+    <string name="app_link_title_1" translatable="false">应用链接标题1</string>
+    <string name="app_link_title_2" translatable="false">应用链接标题2</string>
+    <string name="details_fragment_subtitle" translatable="false">详细信息片段字幕</string>
+    <string name="details_fragment_body" translatable="false">详细信息片段正文</string>
+    <string name="details_fragment_action_1" translatable="false">操作1</string>
+    <string name="details_fragment_action_2" translatable="false">动作2</string>
+    <string name="item_1" translatable="false">项目1</string>
+    <string name="item_2" translatable="false">项目2</string>
+    <string name="setup_activity_welcome" translatable="false">欢迎使用OpenIPTV</string>
+    <string name="setup_activity_description" translatable="false">选择要启动的帐户</string>
+    <string name="setup_activity_select_account" translatable="false">选择帐户</string>
+    <string name="setup_activity_select_account_description" translatable="false">单击以开始</string>
+    <string name="setup_new_account_fragment_title" translatable="false">创建帐户</string>
+    <string name="setup_new_account_fragment_description" translatable="false">输入TVHeadend凭据</string>
+    <string name="setup_new_account_fragment_username" translatable="false">输入用户名</string>
+    <string name="setup_new_account_fragment_password" translatable="false">输入密码</string>
+    <string name="setup_new_account_fragment_hostname" translatable="false">输入主机名</string>
+    <string name="sync_error_canceled">用户取消了同步</string>
+    <string name="sync_error_no_data">未找到任何程序或频道。检查您的连接。</string>
+    <string name="sync_error_other">错误代码 %1$d</string>
+    <string name="account_label"> OpenIPTV </string>
+    <string name="setup_new_account_fragment_port">输入端口</string>
+    <string name="setup_new_account_fragment_client">输入客户端名称</string>
+    <string name="setup_new_account_fragment_next">下一个</string>
+    <string name="setup_select_account_title">选择一个帐户</string>
+    <string name="setup_select_account_description">或添加一个新的</string>
+    <string name="setup_select_account_no_accounts_message">没有帐户，添加一个！</string>
+    <string name="setup_select_account_available_accounts">可用帐户</string>
+    <string name="setup_select_account_add_new_account">添加新帐户</string>
+    <string name="setup_select_account_skip">跳过</string>
+    <string name="success">成功</string>
+    <string name="select_language">选择语言</string>
+</resources>
