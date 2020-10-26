@@ -104,17 +104,27 @@ public class TVPlayer implements Player.EventListener {
         this.connection = connection;
         this.preferenceUtils = new PreferenceUtils(context);
 
-        HTSPSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString("STREAM_PROFILE").toLowerCase());
+        HTSPSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
         extractorsFactory = new ExtendedExtractorsFactory(context);
 
         listeners = new ArrayList<>();
 
+        /*
+            Only profiles which are supported by the device will be utilized, otherwise a fallback
+            is chosen by TVHeadEnd.
+         */
         SharedPreferences preferences = context.getSharedPreferences(Constants.ACCOUNT, Context.MODE_PRIVATE);
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
                 if (key.equals(KEY_PROFILE)) {
                     Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_PROFILE));
+
+                    HTSPSubscriptionDataSourceFactory.releaseCurrentDataSource();
+                    HTSPSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
+
+                    prepare(contentUri, recording);
+                    start();
                 }
                 if (key.equals(KEY_QUICK_SYNC)) {
                     Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_QUICK_SYNC));
