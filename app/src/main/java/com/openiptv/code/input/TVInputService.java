@@ -15,6 +15,7 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Surface;
+import android.view.View;
 import android.view.accessibility.CaptioningManager;
 
 import androidx.annotation.Nullable;
@@ -272,6 +273,11 @@ public class TVInputService extends TvInputService {
         }
 
         @Override
+        public View onCreateOverlayView() {
+            return player.getOverlayView(captioningManager.getUserStyle());
+        }
+
+        @Override
         public void onTracks(List<TvTrackInfo> tracks, SparseArray<String> selectedTracks) {
             notifyTracksChanged(tracks);
 
@@ -287,7 +293,8 @@ public class TVInputService extends TvInputService {
         @Override
         public boolean onSelectTrack(int type, String trackId) {
             Log.d(TAG, "Session selectTrack: " + type + " / " + trackId);
-            return true;
+            notifyTrackSelected(type, trackId);
+            return player.selectTrack(type,trackId);
         }
     }
 

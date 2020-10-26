@@ -34,7 +34,4 @@ public class DVBSubReader extends SourceReader {
 
         return Format.createImageSampleFormat(Integer.toString(index), MimeTypes.APPLICATION_DVBSUBS, null, Format.NO_VALUE, C.SELECTION_FLAG_DEFAULT, data, message.getString("language", "undefined"), null);
     }
-
-
-    // TODO
 }

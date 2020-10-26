@@ -1,6 +1,7 @@
 package com.openiptv.code.player;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.media.PlaybackParams;
 import android.media.tv.TvTrackInfo;
 import android.net.Uri;
@@ -9,7 +10,12 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Surface;
+import android.view.View;
+import android.view.WindowManager;
+import android.view.accessibility.CaptioningManager;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.C;
@@ -24,13 +30,17 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.openiptv.code.R;
 import com.openiptv.code.epg.RecordedProgram;
 import com.openiptv.code.htsp.BaseConnection;
 
@@ -49,9 +59,12 @@ public class TVPlayer implements Player.EventListener {
     private HTSPDataSource dataSource;
     private ExtractorsFactory extractorsFactory;
 
+    private View overlayView;
+    private View subtitleView;
+
     private boolean recording;
     private List<Listener> listeners;
-    private DefaultTrackSelector trackSelector;
+    private ExtendedTrackSelector trackSelector;
     private float currentVolume;
 
     // Hard Coded Recording URL
@@ -81,7 +94,7 @@ public class TVPlayer implements Player.EventListener {
         Log.d("TVPlayer", "Created!");
         this.context = context;
 
-        trackSelector = new DefaultTrackSelector(context);
+        trackSelector = new ExtendedTrackSelector(context);
         this.player = new SimpleExoPlayer.Builder(context)
                 .setTrackSelector(trackSelector)
                 .build();
@@ -543,5 +556,40 @@ public class TVPlayer implements Player.EventListener {
         }
 
         return builder.build();
+    }
+
+    public boolean selectTrack(int type, String track)
+    {
+        return trackSelector.selectTrack(type, track);
+    }
+
+    public View getOverlayView(CaptioningManager.CaptionStyle captionStyle) {
+        if (overlayView == null)
+        {
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            overlayView = layoutInflater.inflate(R.layout.subtitle_overlay_view, null);
+        }
+
+        if (subtitleView == null) {
+            subtitleView = getSubtitleView(captionStyle);
+
+            if (subtitleView != null) {
+                // SubtitleView implements TextOutput
+                player.addTextOutput((TextOutput) subtitleView);
+            }
+        }
+
+        return overlayView;
+    }
+
+    private SubtitleView getSubtitleView(CaptioningManager.CaptionStyle captionStyle) {
+        SubtitleView view = overlayView.findViewById(R.id.subtitle_view);
+        CaptionStyleCompat captionStyleCompat = CaptionStyleCompat.createFromCaptionStyle(captionStyle);
+
+        view.setStyle(captionStyleCompat);
+        view.setVisibility(View.VISIBLE);
+        view.setApplyEmbeddedStyles(true);
+
+        return view;
     }
 }
