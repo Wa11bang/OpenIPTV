@@ -213,9 +213,10 @@ public class TVInputService extends TvInputService {
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
             Log.d(TAG, "Android has request to tune to channel: " + Channel.getChannelIdFromChannelUri(context, channelUri));
 
-            player.start();
             notifyContentAllowed();
             notifyVideoAvailable();
+
+            player.start();
             return true;
         }
 
@@ -256,8 +257,9 @@ public class TVInputService extends TvInputService {
 
         @Override
         public void onTimeShiftPlay(Uri recordedProgramUri) {
-            Log.d(TAG, "recorded program: " + recordedProgramUri.getPathSegments().get(1));
-            Log.d(TAG, "recorded program TVH ID: " + RecordedProgram.getRecordingIdFromRecordingUri(context, recordedProgramUri));
+            notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
+            //Log.d(TAG, "recorded program: " + recordedProgramUri.getPathSegments().get(1));
+            //Log.d(TAG, "recorded program TVH ID: " + RecordedProgram.getRecordingIdFromRecordingUri(context, recordedProgramUri));
 
             player.prepare(recordedProgramUri, true);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
