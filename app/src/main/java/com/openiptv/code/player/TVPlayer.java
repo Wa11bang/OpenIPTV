@@ -44,6 +44,11 @@ import java.util.List;
 import java.util.prefs.PreferenceChangeListener;
 
 import static com.openiptv.code.Constants.DEBUG;
+import static com.openiptv.code.Constants.KEY_BUFFER;
+import static com.openiptv.code.Constants.KEY_DVR;
+import static com.openiptv.code.Constants.KEY_EPG_SYNC;
+import static com.openiptv.code.Constants.KEY_PROFILE;
+import static com.openiptv.code.Constants.KEY_QUICK_SYNC;
 
 public class TVPlayer implements Player.EventListener {
     private Uri contentUri;
@@ -108,8 +113,20 @@ public class TVPlayer implements Player.EventListener {
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals("STREAM_PROFILE")) {
-                    Log.d(TAG, "The new value is "+preferenceUtils.getString("STREAM_PROFILE"));
+                if (key.equals(KEY_PROFILE)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_PROFILE));
+                }
+                if (key.equals(KEY_QUICK_SYNC)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_QUICK_SYNC));
+                }
+                if (key.equals(KEY_EPG_SYNC)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_EPG_SYNC));
+                }
+                if (key.equals(KEY_BUFFER)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_BUFFER));
+                }
+                if (key.equals(KEY_DVR)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_DVR));
                 }
             }
         };
