@@ -102,4 +102,9 @@ public class PreferenceUtils {
     {
         return sharedPreferences.getInt(key, PREFERENCE_NOT_SET_INT);
     }
+
+    public boolean containsKey(String key)
+    {
+        return sharedPreferences.contains(key);
+    }
 }

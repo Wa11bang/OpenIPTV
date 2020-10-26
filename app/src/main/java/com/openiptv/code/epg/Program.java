@@ -24,6 +24,7 @@ import java.util.List;
 
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.NULL_CHANNEL;
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 
 public class Program {
     private static final String TAG = Program.class.getSimpleName();
@@ -478,12 +479,12 @@ public class Program {
     {
         PreferenceUtils preferenceUtils = new PreferenceUtils(context);
 
-        //preferenceUtils.setString("KEY_OMDB_API", ); // Will need to remove
-
-        //String apiKey = preferenceUtils.getString("KEY_OMDB_API");
         //get API key from OMDBAPI.com
         String apiKey = null;
-
+        if(preferenceUtils.containsKey("OMDB_API_KEY"))
+        {
+            apiKey = preferenceUtils.getString("OMDB_API_KEY");
+        }
 
         if(apiKey == null)
         {
