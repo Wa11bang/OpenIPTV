@@ -19,12 +19,6 @@ public class EPGService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        // Sync currently active account. At this point, the is always an account present
-        // in the application's database.
-        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
-        databaseActions.syncActiveAccount();
-        databaseActions.close();
-
         PreferenceUtils preferenceUtils = new PreferenceUtils(this);
 
         if (DEBUG) {
@@ -32,6 +26,12 @@ public class EPGService extends Service {
         }
 
         if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+
+            // Sync currently active account. At this point, the is always an account present
+            // in the application's database.
+            DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+            databaseActions.syncActiveAccount();
+            databaseActions.close();
             Log.d("EPGService", "Creating Capture Task");
             epgCaptureTask = new EPGCaptureTask(this);
         }

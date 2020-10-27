@@ -81,4 +81,13 @@ public abstract class HTSPDataSource implements DataSource, Closeable {
 
         return null;
     }
+
+    public abstract void resume();
+    public abstract void pause();
+    public abstract long getTimeshiftStartTime();
+    public abstract long getTimeshiftOffsetPts();
+    public abstract long getTimeshiftStartPts();
+
+    public abstract void seek(long seekPts);
+    public abstract void setSpeed(int speed);
 }

@@ -36,6 +36,14 @@
             android:summary="Changes the set delay for updating the guide."
             android:title="EPG Sync" />
 
+        <EditTextPreference
+
+            android:dialogMessage="Enter your OMDBApi key obtainable at www.omdbapi.com"
+            android:dialogTitle="OBMD API Key"
+            android:key="OMDB_API_KEY"
+            android:summary="Add your OMDB API Key to enable the Age Rating Grabber"
+            android:title="Age Rating Grabber" />
+
 
     </androidx.preference.PreferenceCategory>
 
