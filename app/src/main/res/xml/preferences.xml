@@ -5,20 +5,12 @@
 
     <androidx.preference.PreferenceCategory android:title="Audio and Video">
 
-        <SwitchPreference
-
-            android:defaultValue="false"
-            android:dialogTitle="Audio / Video Sync"
-
-            android:key="AV_SYNC"
-            android:summary="Synchronises the audio and video components of the Live TV stream."
-            android:title="Audio / Video Sync" />
-
         <ListPreference
 
             android:dialogTitle="Stream Profile"
             android:entries="@array/streamProfiles"
             android:entryValues="@array/profileValues"
+            android:defaultValue="htsp"
 
             android:key="STREAM_PROFILE"
             android:summary="Changes the stream profile from available profiles."
@@ -28,7 +20,6 @@
 
     <androidx.preference.PreferenceCategory android:title="Guide">
         <SwitchPreference
-
             android:defaultValue="false"
             android:dialogTitle="Quick Sync"
             android:key="QUICK_SYNC"
