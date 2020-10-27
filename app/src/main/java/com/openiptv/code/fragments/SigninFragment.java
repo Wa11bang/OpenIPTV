@@ -83,8 +83,8 @@ public class SigninFragment extends GuidedStepSupportFragment {
             dbAction.close();
 
 
-            if (result == false) {
-                Toast.makeText(getContext(), "The username or parent control password are not correct" + result, Toast.LENGTH_SHORT).show();
+            if (!result) {
+                Toast.makeText(getContext(), "The username or parent control password is incorrect", Toast.LENGTH_SHORT).show();
             } else if (result) {
                 TimeStartFragment fragment = new TimeStartFragment();
                 fragment.show(getActivity().getSupportFragmentManager(), null);
