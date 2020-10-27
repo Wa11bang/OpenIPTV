@@ -142,8 +142,8 @@ public class TVPlayer implements Player.EventListener {
                 if (key.equals(KEY_PROFILE)) {
                     Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_PROFILE));
 
-                    HTSPSubscriptionDataSourceFactory.releaseCurrentDataSource();
-                    HTSPSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
+                    htspSubscriptionDataSourceFactory.releaseCurrentDataSource();
+                    htspSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
 
                     prepare(contentUri, recording);
                     start();
