@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
-
 import androidx.annotation.Nullable;
 
 import com.openiptv.code.DatabaseActions;
@@ -20,19 +19,19 @@ public class EPGService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        // Sync currently active account. At this point, the is always an account present
-        // in the application's database.
-        DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
-        databaseActions.syncActiveAccount();
-        databaseActions.close();
-
         PreferenceUtils preferenceUtils = new PreferenceUtils(this);
 
         if (DEBUG) {
             Log.d("EPGService", "called!");
         }
 
-        if (preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+        if(preferenceUtils.getBoolean(PREFERENCE_SETUP_COMPLETE)) {
+
+            // Sync currently active account. At this point, the is always an account present
+            // in the application's database.
+            DatabaseActions databaseActions = new DatabaseActions(getApplicationContext());
+            databaseActions.syncActiveAccount();
+            databaseActions.close();
             Log.d("EPGService", "Creating Capture Task");
             epgCaptureTask = new EPGCaptureTask(this);
         }

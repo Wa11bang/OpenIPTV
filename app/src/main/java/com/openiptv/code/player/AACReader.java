@@ -16,7 +16,8 @@ import java.util.Collections;
 /**
  * Creates a ACC Audio Stream reader
  */
-public class AACReader extends AudioReader {
+public class AACReader extends AudioReader
+{
     // Size of the Header
     private static final int ADTS_HEADER_SIZE = 7;
     // Size of the CRC
@@ -28,7 +29,6 @@ public class AACReader extends AudioReader {
 
     /**
      * extract initialisation data from the initial message.
-     *
      * @param message Message to extract the data from
      */
     @Override
@@ -49,15 +49,15 @@ public class AACReader extends AudioReader {
 
     /**
      * extract ACC Audio Stream data from a message
-     *
      * @param message Message to extract the data from
      * @return true if successful, false if the message is empty
      */
     @Override
-    public boolean extract(@NonNull HTSPMessage message) {
+    public boolean extract (@NonNull HTSPMessage message){
         byte[] payload = message.getByteArray("payload");
 
-        if (payload == null || payload.length == 0) {
+        if(payload == null || payload.length == 0)
+        {
             // Error extracting stream from HTSPMessage
             return false;
         }

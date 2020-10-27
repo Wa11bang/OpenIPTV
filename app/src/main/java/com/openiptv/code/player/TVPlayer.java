@@ -1,6 +1,8 @@
 package com.openiptv.code.player;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.media.PlaybackParams;
 import android.media.tv.TvTrackInfo;
 import android.net.Uri;
@@ -9,8 +11,16 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Surface;
+
+import android.view.View;
+import android.view.WindowManager;
+import android.view.accessibility.CaptioningManager;
 import android.widget.Toast;
+
+import androidx.preference.PreferenceManager;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -24,38 +34,64 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.CaptionStyleCompat;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.openiptv.code.Constants;
+import com.openiptv.code.PreferenceUtils;
+
+import com.openiptv.code.DatabaseActions;
+import com.openiptv.code.TVHeadendAccount;
+import com.openiptv.code.R;
+
 import com.openiptv.code.epg.RecordedProgram;
 import com.openiptv.code.htsp.BaseConnection;
+import com.openiptv.code.htsp.HTSPException;
+import com.openiptv.code.htsp.HTSPMessage;
+import com.openiptv.code.player.utils.TimeshiftUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.PreferenceChangeListener;
 
 import static com.openiptv.code.Constants.DEBUG;
+import static com.openiptv.code.Constants.KEY_BUFFER;
+import static com.openiptv.code.Constants.KEY_DVR;
+import static com.openiptv.code.Constants.KEY_EPG_SYNC;
+import static com.openiptv.code.Constants.KEY_PROFILE;
+import static com.openiptv.code.Constants.KEY_QUICK_SYNC;
 
 public class TVPlayer implements Player.EventListener {
+    private Uri contentUri;
     private SimpleExoPlayer player;
     private Context context;
     private Surface surface;
     private MediaSource mediaSource;
     private BaseConnection connection;
-    private HTSPDataSource.Factory HTSPSubscriptionDataSourceFactory;
+    private HTSPDataSource.Factory htspSubscriptionDataSourceFactory;
     private HTSPDataSource dataSource;
     private ExtractorsFactory extractorsFactory;
+    private PreferenceUtils preferenceUtils;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
+
+    private View overlayView;
+    private View subtitleView;
 
     private boolean recording;
-    private List<Listener> listeners;
-    private DefaultTrackSelector trackSelector;
-    private float currentVolume;
+    private long recStartTime;
 
-    // Hard Coded Recording URL
-    private static final String URL = "http://tv.theron.co.nz:9981/dvrfile/c27bb93d8be4b0946e0f1cf840863e0e";
+    private List<Listener> listeners;
+    private ExtendedTrackSelector trackSelector;
+    private float currentVolume;
+    private TimeshiftUtils.Rewinder rewinder;
+
     private static final String TAG = TVPlayer.class.getSimpleName();
 
     /**
@@ -65,8 +101,7 @@ public class TVPlayer implements Player.EventListener {
     public interface Listener {
         /**
          * Notifies listeners that a new set of tracks are available and the currently selected tracks.
-         *
-         * @param tracks         all available tracks
+         * @param tracks all available tracks
          * @param selectedTracks currently selected tracks
          */
         void onTracks(List<TvTrackInfo> tracks, SparseArray<String> selectedTracks);
@@ -74,31 +109,53 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Constructor for TVPlayer object
-     *
-     * @param context    application context
+     * @param context application context
      * @param connection BaseConnection used for subscribing to Channels/Recordings
      */
-    public TVPlayer(Context context, BaseConnection connection) {
+    public TVPlayer(Context context, BaseConnection connection)
+    {
         Log.d("TVPlayer", "Created!");
         this.context = context;
 
-        trackSelector = new DefaultTrackSelector(context);
+        trackSelector = new ExtendedTrackSelector(context);
         this.player = new SimpleExoPlayer.Builder(context)
                 .setTrackSelector(trackSelector)
                 .build();
 
         this.player.addListener(this);
         this.connection = connection;
-
-        HTSPSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, "htsp");
+        this.preferenceUtils = new PreferenceUtils(context);
+      
+        htspSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
         extractorsFactory = new ExtendedExtractorsFactory(context);
 
         listeners = new ArrayList<>();
+
+        /*
+            Only profiles which are supported by the device will be utilized, otherwise a fallback
+            is chosen by TVHeadEnd.
+         */
+        SharedPreferences preferences = context.getSharedPreferences(Constants.ACCOUNT, Context.MODE_PRIVATE);
+        preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key.equals(KEY_PROFILE)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_PROFILE));
+
+                    htspSubscriptionDataSourceFactory.releaseCurrentDataSource();
+                    htspSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
+
+                    prepare(contentUri, recording);
+                    start();
+                }
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        rewinder = new TimeshiftUtils.Rewinder(new Handler(), player, this);
     }
 
     /**
      * Sets the VideoSurface for ExoPlayer
-     *
      * @param surface videoSurface
      */
     public boolean setSurface(Surface surface) {
@@ -111,30 +168,22 @@ public class TVPlayer implements Player.EventListener {
     /**
      * Prepares the ExoPlayer MediaSource. Can be either a recording or Live TV Stream. Currently the
      * recording implementation is hard-coded, and can only play ONE stream.
-     *
      * @param channelUri to tune
-     * @param recording  is this source a recording
+     * @param recording is this source a recording
      */
     public void prepare(Uri channelUri, boolean recording) {
         this.recording = recording;
+        this.contentUri = channelUri;
 
         if (!recording) {
 
-            mediaSource = new ProgressiveMediaSource.Factory(HTSPSubscriptionDataSourceFactory, extractorsFactory).createMediaSource(channelUri);
+            mediaSource = new ProgressiveMediaSource.Factory(htspSubscriptionDataSourceFactory, extractorsFactory).createMediaSource(channelUri);
 
-            player.prepare(mediaSource);
         } else {
-            Log.d(TAG, "captured recording ID" + RecordedProgram.getRecordingIdFromRecordingUri(context, channelUri));
 
-            byte[] toEncrypt = ("development" + ":" + "development").getBytes();
-            DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "OpenIPTV").replace("ExoPlayerLib", "Blah"));
-
-            dataSourceFactory.getDefaultRequestProperties().set("Authorization", "Basic " + Base64.encodeToString(toEncrypt, Base64.DEFAULT));
-            ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-            MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(Uri.parse(URL));
-
-            player.prepare(videoSource);
+            mediaSource = buildRecordingMediaSource(channelUri);
         }
+        player.prepare(mediaSource);
     }
 
     /**
@@ -151,15 +200,17 @@ public class TVPlayer implements Player.EventListener {
         Log.d(TAG, "Released TVPlayer");
         player.release();
         //connection.stop();
-        if (surface != null) {
+        if (surface != null)
+        {
             surface.release();
         }
-        if (mediaSource != null) {
-            mediaSource.releaseSource(null);
-        }
-        if (dataSource!=null)
+        if (dataSource != null)
         {
-            dataSource.release();
+            dataSource.release(); // Releasing the dataSource fixes duplication of subscriptions.
+        }
+        if(mediaSource != null)
+        {
+            mediaSource.releaseSource(null);
         }
     }
 
@@ -167,23 +218,21 @@ public class TVPlayer implements Player.EventListener {
      * Resume the TV Input / ExoPlayer
      */
     public void resume() {
-
-        /*if(seekableRunnable != null)
-        {
-            seekableRunnable.stopRewind();
-            seekableRunnable = null;
-        }*/
-
-        player.setPlayWhenReady(true);
+        if(rewinder.isRunning()) {
+            rewinder.stop();
+        }
         player.setPlaybackParameters(new PlaybackParameters(1));
 
-        dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
+
+        dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
-            Log.d(TAG, "Resuming HtspDataSource");
-            ((HTSPSubscriptionDataSource) dataSource).resume();
+            Log.d(TAG, "Resuming DataSource");
+            dataSource.resume();
         } else {
-            Log.w(TAG, "Unable to resume, no HtspDataSource available");
+            Log.w(TAG, "Unable to resume, no DataSource available");
         }
+
+        player.setPlayWhenReady(true);
     }
 
     /**
@@ -191,42 +240,53 @@ public class TVPlayer implements Player.EventListener {
      */
     public void pause() {
         player.setPlayWhenReady(false);
+        if(rewinder.isRunning()) {
+            rewinder.stop();
+        }
 
-        dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
+        dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
-            ((HTSPSubscriptionDataSource) dataSource).pause();
+            dataSource.pause();
         }
     }
 
     /**
      * Sets the PlayBackParams for the DataSource AND ExoPlayer. Currently only FAST FORWARD can be
      * implemented due to Clock Limitations. FAST REWIND is being worked on using a runnable.
-     *
      * @param playbackParams to set
      */
-    public void setPlaybackParams(PlaybackParams playbackParams) {
+    public void setPlaybackParams(PlaybackParams playbackParams)
+    {
         player.setPlayWhenReady(false);
-        /*if(seekableRunnable != null)
+        if(rewinder.isRunning()) {
+            rewinder.stop();
+        }
+
+        if(recording)
         {
-            seekableRunnable.stopRewind();
-            seekableRunnable = null;
-        }*/
-
-        //this.playbackParams = playbackParams;
-        dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
-        if (dataSource != null) {
-            Log.d(TAG, "Resuming HtspDataSource");
-
-            if (playbackParams.getSpeed() < 1) {
-                Log.d(TAG, "REWINDING! - NOT SUPPORTED");
-                //((HTSPSubscriptionDataSource) mDataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
-                //seekableRunnable = new SeekableRunnable(player, (int) playbackParams.getSpeed(), (HTSPSubscriptionDataSource) mDataSource, (HTSPSubscriptionDataSource.Factory) mHtspSubscriptionDataSourceFactory);
-                //seekableRunnable.startRewind();
-
+            if(playbackParams.getSpeed() < 1)
+            {
+                rewinder.start(playbackParams.getSpeed());
+            }
+            else {
+                player.setPlaybackParameters(new PlaybackParameters(playbackParams.getSpeed()));
                 player.setPlayWhenReady(true);
-                Toast.makeText(context, "Fast Rewind not Supported!", Toast.LENGTH_SHORT).show();
-            } else {
-                ((HTSPSubscriptionDataSource) dataSource).setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
+            }
+
+            return;
+        }
+
+        dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
+        if (dataSource != null) {
+            Log.d(TAG, "Resuming DataSource");
+
+            if(playbackParams.getSpeed() < 1)
+            {
+                dataSource.setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
+                rewinder.start(playbackParams.getSpeed());
+            }
+            else {
+                dataSource.setSpeed(AndroidTVSpeedToTVH(playbackParams.getSpeed()));
                 player.setPlaybackParameters(new PlaybackParameters(playbackParams.getSpeed()));
                 player.setPlayWhenReady(true);
             }
@@ -235,13 +295,17 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Returns the start position for the TV Input / ExoPlayer
-     *
      * @return startPosition
      */
     public long getTimeshiftStartPosition() {
-        dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
+        if(recording)
+        {
+            return recStartTime;
+        }
+
+        dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
-            long startTime = ((HTSPSubscriptionDataSource) dataSource).getTimeshiftStartTime();
+            long startTime = dataSource.getTimeshiftStartTime();
             if (startTime != -1) {
                 // For live content
                 return (startTime / 1000);
@@ -250,7 +314,7 @@ public class TVPlayer implements Player.EventListener {
                 return 0;
             }
         } else {
-            Log.w(TAG, "Unable to getTimeshiftStartPosition, no HtspDataSource available");
+            Log.w(TAG, "Unable to getTimeshiftStartPosition, no DataSource available");
         }
 
         return -1;
@@ -258,17 +322,27 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Returns the current position in the TV input / ExoPlayer
-     *
      * @return currentPosition
      */
     public long getTimeshiftCurrentPosition() {
-        dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
+        if(recording)
+        {
+            return recStartTime + player.getCurrentPosition();
+        }
+
+        dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
-            long offset = ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts();
+            if(rewinder.isRunning())
+            {
+                //Log.d(TAG, "Calculated CurrentPos R: " + rewinder.getCurrentPos());
+                return rewinder.getCurrentPos();
+            }
+            long offset = dataSource.getTimeshiftOffsetPts();
+            //Log.d(TAG, "Calculated CurrentPos: " + Math.max((System.currentTimeMillis() + (offset / 1000)), getTimeshiftStartPosition()));
             return Math.max((System.currentTimeMillis() + (offset / 1000)), getTimeshiftStartPosition());
 
         } else {
-            Log.w(TAG, "Unable to getTimeshiftCurrentPosition, no HtspDataSource available");
+            Log.w(TAG, "Unable to getTimeshiftCurrentPosition, no DataSource available");
         }
 
         return -1;
@@ -277,51 +351,41 @@ public class TVPlayer implements Player.EventListener {
     /**
      * Seeks the DataSource AND ExoPlayer by the given timeMs. The actual seek time is calculated by
      * the current position and offset.
-     *
      * @param timeMs to seek
      */
-    public void seek(long timeMs) {
-        pause();
+    public void seek(long timeMs)
+    {
         if (dataSource != null) {
-            Log.d(TAG, "Seeking to time: " + timeMs);
 
-            long seekPts = (timeMs * 1000) - ((HTSPSubscriptionDataSource) dataSource).getTimeshiftStartTime();
-            seekPts = Math.max(seekPts, ((HTSPSubscriptionDataSource) dataSource).getTimeshiftStartPts()) / 1000;
-            Log.d(TAG, "Seeking to PTS: " + seekPts);
-            Log.d(TAG, "BEFORE Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " + ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
+            long seekPts = (timeMs * 1000) - dataSource.getTimeshiftStartTime();
+            seekPts = Math.max(seekPts, dataSource.getTimeshiftStartPts()) / 1000;
 
-
-            ((HTSPSubscriptionDataSource) dataSource).seek(seekPts);
+            dataSource.seek(seekPts);
 
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
             player.seekTo(seekPts);
-            Log.d(TAG, "AFTER Player Position: " + player.getCurrentPosition() + ", DataSource Position: " + getTimeshiftCurrentPosition() + ", Offset: " + ((HTSPSubscriptionDataSource) dataSource).getTimeshiftOffsetPts());
-
-            //mediaSource.releaseSource(null);
-            //player.prepare(mediaSource, false, false);
         } else {
             Log.w(TAG, "Unable to seek, no HtspDataSource available");
         }
 
-        resume();
+        //resume();
     }
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
         if (isLoading && !recording) {
-            dataSource = HTSPSubscriptionDataSourceFactory.getCurrentDataSource();
+            dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         }
     }
 
     /**
      * this method take input from the TVInputService class onSetStreamVolume method or
      * onSetStreamMute method change the volume of the player
-     *
      * @param volume to set
      */
     public void changeVolume(float volume) {
@@ -331,7 +395,6 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Returns the current volume
-     *
      * @return currentVolume
      */
     public float getCurrentVolume() {
@@ -340,37 +403,45 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Internal Helper Method which is used to convert the Android TV speeds to TVHeadEnd Speeds
-     *
      * @param speed android speed
      * @return TVHeadEnd speed
      */
-    public static int AndroidTVSpeedToTVH(float speed) {
-        switch ((int) speed) {
-            case 0: {
+    public static int AndroidTVSpeedToTVH(float speed)
+    {
+        switch ((int) speed)
+        {
+            case 0:
+            {
                 return 100; // 1X
             }
             case 2: {
                 return 200; // 2X
             }
-            case 8: {
+            case 8:
+            {
                 return 300; // 3X
             }
-            case 32: {
+            case 32:
+            {
                 return 400; // 4X
             }
-            case 128: {
+            case 128:
+            {
                 return 500; // 5X
             }
             case -2: {
                 return -200;
             }
-            case -8: {
+            case -8:
+            {
                 return -300;
             }
-            case -32: {
+            case -32:
+            {
                 return -400;
             }
-            case -128: {
+            case -128:
+            {
                 return -500;
             }
         }
@@ -380,11 +451,12 @@ public class TVPlayer implements Player.EventListener {
 
     /**
      * Add a Player.Listener to the Listeners list
-     *
      * @param listener to add
      */
-    public void addListener(Listener listener) {
-        if (DEBUG) {
+    public void addListener(Listener listener)
+    {
+        if(DEBUG)
+        {
             Log.d(TAG, "Added Listener");
         }
         this.listeners.add(listener);
@@ -392,7 +464,7 @@ public class TVPlayer implements Player.EventListener {
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-        if (DEBUG) {
+        if(DEBUG) {
             Log.d(TAG, "Tracks Changed");
         }
         MappingTrackSelector.MappedTrackInfo currentMappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
@@ -430,6 +502,9 @@ public class TVPlayer implements Player.EventListener {
                                         case C.TRACK_TYPE_AUDIO:
                                             selectedTracks.put(TvTrackInfo.TYPE_AUDIO, format.id);
                                             break;
+                                        case C.TRACK_TYPE_TEXT:
+                                            selectedTracks.put(TvTrackInfo.TYPE_SUBTITLE, format.id);
+                                            break;
                                     }
                                 }
                             }
@@ -440,58 +515,12 @@ public class TVPlayer implements Player.EventListener {
         }
 
         // Notify all Listeners that the tracks have been changed
-        for (Listener listener : listeners)
+        for(Listener listener : listeners)
             listener.onTracks(tracks, selectedTracks);
     }
 
     /**
-     * This is going to be used for the a custom fast rewind implementation.
-     */
-    private static class SeekableRunnable {
-        private Handler repeatUpdateHandler = new Handler();
-        public int value;
-        private boolean rewind = false;
-
-        private SimpleExoPlayer player;
-        private HTSPSubscriptionDataSource dataSource;
-        private HTSPSubscriptionDataSource.Factory htspDataSourceFactory;
-
-        public SeekableRunnable(SimpleExoPlayer player, int speed, HTSPSubscriptionDataSource dataSource, HTSPSubscriptionDataSource.Factory htspDataSourceFactory) {
-            this.player = player;
-            this.value = speed;
-            this.dataSource = dataSource;
-            this.htspDataSourceFactory = htspDataSourceFactory;
-        }
-
-        private class Updater implements Runnable {
-            public void run() {
-                if (rewind) {
-                    dataSource = (HTSPSubscriptionDataSource) htspDataSourceFactory.getCurrentDataSource();
-                    long seekPtsPlayer = player.getContentBufferedPosition() + (value * 15); // TODO: Figure out the actual time conversion for ExoPlayer seekTo,
-                    Log.d(TAG, "Seeking to PTS Player: " + seekPtsPlayer + ", OFFSET: " + dataSource.getTimeshiftOffsetPts());
-
-                    //dataSource.seek(seekPtsPlayer * 1000);
-                    //player.seekTo(seekPtsPlayer);
-                    repeatUpdateHandler.postDelayed(new Updater(), 100);
-                }
-            }
-        }
-
-        public void startRewind() {
-            rewind = true;
-            repeatUpdateHandler.post(new Updater());
-            player.setPlayWhenReady(false);
-        }
-
-        public void stopRewind() {
-            rewind = false;
-            player.setPlayWhenReady(true);
-        }
-    }
-
-    /**
      * Create the TvTrackInfo object for a given Format
-     *
      * @param format to parse into TvTrackInfo object
      * @return TvTrackInfo
      */
@@ -537,5 +566,69 @@ public class TVPlayer implements Player.EventListener {
         }
 
         return builder.build();
+    }
+
+    private MediaSource buildRecordingMediaSource(Uri recordingUri)
+    {
+        HTSPMessage message = new HTSPMessage();
+        message.put("method", "getTicket");
+        message.put("dvrId", RecordedProgram.getRecordingIdFromRecordingUri(context, recordingUri).toString());
+
+        HTSPMessage response = null;
+        try {
+            response = connection.getHTSPMessageDispatcher().sendMessage(message, 2000);
+        } catch (HTSPException e) {
+            e.printStackTrace();
+        }
+
+        TVHeadendAccount account = new TVHeadendAccount(DatabaseActions.activeAccount);
+        String url = "http://"+account.getHostname() + ":" + "9981" + response.getString("path");
+
+        Log.d(TAG, "Recording Url: " + url);
+
+        byte[] toEncrypt = (account.getUsername() + ":" + account.getPassword()).getBytes();
+        DefaultHttpDataSourceFactory dataSourceFactory = new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "OpenIPTV").replace("ExoPlayerLib", "Blah"));
+
+        dataSourceFactory.getDefaultRequestProperties().set("Authorization", "Basic " + Base64.encodeToString(toEncrypt, Base64.DEFAULT));
+        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+
+        recStartTime = System.currentTimeMillis();
+
+        return new ProgressiveMediaSource.Factory(dataSourceFactory, extractorsFactory).createMediaSource(Uri.parse(url));
+    }
+  
+    public boolean selectTrack(int type, String track)
+    {
+        return trackSelector.selectTrack(type, track);
+    }
+
+    public View getOverlayView(CaptioningManager.CaptionStyle captionStyle) {
+        if (overlayView == null)
+        {
+            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            overlayView = layoutInflater.inflate(R.layout.subtitle_overlay_view, null);
+        }
+
+        if (subtitleView == null) {
+            subtitleView = getSubtitleView(captionStyle);
+
+            if (subtitleView != null) {
+                // SubtitleView implements TextOutput
+                player.addTextOutput((TextOutput) subtitleView);
+            }
+        }
+
+        return overlayView;
+    }
+
+    private SubtitleView getSubtitleView(CaptioningManager.CaptionStyle captionStyle) {
+        SubtitleView view = overlayView.findViewById(R.id.subtitle_view);
+        CaptionStyleCompat captionStyleCompat = CaptionStyleCompat.createFromCaptionStyle(captionStyle);
+
+        view.setStyle(captionStyleCompat);
+        view.setVisibility(View.VISIBLE);
+        view.setApplyEmbeddedStyles(true);
+
+        return view;
     }
 }

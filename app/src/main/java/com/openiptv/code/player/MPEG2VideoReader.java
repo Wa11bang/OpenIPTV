@@ -15,7 +15,6 @@ public class MPEG2VideoReader extends VideoReader {
 
     /**
      * Extracts initialization data from an htsp message.
-     *
      * @param message htsp Message to extract the data from.
      */
     @Override

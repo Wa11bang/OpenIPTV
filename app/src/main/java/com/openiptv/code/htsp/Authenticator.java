@@ -43,11 +43,11 @@ public class Authenticator implements MessageListener, Connection.Listener {
 
     /**
      * Constructor for Authenticator Object
-     *
-     * @param dispatcher     messageDispatcher, used for sending and receiving messages
+     * @param dispatcher messageDispatcher, used for sending and receiving messages
      * @param connectionInfo used for the data when sending messages.
      */
-    public Authenticator(MessageDispatcher dispatcher, ConnectionInfo connectionInfo) {
+    public Authenticator(MessageDispatcher dispatcher, ConnectionInfo connectionInfo)
+    {
         this.messageDispatcher = dispatcher;
         this.connectionInfo = connectionInfo;
     }
@@ -64,7 +64,8 @@ public class Authenticator implements MessageListener, Connection.Listener {
             authenticate();
         }
 
-        if (state == Connection.State.FAILED) {
+        if(state == Connection.State.FAILED)
+        {
             setState(State.FAILED);
         }
     }
@@ -77,33 +78,40 @@ public class Authenticator implements MessageListener, Connection.Listener {
     /**
      * Internal method used to start the authentication process.
      */
-    private void authenticate() {
+    private void authenticate()
+    {
         sendHelloRequest();
     }
 
     /**
      * Internal helper method used to handle any messages associated with the Authenticator.
-     *
      * @param message auth messages
      */
-    public void handleResponse(HTSPMessage message) {
+    public void handleResponse(HTSPMessage message)
+    {
         // Make sure that the incoming message has the sequence set.
-        if (message.containsKey("seq") && message.getInteger("seq") == SEQ) {
-            if (message.containsKey("noaccess") && message.getInteger("noaccess") == 1) {
+        if(message.containsKey("seq") && message.getInteger("seq") == SEQ)
+        {
+            if(message.containsKey("noaccess") && message.getInteger("noaccess") == 1)
+            {
                 setState(State.UNAUTHORISED);
-            } else {
+            }
+            else
+            {
                 setState(State.AUTHENTICATED);
                 sendEnableAsyncMessage();
             }
             return;
         }
 
-        if (message.containsKey("error")) {
+        if(message.containsKey("error"))
+        {
             setState(State.FAILED);
             return;
         }
 
-        if (message.containsKey("challenge")) {
+        if(message.containsKey("challenge"))
+        {
             sendAuthenticationRequest(message);
         }
     }
@@ -111,7 +119,8 @@ public class Authenticator implements MessageListener, Connection.Listener {
     /**
      * Internal method used to dispatch a HTSPMessage with the hello method.
      */
-    public void sendHelloRequest() {
+    public void sendHelloRequest()
+    {
         HTSPMessage message = new HTSPMessage();
 
         message.put("method", "hello");
@@ -130,11 +139,12 @@ public class Authenticator implements MessageListener, Connection.Listener {
     /**
      * Internal method used to dispatch a HTSPMessage with the authenticate method. Requires a
      * challenge as a byte array, which is used for calculating the password digest.
-     *
      * @param message hello response message
      */
-    public void sendAuthenticationRequest(HTSPMessage message) {
-        if (message.containsKey("challenge")) {
+    public void sendAuthenticationRequest(HTSPMessage message)
+    {
+        if(message.containsKey("challenge"))
+        {
             byte[] challenge = message.getByteArray("challenge");
 
             HTSPMessage authMessage = new HTSPMessage();
@@ -157,7 +167,8 @@ public class Authenticator implements MessageListener, Connection.Listener {
     /**
      * Internal method, used to send the enableAsyncMetaData method to the TVHeadEnd server.
      */
-    public void sendEnableAsyncMessage() {
+    public void sendEnableAsyncMessage()
+    {
         boolean quickSync = true;
         long epgMaxTime = 0L;
         HTSPMessage enableAsyncMetadataRequest = new HTSPMessage();
@@ -165,9 +176,11 @@ public class Authenticator implements MessageListener, Connection.Listener {
         enableAsyncMetadataRequest.put("method", "enableAsyncMetadata");
         enableAsyncMetadataRequest.put("epg", 1);
 
-        if (quickSync) {
+        if(quickSync)
+        {
             epgMaxTime = 7200 + (System.currentTimeMillis() / 1000L);
-        } else {
+        }
+        else {
             epgMaxTime = 691200 + (System.currentTimeMillis() / 1000L);
         }
 
@@ -184,8 +197,7 @@ public class Authenticator implements MessageListener, Connection.Listener {
     /**
      * Helper method used to calculate the SHA-1 hash digest of a password. Used when wanting to
      * authenticate with TVHeadEnd over HTSP.
-     *
-     * @param password  users password
+     * @param password users password
      * @param challenge the given byte array acting as a challenge for the hash
      *                  (retrieved from the server)
      * @return the SHA-1 digest of the password
@@ -208,28 +220,27 @@ public class Authenticator implements MessageListener, Connection.Listener {
 
     /**
      * Add a new listener to the internal Listener list
-     *
      * @param listener to be added
      * @return whether the add operation was successful
      */
-    public boolean addListener(Listener listener) {
+    public boolean addListener(Listener listener)
+    {
         return listeners.add(listener);
     }
 
     /**
      * Remove a listener from the internal Listener list,
-     *
      * @param listener to be removed
      * @return whether the remove operation was successful
      */
-    public boolean removeListener(Listener listener) {
+    public boolean removeListener(Listener listener)
+    {
         return listeners.remove(listener);
     }
 
     /**
      * Sets the current state of the Authenticator AND notifies each listener that the state has
      * also changed.
-     *
      * @param state new state
      */
     public void setState(State state) {
@@ -241,10 +252,10 @@ public class Authenticator implements MessageListener, Connection.Listener {
 
     /**
      * Returns the current state of the Authenticator
-     *
      * @return current state
      */
-    public State getState() {
+    public State getState()
+    {
         return state;
     }
 }

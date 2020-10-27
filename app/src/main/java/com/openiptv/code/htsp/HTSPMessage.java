@@ -13,18 +13,22 @@ import static com.openiptv.code.Constants.DEBUG;
  *
  */
 public class HTSPMessage extends HashMap<String, Object> {
-    public HTSPMessage(Map<? extends String, ?> message) {
+    public HTSPMessage(Map<? extends String, ?> message)
+    {
         super(message);
     }
 
-    public HTSPMessage() {
+    public HTSPMessage()
+    {
 
     }
 
     @Override
-    public Object put(String key, Object value) {
-        if (value == null) {
-            if (DEBUG) {
+    public Object put(String key, Object value)
+    {
+        if(value == null)
+        {
+            if(DEBUG) {
                 Log.w("HTSP", "Null Values not allowed!");
             }
             return null;
@@ -68,7 +72,7 @@ public class HTSPMessage extends HashMap<String, Object> {
     public int getInteger(String key) {
         Object obj = get(key);
         if (obj == null) {
-            if (DEBUG) {
+            if(DEBUG) {
                 System.out.println("Attempted to getInteger(" + key + ") on non-existent key");
             }
             return 0;
@@ -83,7 +87,7 @@ public class HTSPMessage extends HashMap<String, Object> {
     public long getLong(String key) {
         Object obj = get(key);
         if (obj == null) {
-            throw new RuntimeException("Attempted to getLong(" + key + ") on non-existent key");
+            throw new RuntimeException("Attempted to getLong("+key+") on non-existent key");
         }
 
         if (obj instanceof BigInteger) {

@@ -23,13 +23,12 @@ public class AVCReader extends VideoReader {
 
     /**
      * Extracts initialization data from an htsp message.
-     *
      * @param message htsp Message to extract the data from.
      */
     @Override
     protected void buildInitializationData(@NonNull HTSPMessage message) {
         // Build H264 Metadata
-        if (message.containsKey("meta")) {
+        if(message.containsKey("meta")) {
             try {
                 AvcConfig avcConfig = AvcConfig.parse(new ParsableByteArray(message.getByteArray("meta")));
                 this.initializationData = avcConfig.initializationData;

@@ -10,12 +10,11 @@ public class ConnectionInfo {
 
     /**
      * Constructor for a ConnectionInfo Object (Wrapper for TVHeadEnd user details)
-     *
-     * @param hostname      for TVHeadEnd server
-     * @param port          for TVHeadEnd server
-     * @param username      registered on TVHeadEnd server
-     * @param password      assigned on TVHeadEnd server
-     * @param clientName    user-defined
+     * @param hostname for TVHeadEnd server
+     * @param port for TVHeadEnd server
+     * @param username registered on TVHeadEnd server
+     * @param password assigned on TVHeadEnd server
+     * @param clientName user-defined
      * @param clientVersion Android SDK Version (Default)
      */
     public ConnectionInfo(String hostname, int port, String username, String password, String clientName, String clientVersion) {
@@ -29,7 +28,6 @@ public class ConnectionInfo {
 
     /**
      * Returns the IP or Hostname of the TVHeadEnd server, set on instantiation.
-     *
      * @return server hostname/ip
      */
     public String getHostname() {
@@ -38,7 +36,6 @@ public class ConnectionInfo {
 
     /**
      * Returns the TVHeadEnd server port set on instantiation.
-     *
      * @return server port
      */
     public int getPort() {
@@ -47,7 +44,6 @@ public class ConnectionInfo {
 
     /**
      * Returns the client username set on instantiation.
-     *
      * @return username
      */
     public String getUsername() {
@@ -56,7 +52,6 @@ public class ConnectionInfo {
 
     /**
      * Returns the client password set on instantiation.
-     *
      * @return password
      */
     public String getPassword() {
@@ -65,7 +60,6 @@ public class ConnectionInfo {
 
     /**
      * Returns the client name set on instantiation.
-     *
      * @return client name
      */
     public String getClientName() {
@@ -74,7 +68,6 @@ public class ConnectionInfo {
 
     /**
      * Returns the client version set on instantiation.
-     *
      * @return client version
      */
     public String getClientVersion() {

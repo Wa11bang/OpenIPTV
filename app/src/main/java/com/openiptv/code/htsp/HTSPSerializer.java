@@ -36,7 +36,6 @@ public class HTSPSerializer {
 
     /**
      * This methods reads in a byte buffer, which is then parsed into an HTSPMessage object,
-     *
      * @param buffer to parse
      * @return HTSPMessage object from parsed buffer
      */
@@ -78,8 +77,7 @@ public class HTSPSerializer {
     /**
      * This method writes a given ByteBuffer to a given HTSPMessage object.
      * The ByteBuffer is serialised to the message.
-     *
-     * @param buffer  to write from
+     * @param buffer to write from
      * @param message to write to
      */
     public void write(ByteBuffer buffer, @NonNull HTSPMessage message) {
@@ -95,19 +93,19 @@ public class HTSPSerializer {
         // Drop in the length
         byte[] lengthBytes = long2bin(dataLength);
 
-        for (int i = 0; i < lengthBytes.length; i++) {
+        for(int i=0; i < lengthBytes.length; i++){
             buffer.put(i, lengthBytes[i]);
         }
     }
 
     /**
      * Method used to accept a Map which is then serialised to a given ByteBuffer
-     *
      * @param buffer to serialise to
-     * @param map    to serialise
+     * @param map to serialise
      */
     protected void serialize(ByteBuffer buffer, Map<String, Object> map) {
-        if (map == null) {
+        if(map == null)
+        {
             return;
         }
         for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -117,9 +115,8 @@ public class HTSPSerializer {
 
     /**
      * Method used to accept Iterable objects which are serialised to a given ByteBuffer
-     *
      * @param buffer to serialise to
-     * @param list   to serialise
+     * @param list to serialise
      */
     protected void serialize(ByteBuffer buffer, Iterable<?> list) {
         for (Object value : list) {
@@ -130,10 +127,9 @@ public class HTSPSerializer {
 
     /**
      * This method serialises a key and value into a given ByteBuffer
-     *
      * @param buffer to serialise to
-     * @param key    to serialise
-     * @param value  to serialise
+     * @param key to serialise
+     * @param value to serialise
      */
     protected void serialize(ByteBuffer buffer, String key, Object value) {
         byte[] keyBytes = key.getBytes();
@@ -185,7 +181,6 @@ public class HTSPSerializer {
 
     /**
      * This method deserialises a byte buffer into an HTSPMessage object
-     *
      * @param buffer
      * @return
      */
@@ -257,7 +252,6 @@ public class HTSPSerializer {
 
     /**
      * Convert a byte array into a Big Integer
-     *
      * @param b byte array
      * @return big int
      */
@@ -275,7 +269,6 @@ public class HTSPSerializer {
 
     /**
      * Convert a byte array into a long
-     *
      * @param bytes byte array
      * @return long
      */
@@ -295,7 +288,6 @@ public class HTSPSerializer {
 
     /**
      * Convert a BigInt to ByteArray following HTSP standards
-     *
      * @param big bigint
      * @return byte array
      */
@@ -322,7 +314,6 @@ public class HTSPSerializer {
 
     /**
      * Converts a long to a byte array
-     *
      * @param l long
      * @return byte array
      */

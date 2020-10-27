@@ -33,8 +33,6 @@ public class SetupSelectAccountFragment extends GuidedStepSupportFragment {
         DatabaseActions databaseActions = new DatabaseActions(getContext());
 
         //get the data and append to a list
-
-
         Cursor accountList = databaseActions.getAccounts();
 
         ArrayList<String> accountClientNames = new ArrayList<>();
@@ -130,7 +128,6 @@ public class SetupSelectAccountFragment extends GuidedStepSupportFragment {
             databaseActions.setActiveAccount(accountSelected.getString(0));
 
             databaseActions.close();
-
             GuidedStepSupportFragment fragment = new ParentControlFragment(accountDetails);
             fragment.setArguments(accountDetails);
             add(getFragmentManager(), fragment);

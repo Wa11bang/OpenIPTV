@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.widget.GuidanceStylist;
 import androidx.leanback.widget.GuidedAction;
@@ -12,6 +13,7 @@ import androidx.leanback.widget.GuidedActionsStylist;
 import com.openiptv.code.R;
 import com.openiptv.code.SetupActivity;
 import com.openiptv.code.epg.EPGCaptureTask;
+import com.openiptv.code.htsp.BaseConnection;
 
 import java.util.List;
 

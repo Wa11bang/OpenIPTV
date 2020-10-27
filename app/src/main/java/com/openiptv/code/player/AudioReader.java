@@ -18,7 +18,6 @@ public abstract class AudioReader extends SourceReader {
 
     /**
      * Creates a new AudioStream Reader
-     *
      * @param context
      * @param audioType Format the audio is in.
      */
@@ -30,7 +29,6 @@ public abstract class AudioReader extends SourceReader {
 
     /**
      * Extracts the track information from a htsp message
-     *
      * @param message htsp Message to extract data from
      * @param index
      * @return Returns the format and its associated data.
@@ -65,7 +63,8 @@ public abstract class AudioReader extends SourceReader {
 
     protected abstract void buildInitializationData(HTSPMessage message);
 
-    public static int getSampleRate(int sri) {
+    public static int getSampleRate(int sri)
+    {
         return Constants.AUDIO_SAMPLE_RATES[sri & 0xF];
     }
 }

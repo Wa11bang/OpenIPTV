@@ -83,6 +83,8 @@
 
             android:label="@string/app_name"></activity>
 
+        <activity android:name=".manage.account.ManageAccountActivity" />
+
         <service
             android:name=".input.TVInputService"
             android:label="@string/rich_input_label"

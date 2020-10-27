@@ -16,7 +16,6 @@ public abstract class VideoReader extends SourceReader {
 
     /**
      * Create a new VideoStream reader
-     *
      * @param context
      * @param videoType Format of the video to read
      */
@@ -28,7 +27,6 @@ public abstract class VideoReader extends SourceReader {
 
     /**
      * Extract the initial track data from a htsp message.
-     *
      * @param message htsp message to extract the data from
      * @param index
      * @return The format data of the video stream

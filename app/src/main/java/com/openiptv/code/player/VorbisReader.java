@@ -16,7 +16,6 @@ public class VorbisReader extends AudioReader {
 
     /**
      * Extracts initialization data from an htsp message.
-     *
      * @param message htsp Message to extract the data from.
      */
     @Override

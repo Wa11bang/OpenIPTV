@@ -21,13 +21,12 @@ public class HEVCReader extends VideoReader {
 
     /**
      * Extracts initialization data from an htsp message.
-     *
      * @param message htsp Message to extract the data from.
      */
     @Override
     protected void buildInitializationData(HTSPMessage message) {
         // Build H265 Metadata
-        if (message.containsKey("meta")) {
+        if(message.containsKey("meta")) {
             try {
                 HevcConfig hevcConfig = HevcConfig.parse(new ParsableByteArray(message.getByteArray("meta")));
                 this.initializationData = hevcConfig.initializationData;

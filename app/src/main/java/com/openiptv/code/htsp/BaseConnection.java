@@ -15,7 +15,6 @@ public class BaseConnection {
 
     /**
      * Constructor for a BaseConnection Object
-     *
      * @param connectionInfo account details for TVH server
      */
     public BaseConnection(ConnectionInfo connectionInfo) {
@@ -64,16 +63,15 @@ public class BaseConnection {
 
     /**
      * Returns the current HTSPMessageDispatcher instance
-     *
      * @return dispatcher reference
      */
-    public HTSPMessageDispatcher getHTSPMessageDispatcher() {
+    public HTSPMessageDispatcher getHTSPMessageDispatcher()
+    {
         return htspMessageDispatcher;
     }
 
     /**
      * Returns the current Authenticator instance
-     *
      * @return authenticator reference
      */
     public Authenticator getAuthenticator() {
@@ -82,10 +80,10 @@ public class BaseConnection {
 
     /**
      * Public link to the dispatcher method.
-     *
      * @param listener to add
      */
-    public void addMessageListener(MessageListener listener) {
+    public void addMessageListener(MessageListener listener)
+    {
         htspMessageDispatcher.addMessageListener(listener);
     }
 }

@@ -20,16 +20,15 @@ import com.openiptv.code.Constants;
 
 public class ExtendedExtractorsFactory implements ExtractorsFactory {
     private Context context;
-    private @AdtsExtractor.Flags
-    int adtsFlags;
+    private @AdtsExtractor.Flags int adtsFlags;
 
     /**
      * Constructor for an ExtendExtractorsFactory object. This object creates a variety of ExoPlayer
      * extractors, including our Customised HTSPExtractor.
-     *
      * @param context application context
      */
-    public ExtendedExtractorsFactory(Context context) {
+    public ExtendedExtractorsFactory(Context context)
+    {
         this.context = context;
     }
 

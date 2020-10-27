@@ -59,7 +59,6 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
     /**
      * Constructor for HTSPSubscriptionDataExtractor
-     *
      * @param context application context
      */
     public HTSPSubscriptionDataExtractor(Context context) {
@@ -129,7 +128,6 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
     /**
      * Internal Wrapper method used to identify the type of incoming HTSPMessage.
-     *
      * @param message incoming message
      */
     private void handleMessage(@NonNull final HTSPMessage message) {
@@ -145,7 +143,6 @@ class HTSPSubscriptionDataExtractor implements Extractor {
     /**
      * Internal method used to parse a subscriptionStart HTSPMessage. This message indicates to the
      * application all of the available streams and their metadata.
-     *
      * @param message subscriptionStart message
      */
     private void handleSubscriptionStart(@NonNull final HTSPMessage message) {
@@ -189,7 +186,6 @@ class HTSPSubscriptionDataExtractor implements Extractor {
 
     /**
      * Internal method used to parse a given HTSPMessage that has stream data.
-     *
      * @param message stream data message
      */
     private void handleMuxpkt(@NonNull final HTSPMessage message) {

@@ -30,8 +30,8 @@ import static com.openiptv.code.Constants.DEBUG;
 public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscriber.Listener {
     private static final String TAG = HTSPSubscriptionDataSource.class.getName();
     private static final AtomicInteger dataSourceCount = new AtomicInteger();
-    private static final int BUFFER_SIZE = 10 * 1024 * 1024;
-    public static final byte[] HEADER = new byte[]{0, 1, 0, 1, 0, 1, 0, 1};
+    private static final int BUFFER_SIZE = 10*1024*1024;
+    public static final byte[] HEADER = new byte[] {0,1,0,1,0,1,0,1};
 
     public static class Factory extends HTSPDataSource.Factory {
         private static final String TAG = Factory.class.getName();
@@ -42,9 +42,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
         /**
          * Factory constructor, used for creating a new HTSPSubscriptionDataSource
-         *
-         * @param context       application context
-         * @param connection    BaseConnection used for subscribing to Channels/Recordings
+         * @param context application context
+         * @param connection BaseConnection used for subscribing to Channels/Recordings
          * @param streamProfile stream profile to use with TVHeadEnd
          */
         public Factory(Context context, BaseConnection connection, String streamProfile) {
@@ -69,9 +68,8 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     /**
      * Internal Constructor - Only accessible via Factory.
-     *
-     * @param context       application context
-     * @param connection    BaseConnection used for subscribing to Channels/Recordings
+     * @param context application context
+     * @param connection BaseConnection used for subscribing to Channels/Recordings
      * @param streamProfile stream profile to use with TVHeadEnd
      */
     private HTSPSubscriptionDataSource(Context context, BaseConnection connection, String streamProfile) {
@@ -111,7 +109,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
-        Log.i(TAG, "Opening HtspSubscriptionDataSource (" + dataSourceNumber + ")");
+        Log.i(TAG, "Opening HtspSubscriptionDataSource ("+ dataSourceNumber +")");
         this.dataSpec = dataSpec;
 
         if (!isSubscribed) {
@@ -150,7 +148,7 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
         while (isOpen && this.buffer.remaining() == 0) {
             try {
                 if (DEBUG)
-                    Log.v(TAG, "Blocking for more data (" + dataSourceNumber + ")");
+                    Log.v(TAG, "Blocking for more data ("+ dataSourceNumber +")");
                 Thread.sleep(50);
             } catch (InterruptedException e) {
                 // Ignore.
@@ -186,14 +184,14 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public void close() throws IOException {
-        Log.i(TAG, "Closing HTSP DataSource (" + dataSourceNumber + ")");
+        Log.i(TAG, "Closing HTSP DataSource ("+ dataSourceNumber +")");
         isOpen = false;
     }
 
     // Subscription.Listener Methods
     @Override
     public void onSubscriptionStart(@NonNull HTSPMessage message) {
-        Log.d(TAG, "Received subscriptionStart (" + dataSourceNumber + ")");
+        Log.d(TAG, "Received subscriptionStart ("+ dataSourceNumber +")");
         serializeMessageToBuffer(message);
     }
 
@@ -204,23 +202,22 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     @Override
     public void onSubscriptionStop(@NonNull HTSPMessage message) {
-        Log.d(TAG, "Received subscriptionStop (" + dataSourceNumber + ")");
+        Log.d(TAG, "Received subscriptionStop ("+ dataSourceNumber +")");
         isOpen = false;
     }
 
     /**
      * Pass method, used to interact with underlying Subscriber object
-     *
      * @param timeMs to seek
      */
-    public void seek(long timeMs) {
+    public void seek(long timeMs)
+    {
         Log.d(TAG, "Wanting to see by " + timeMs);
         subscriber.seek(timeMs);
     }
 
     /**
      * Pass method, used to return start time from underlying Subscriber object
-     *
      * @return start time
      */
     public long getTimeshiftStartTime() {
@@ -233,7 +230,6 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     /**
      * Pass method, used to return start time in PTS from underlying Subscriber object
-     *
      * @return start time in PTS
      */
     public long getTimeshiftStartPts() {
@@ -246,7 +242,6 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     /**
      * Pass method, used to return offset in PTS from underlying Subscriber object
-     *
      * @return offset in PTS
      */
     public long getTimeshiftOffsetPts() {
@@ -273,10 +268,10 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     /**
      * Pass method, used to interact with underlying Subscriber object
-     *
      * @param speed to set the stream to
      */
-    public void setSpeed(int speed) {
+    public void setSpeed(int speed)
+    {
         subscriber.setSpeed(speed);
     }
 
@@ -302,7 +297,6 @@ public class HTSPSubscriptionDataSource extends HTSPDataSource implements Subscr
 
     /**
      * Helper method which serialises a given HTSPMessage to a ByteBuffer. Message contains Stream data.
-     *
      * @param message stream data message
      */
     private void serializeMessageToBuffer(@NonNull HTSPMessage message) {

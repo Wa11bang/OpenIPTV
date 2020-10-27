@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.openiptv.code.Constants;
 import com.openiptv.code.htsp.HTSPMessage;
@@ -155,6 +156,40 @@ public class RecordedProgram {
         this.title = message.getString(Constants.PROGRAM_TITLE);
         this.summary = message.getString(Constants.PROGRAM_SUMMARY);
         this.desc = message.getString(Constants.PROGRAM_DESCRIPTION);
+
+        // If an subscription error is received, it will be show as a toast to the user.
+        // If no subscription error is found it will skip the switch statement.
+        if (message.containsKey(Constants.SUBSCRIPTION_ERROR)) {
+            switch (message.getString(Constants.SUBSCRIPTION_ERROR)) {
+                case Constants.NO_FREE_ADAPTOR:
+                    Toast.makeText(context, "No free adaptor for this service", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.SCRAMBLED:
+                    Toast.makeText(context, "Service is scrambled", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.BAD_SIGNAL:
+                    Toast.makeText(context, "Bad signal status", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.TUNING_FAILED:
+                    Toast.makeText(context, "Tuning of this service failed", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.SUBSCRIPTION_OVERRIDDEN:
+                    Toast.makeText(context, "Subscription overridden by another one.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.MUX_NOT_ENABLED:
+                    Toast.makeText(context, "No mux enabled for this service.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.INVALID_TARGET:
+                    Toast.makeText(context, "Recording/livestream cannot be saved to filesystem or recording/streaming configuration is incorrect.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.USER_ACCESS:
+                    Toast.makeText(context, "User does not have access rights for this service.", Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.USER_LIMIT:
+                    Toast.makeText(context, "Error user limit reached", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
 
         if (DEBUG) {
             if (message.getHtspMessageArray("files", null) != null) {

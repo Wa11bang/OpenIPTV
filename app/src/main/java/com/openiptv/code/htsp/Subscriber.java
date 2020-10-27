@@ -18,11 +18,8 @@ public class Subscriber implements MessageListener {
      */
     public interface Listener {
         void onSubscriptionStart(@NonNull HTSPMessage message);
-
         void onSubscriptionStatus(@NonNull HTSPMessage message);
-
         void onSubscriptionStop(@NonNull HTSPMessage message);
-
         void onMuxpkt(@NonNull HTSPMessage message);
     }
 
@@ -40,7 +37,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Constructor for a Subscriber Object
-     *
      * @param dispatcher message dispatcher (used for sending and receiving messages),
      */
     public Subscriber(@NonNull HTSPMessageDispatcher dispatcher) {
@@ -50,7 +46,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Adds a listener to the list of Listeners.
-     *
      * @param listener to add
      */
     public void addSubscriptionListener(Listener listener) {
@@ -63,7 +58,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Removes a listener from the list of Listeners.
-     *
      * @param listener to remove
      */
     public void removeSubscriptionListener(Listener listener) {
@@ -76,16 +70,15 @@ public class Subscriber implements MessageListener {
 
     /**
      * Returns true if there is a current live subscription
-     *
      * @return isSubscribed.
      */
-    public boolean getIsSubscribed() {
+    public boolean getIsSubscribed()
+    {
         return isSubscribed;
     }
 
     /**
      * Returns the current subscription ID
-     *
      * @return subscriptionId
      */
     public int getSubscriptionId() {
@@ -94,7 +87,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Starts a new subscription to a given TV Channel (default profile).
-     *
      * @param channelId TVH channelId
      * @throws HTSPException if there is no connection made
      */
@@ -104,9 +96,8 @@ public class Subscriber implements MessageListener {
 
     /**
      * Starts a new subscription to a give TV Channel
-     *
      * @param channelId TVH channelId
-     * @param profile   TVH stream profile
+     * @param profile TVH stream profile
      * @throws HTSPException if there is no connection made
      */
     public void subscribe(long channelId, String profile) throws HTSPException {
@@ -124,7 +115,7 @@ public class Subscriber implements MessageListener {
         subscribeRequest.put("subscriptionId", subscriptionId);
         subscribeRequest.put("channelId", channelId);
         subscribeRequest.put("profile", profile);
-        subscribeRequest.put("timeshiftPeriod", (60 * 60));
+        subscribeRequest.put("timeshiftPeriod", (60*60));
 
         dispatcher.sendMessage(subscribeRequest);
         isSubscribed = true;
@@ -132,7 +123,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Sets the speed of the currently subscribed stream.
-     *
      * @param speed in TVH Format.
      */
     public void setSpeed(int speed) {
@@ -167,7 +157,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Seek a subscription using HTSPMessage request
-     *
      * @param time to seek the stream by
      */
     public void seek(long time) {
@@ -182,7 +171,8 @@ public class Subscriber implements MessageListener {
 
         try {
             dispatcher.sendMessage(subscriptionSkipRequest);
-            if (time > timeshiftShift) {
+            if(time > timeshiftShift)
+            {
                 timeshiftShift = time;
             }
         } catch (HTSPException e) {
@@ -192,7 +182,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Returns the current shift period from the start time.
-     *
      * @return offset from the start in PTS
      */
     public long getTimeshiftOffsetPts() {
@@ -201,7 +190,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Returns the starting time in PTS format.
-     *
      * @return start time in PTS
      */
     public long getTimeshiftStartPts() {
@@ -210,7 +198,6 @@ public class Subscriber implements MessageListener {
 
     /**
      * Gets the current Time-shift Starting time
-     *
      * @return timeShiftStartTime
      */
     public long getTimeshiftStartTime() {
@@ -255,11 +242,11 @@ public class Subscriber implements MessageListener {
 
             switch (method) {
                 case "subscriptionStart":
+                    startTime = (System.currentTimeMillis() * 1000);
+
                     for (final Listener listener : listeners) {
                         listener.onSubscriptionStart(message);
                     }
-                    // Using 1000 Ms as a buffer to prevent incorrect timestamp.
-                    startTime = (System.currentTimeMillis() * 1000) - 1000;
                     break;
                 case "subscriptionStatus":
                     for (final Listener listener : listeners) {

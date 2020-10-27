@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.PlaybackParams;
-import android.media.tv.TvContentRating;
 import android.media.tv.TvInputManager;
 import android.media.tv.TvInputService;
 import android.media.tv.TvTrackInfo;
@@ -16,7 +15,8 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Surface;
-import android.widget.Toast;
+import android.view.View;
+import android.view.accessibility.CaptioningManager;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -35,18 +35,12 @@ import com.openiptv.code.htsp.HTSPMessage;
 import com.openiptv.code.htsp.MessageListener;
 import com.openiptv.code.player.TVPlayer;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
 
-import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 import static com.openiptv.code.Constants.RESTART_SERVICES;
 
@@ -55,6 +49,7 @@ public class TVInputService extends TvInputService {
     private static final String TAG = TVInputService.class.getSimpleName();
     private BaseConnection connection;
     private long time = 0L;
+
 
     @Override
     public void onCreate() {
@@ -179,9 +174,13 @@ public class TVInputService extends TvInputService {
         private String inputId;
         private Context context;
         private BaseConnection connection;
+        private CaptioningManager captioningManager;
 
         TVSession(Context context, String inputId, BaseConnection connection) {
             super(context);
+
+            setOverlayViewEnabled(true);
+            captioningManager = (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
 
             this.context = context;
             this.inputId = inputId;
@@ -332,8 +331,9 @@ public class TVInputService extends TvInputService {
 
         @Override
         public void onTimeShiftPlay(Uri recordedProgramUri) {
-            Log.d(TAG, "recorded program: " + recordedProgramUri.getPathSegments().get(1));
-            Log.d(TAG, "recorded program TVH ID: " + RecordedProgram.getRecordingIdFromRecordingUri(context, recordedProgramUri));
+            notifyTimeShiftStatusChanged(TvInputManager.TIME_SHIFT_STATUS_AVAILABLE);
+            //Log.d(TAG, "recorded program: " + recordedProgramUri.getPathSegments().get(1));
+            //Log.d(TAG, "recorded program TVH ID: " + RecordedProgram.getRecordingIdFromRecordingUri(context, recordedProgramUri));
 
             player.prepare(recordedProgramUri, true);
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING);
@@ -346,6 +346,11 @@ public class TVInputService extends TvInputService {
         @Override
         public void onSetCaptionEnabled(boolean enabled) {
             // Stub
+        }
+
+        @Override
+        public View onCreateOverlayView() {
+            return player.getOverlayView(captioningManager.getUserStyle());
         }
 
         @Override
@@ -364,10 +369,9 @@ public class TVInputService extends TvInputService {
         @Override
         public boolean onSelectTrack(int type, String trackId) {
             Log.d(TAG, "Session selectTrack: " + type + " / " + trackId);
-            return true;
+            notifyTrackSelected(type, trackId);
+            return player.selectTrack(type,trackId);
         }
-
-
     }
 
     // TODO: Not use some shady code from the interwebs

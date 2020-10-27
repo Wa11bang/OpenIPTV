@@ -5,20 +5,12 @@
 
     <androidx.preference.PreferenceCategory android:title="Audio and Video">
 
-        <SwitchPreference
-
-            android:defaultValue="false"
-            android:dialogTitle="Audio / Video Sync"
-
-            android:key="AV_SYNC"
-            android:summary="Synchronises the audio and video components of the Live TV stream."
-            android:title="Audio / Video Sync" />
-
         <ListPreference
 
             android:dialogTitle="Stream Profile"
             android:entries="@array/streamProfiles"
             android:entryValues="@array/profileValues"
+            android:defaultValue="htsp"
 
             android:key="STREAM_PROFILE"
             android:summary="Changes the stream profile from available profiles."
@@ -28,7 +20,6 @@
 
     <androidx.preference.PreferenceCategory android:title="Guide">
         <SwitchPreference
-
             android:defaultValue="false"
             android:dialogTitle="Quick Sync"
             android:key="QUICK_SYNC"
@@ -44,6 +35,14 @@
             android:key="EPG_SYNC"
             android:summary="Changes the set delay for updating the guide."
             android:title="EPG Sync" />
+
+        <EditTextPreference
+
+            android:dialogMessage="Enter your OMDBApi key obtainable at www.omdbapi.com"
+            android:dialogTitle="OBMD API Key"
+            android:key="OMDB_API_KEY"
+            android:summary="Add your OMDB API Key to enable the Age Rating Grabber"
+            android:title="Age Rating Grabber" />
 
 
     </androidx.preference.PreferenceCategory>
@@ -70,6 +69,14 @@
             android:summary="Changes the location for recordings to be saved to."
             android:title="DVR Storage Location" />
 
+        <Preference
+            android:summary="Edit and delete accounts."
+            android:key="Manage_Account"
+            android:title="Manage Accounts">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.openiptv.code.manage.account.ManageAccountActivity"
+            android:targetPackage="com.openiptv.code" /></Preference>
 
     </androidx.preference.PreferenceCategory>
     <androidx.preference.PreferenceCategory android:title="Parent Control">

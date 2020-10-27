@@ -62,22 +62,6 @@ public class SetParentControlPassword extends GuidedStepSupportFragment {
 
     @Override
     public void onCreateActions(@NonNull List<GuidedAction> actions, Bundle savedInstanceState) {
-        /*actions.add(new GuidedAction.Builder(getActivity())
-                .title("")
-                .description(R.string.parent_control_password)
-                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                .editable(true)
-                .id(PASSWORD)
-                .build());
-        actions.add(new GuidedAction.Builder(getActivity())
-                .title("")
-                .description(R.string.parent_control_confirm_password)
-                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                .editInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                .editable(true)
-                .id(CONFIRM_PASSWORD)
-                .build());*/
         GuidedAction password = new GuidedAction.Builder(getActivity())
                 .title("")
                 .description(R.string.parent_control_password)

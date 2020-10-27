@@ -10,13 +10,21 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.openiptv.code.Constants;
+import com.openiptv.code.PreferenceUtils;
+import com.openiptv.code.epg.OMDB.OMDBAPI;
 import com.openiptv.code.htsp.HTSPMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.openiptv.code.Constants.DEBUG;
 import static com.openiptv.code.Constants.NULL_CHANNEL;
+import static com.openiptv.code.Constants.PREFERENCE_SETUP_COMPLETE;
 
 public class Program {
     private static final String TAG = Program.class.getSimpleName();
@@ -32,6 +40,7 @@ public class Program {
     private String programImage;
     private ContentValues contentValues;
     private Context context;
+    private String contentType;
 
     /**
      * Constructor for a Program object
@@ -168,6 +177,7 @@ public class Program {
         this.desc = message.getString(Constants.PROGRAM_DESCRIPTION);
         this.ageRating = message.getInteger(Constants.PROGRAM_AGE_RATING);
         this.programImage = message.getString(Constants.PROGRAM_IMAGE);
+        this.contentType = new DvbContentType().getType(message.getInteger(Constants.PROGRAM_CONTENT_TYPE));
 
         generateContentValues(context);
     }
@@ -179,7 +189,7 @@ public class Program {
      */
     private void generateContentValues(Context context) {
         contentValues = new ContentValues();
-
+        contentValues.put(TvContract.Programs.COLUMN_CANONICAL_GENRE, contentType);
         contentValues.put(TvContract.Programs.COLUMN_CHANNEL_ID, Channel.getTvProviderId(channelId, context));
         contentValues.put(TvContract.Programs.COLUMN_INTERNAL_PROVIDER_DATA, eventId);
 
@@ -205,6 +215,16 @@ public class Program {
             if (ageRating >= 4 && ageRating <= 18) {
                 TvContentRating rating = TvContentRating.createRating("com.android.tv", "DVB", "DVB_" + ageRating);
                 contentValues.put(TvContract.Programs.COLUMN_CONTENT_RATING, rating.flattenToString());
+            }
+        } else {
+            grabAgeRatingFromDesc();
+
+            Uri programUri = getUri(context, this);
+
+            if(programUri != null && getProgramAgeRatingFromProgramUri(context, programUri) == TvContentRating.UNRATED.flattenToString())
+            {
+                grabAgeRatingFromOMDB(OMDBAPI.Type.SERIES, context);
+                grabAgeRatingFromOMDB(OMDBAPI.Type.MOVIE, context);
             }
         }
 
@@ -434,5 +454,212 @@ public class Program {
         }
 
         return null;
+    }
+
+    public static String getProgramAgeRatingFromProgramUri(Context context, Uri programUri) {
+        ContentResolver resolver = context.getContentResolver();
+
+        String[] projection = {TvContract.Programs._ID, TvContract.Programs.COLUMN_CONTENT_RATING};
+        List<String> programIds = new ArrayList<>();
+
+        try (Cursor cursor = resolver.query(programUri, projection, null, null, null)) {
+            while (cursor != null && cursor.moveToNext()) {
+                programIds.add(cursor.getString(1));
+            }
+        }
+
+        if (programIds.size() == 1) {
+            return programIds.get(0);
+        }
+
+        return null;
+    }
+
+    private void grabAgeRatingFromOMDB(OMDBAPI.Type type, Context context)
+    {
+        PreferenceUtils preferenceUtils = new PreferenceUtils(context);
+
+        //get API key from OMDBAPI.com
+        String apiKey = null;
+        if(preferenceUtils.containsKey("OMDB_API_KEY"))
+        {
+            apiKey = preferenceUtils.getString("OMDB_API_KEY");
+        }
+
+        if(apiKey == null)
+        {
+            return;
+        }
+
+        OMDBAPI omdbapi = new OMDBAPI(apiKey);
+
+        // Remove 'Movie: ' from title (if any)
+        if(title == null)
+        {
+            return;
+        }
+
+        title = title.replace("Movie: ", "");
+
+        omdbapi.setTitle(title)
+                .setType(type);
+
+        String apiResponse = omdbapi.byTitle();
+        JSONObject response = null;
+
+        HashMap<List<String>, String> ratingsMap = new HashMap<>();
+
+        ratingsMap.put(new ArrayList<>(Arrays.asList("G")), "5");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("7")), "7");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("9")), "9");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("PG", "14")), "12");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("M", "AO", "16")), "16");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("R18", "R-18", "18")), "18");
+
+        try {
+            response = new JSONObject(apiResponse);
+
+            if(response.getString("Response").equals("True")) {
+
+                String ratingString = response.getString("Rated");
+
+                List<String> found = new ArrayList<>();
+                for(List<String> ratings : ratingsMap.keySet())
+                {
+                    for(String rating : ratings)
+                    {
+                        if(!found.isEmpty() && ratingString.contains(rating) && Integer.parseInt(ratingsMap.get(ratings)) > Integer.parseInt(ratingsMap.get(found)))
+                        {
+                            found = ratings;
+                        }
+                        else if(ratingString.contains(rating))
+                        {
+                            found = ratings;
+                        }
+                    }
+                }
+
+                if(!found.isEmpty())
+                {
+                    ratingString = ratingsMap.get(found);
+                }
+
+                // Parse from description or summary
+                if(found.isEmpty())
+                {
+                    // TRY TO PARSE FROM DESCRIPTION
+                    if(summary != null)
+                    {
+                        for(List<String> ratings : ratingsMap.keySet())
+                        {
+                            for(String rating : ratings)
+                            {
+                                if(!found.isEmpty() && desc.substring(0, 10).contains(rating) && Integer.parseInt(ratingsMap.get(ratings)) > Integer.parseInt(ratingsMap.get(found)))
+                                {
+                                    found = ratings;
+                                }
+                                else if(ratingString.contains(rating))
+                                {
+                                    found = ratings;
+                                }
+                            }
+                        }
+                    } else if(desc != null)
+                    {
+                        for(List<String> ratings : ratingsMap.keySet())
+                        {
+                            for(String rating : ratings)
+                            {
+                                if(!found.isEmpty() && desc.substring(0, 10).contains(rating) && Integer.parseInt(ratingsMap.get(ratings)) > Integer.parseInt(ratingsMap.get(found)))
+                                {
+                                    found = ratings;
+                                }
+                                else if(ratingString.contains(rating))
+                                {
+                                    found = ratings;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(found.isEmpty())
+                {
+                    Log.d(TAG, "Rating for program: UNRATED");
+                    contentValues.put(TvContract.Programs.COLUMN_CONTENT_RATING, TvContentRating.UNRATED.flattenToString());
+                }
+                else {
+                    ratingString = "DVB_"+ratingString;
+                    Log.d(TAG, "Rating for program: " + ratingString);
+
+                    TvContentRating rating = TvContentRating.createRating("com.android.tv", "DVB", ratingString);
+                    contentValues.put(TvContract.Programs.COLUMN_CONTENT_RATING, rating.flattenToString());
+                }
+
+            }
+        } catch (JSONException ignored) {
+        }
+    }
+
+    private void grabAgeRatingFromDesc()
+    {
+        HashMap<List<String>, String> ratingsMap = new HashMap<>();
+
+        ratingsMap.put(new ArrayList<>(Arrays.asList("G")), "5");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("7")), "7");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("9")), "9");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("PG", "14")), "12");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("M", "AO", "16")), "16");
+        ratingsMap.put(new ArrayList<>(Arrays.asList("R18", "R-18", "18")), "18");
+
+        List<String> found = new ArrayList<>();
+
+        if(summary != null)
+        {
+            for(List<String> ratings : ratingsMap.keySet())
+            {
+                for(String rating : ratings)
+                {
+                    if(!found.isEmpty() && summary.substring(0, 10).contains(rating) && Integer.parseInt(ratingsMap.get(ratings)) > Integer.parseInt(ratingsMap.get(found)))
+                    {
+                        found = ratings;
+                    }
+                    else if(summary.substring(0, 10).contains(rating))
+                    {
+                        found = ratings;
+                    }
+                }
+            }
+        } else if(desc != null)
+        {
+            for(List<String> ratings : ratingsMap.keySet())
+            {
+                for(String rating : ratings)
+                {
+                    if(!found.isEmpty() && desc.substring(0, 10).contains(rating) && Integer.parseInt(ratingsMap.get(ratings)) > Integer.parseInt(ratingsMap.get(found)))
+                    {
+                        found = ratings;
+                    }
+                    else if(desc.substring(0, 10).contains(rating))
+                    {
+                        found = ratings;
+                    }
+                }
+            }
+        }
+
+        if(found.isEmpty())
+        {
+            Log.d(TAG, "Rating for program: UNRATED");
+            contentValues.put(TvContract.Programs.COLUMN_CONTENT_RATING, TvContentRating.UNRATED.flattenToString());
+        }
+        else {
+            String ratingString = "DVB_"+ratingsMap.get(found);
+            Log.d(TAG, "Rating for program: " + ratingString);
+            TvContentRating rating = TvContentRating.createRating("com.android.tv", "DVB", ratingString);
+            contentValues.put(TvContract.Programs.COLUMN_CONTENT_RATING, rating.flattenToString());
+        }
+
+
     }
 }

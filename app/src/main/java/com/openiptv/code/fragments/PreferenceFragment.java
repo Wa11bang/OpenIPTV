@@ -1,12 +1,10 @@
 package com.openiptv.code.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.leanback.app.GuidedStepSupportFragment;
 import androidx.leanback.preference.BaseLeanbackPreferenceFragmentCompat;
 import androidx.leanback.preference.LeanbackPreferenceFragmentCompat;
 import androidx.leanback.preference.LeanbackSettingsFragmentCompat;
@@ -15,9 +13,9 @@ import androidx.preference.PreferenceDialogFragmentCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
+import com.openiptv.code.Constants;
 import com.openiptv.code.R;
-
-import static androidx.leanback.app.GuidedStepSupportFragment.add;
+import com.openiptv.code.manage.account.ManageAccountActivity;
 
 //LeanbackSettingsFragmentCompat
 public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
@@ -28,23 +26,11 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
 
     @Override
     public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {
-        final Bundle args = pref.getExtras();
-        final Fragment f = getChildFragmentManager().getFragmentFactory().instantiate(
-                requireActivity().getClassLoader(), pref.getFragment());
-        f.setArguments(args);
-        f.setTargetFragment(caller, 0);
-        if (f instanceof PreferenceFragmentCompat
-                || f instanceof PreferenceDialogFragmentCompat) {
-            startPreferenceFragment(f);
-        } else {
-            startImmersiveFragment(f);
-        }
-        return true;
+        return false;
     }
 
     @Override
-    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,
-                                           PreferenceScreen pref) {
+    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref) {
         final Fragment fragment = new DemoFragment();
         final Bundle args = new Bundle(1);
         args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, pref.getKey());
@@ -60,8 +46,14 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            getPreferenceManager().setSharedPreferencesName(Constants.ACCOUNT);
+            getPreferenceManager().setSharedPreferencesMode(Context.MODE_PRIVATE);
             // Load the preferences from an XML resource
-            setPreferencesFromResource(R.xml.preferences, rootKey);
+            if (rootKey == null){
+                addPreferencesFromResource(R.xml.preferences);
+            } else {
+                setPreferencesFromResource(R.xml.preferences, rootKey);
+            }
         }
 
         @Override
@@ -76,6 +68,11 @@ public class PreferenceFragment extends LeanbackSettingsFragmentCompat {
             }
             if(preference.getKey().equals("disable")){
                 Intent intent = new Intent(getContext(), DisableTimerActivity.class);
+                startActivity(intent);
+            }
+            if (preference.getTitle().toString().equals("Manage_Account"))
+            {
+                Intent intent = new Intent(getContext(), ManageAccountActivity.class);
                 startActivity(intent);
             }
 

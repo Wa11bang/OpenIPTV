@@ -13,9 +13,8 @@ public class BootReceiver extends BroadcastReceiver {
 
     /**
      * Ensures that all necessary services are started upon booting of this device.
-     *
      * @param context application context
-     * @param intent  given intent (whether our services can start)
+     * @param intent given intent (whether our services can start)
      */
     @Override
     public void onReceive(Context context, Intent intent) {
