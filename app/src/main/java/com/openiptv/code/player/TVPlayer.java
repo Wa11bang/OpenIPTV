@@ -1,6 +1,7 @@
 package com.openiptv.code.player;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.media.PlaybackParams;
 import android.media.tv.TvTrackInfo;
@@ -19,6 +20,7 @@ import android.view.WindowManager;
 import android.view.accessibility.CaptioningManager;
 import android.widget.Toast;
 
+import androidx.preference.PreferenceManager;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -42,6 +44,8 @@ import com.google.android.exoplayer2.ui.SubtitleView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.openiptv.code.Constants;
+import com.openiptv.code.PreferenceUtils;
 
 import com.openiptv.code.DatabaseActions;
 import com.openiptv.code.TVHeadendAccount;
@@ -55,10 +59,17 @@ import com.openiptv.code.player.utils.TimeshiftUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.PreferenceChangeListener;
 
 import static com.openiptv.code.Constants.DEBUG;
+import static com.openiptv.code.Constants.KEY_BUFFER;
+import static com.openiptv.code.Constants.KEY_DVR;
+import static com.openiptv.code.Constants.KEY_EPG_SYNC;
+import static com.openiptv.code.Constants.KEY_PROFILE;
+import static com.openiptv.code.Constants.KEY_QUICK_SYNC;
 
 public class TVPlayer implements Player.EventListener {
+    private Uri contentUri;
     private SimpleExoPlayer player;
     private Context context;
     private Surface surface;
@@ -67,6 +78,8 @@ public class TVPlayer implements Player.EventListener {
     private HTSPDataSource.Factory htspSubscriptionDataSourceFactory;
     private HTSPDataSource dataSource;
     private ExtractorsFactory extractorsFactory;
+    private PreferenceUtils preferenceUtils;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     private View overlayView;
     private View subtitleView;
@@ -111,12 +124,33 @@ public class TVPlayer implements Player.EventListener {
 
         this.player.addListener(this);
         this.connection = connection;
-
-        htspSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, "htsp");
+        this.preferenceUtils = new PreferenceUtils(context);
+      
+        htspSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
         extractorsFactory = new ExtendedExtractorsFactory(context);
 
         listeners = new ArrayList<>();
 
+        /*
+            Only profiles which are supported by the device will be utilized, otherwise a fallback
+            is chosen by TVHeadEnd.
+         */
+        SharedPreferences preferences = context.getSharedPreferences(Constants.ACCOUNT, Context.MODE_PRIVATE);
+        preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key.equals(KEY_PROFILE)) {
+                    Log.d(TAG, "The new value is "+preferenceUtils.getString(KEY_PROFILE));
+
+                    HTSPSubscriptionDataSourceFactory.releaseCurrentDataSource();
+                    HTSPSubscriptionDataSourceFactory = new HTSPSubscriptionDataSource.Factory(context, connection, preferenceUtils.getString(KEY_PROFILE).toLowerCase());
+
+                    prepare(contentUri, recording);
+                    start();
+                }
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
         rewinder = new TimeshiftUtils.Rewinder(new Handler(), player, this);
     }
 
@@ -139,6 +173,7 @@ public class TVPlayer implements Player.EventListener {
      */
     public void prepare(Uri channelUri, boolean recording) {
         this.recording = recording;
+        this.contentUri = channelUri;
 
         if (!recording) {
 

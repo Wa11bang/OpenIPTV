@@ -81,4 +81,12 @@ public class Constants {
     public static final boolean PREFERENCE_NOT_SET_BOOL = false;
 
     public static final String PREFERENCE_SETUP_COMPLETE = "SETUP_COMPLETE";
+
+    //Keys
+    public static final String KEY_PROFILE = "STREAM_PROFILE";
+    public static final String KEY_QUICK_SYNC = "QUICK_SYNC";
+    public static final String KEY_EPG_SYNC = "EPG_SYNC";
+    public static final String KEY_BUFFER = "BUFFER_SIZE";
+    public static final String KEY_DVR = "DVR_STORAGE";
+
 }
