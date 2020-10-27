@@ -1,7 +1,6 @@
 package com.openiptv.code.player.utils;
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.openiptv.code.player.TVPlayer;
@@ -39,19 +38,22 @@ public class TimeshiftUtils {
                 started = true;
                 postTick();
             }
-
         }
 
         private void tick() {
-            currentPos = (currentPos + (long) speed);
+            currentPos = (currentPos + (long) (speed*1000));
             long seekPos = -(tvPlayer.getTimeshiftStartPosition() - currentPos);
             //Log.d(TAG, "SEEKPOS: " + seekPos + ", Speed: " + speed);
-            if (seekPos >= 0) {
-                player.seekTo(seekPos);
-            }
 
             if (started) {
-                handler.postDelayed(doTick, 1);
+                if (seekPos >= 0) {
+                    player.seekTo(seekPos);
+                }
+                else
+                {
+                    player.seekTo(0);
+                }
+                handler.postDelayed(doTick, 1000);
             }
         }
 
@@ -59,13 +61,15 @@ public class TimeshiftUtils {
             if (!started) {
                 return;
             }
+            handler.removeCallbacks(doTick);
             reset();
-            tick();
+            //tick();
         }
 
         public void reset() {
-            handler.removeCallbacks(doTick);
             started = false;
+            handler.removeCallbacksAndMessages(null);
+            handler.removeCallbacks(doTick);
         }
 
         public void postTick() {

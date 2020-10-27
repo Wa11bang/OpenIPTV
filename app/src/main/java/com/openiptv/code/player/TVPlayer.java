@@ -183,21 +183,16 @@ public class TVPlayer implements Player.EventListener {
      * Resume the TV Input / ExoPlayer
      */
     public void resume() {
-        if(rewinder.isRunning()) {
-            rewinder.stop();
-        }
+        player.setPlayWhenReady(true);
         player.setPlaybackParameters(new PlaybackParameters(1));
-
+        rewinder.stop();
 
         dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
-            Log.d(TAG, "Resuming DataSource");
             dataSource.resume();
         } else {
             Log.w(TAG, "Unable to resume, no DataSource available");
         }
-
-        player.setPlayWhenReady(true);
     }
 
     /**
@@ -205,9 +200,7 @@ public class TVPlayer implements Player.EventListener {
      */
     public void pause() {
         player.setPlayWhenReady(false);
-        if(rewinder.isRunning()) {
-            rewinder.stop();
-        }
+        rewinder.stop();
 
         dataSource = htspSubscriptionDataSourceFactory.getCurrentDataSource();
         if (dataSource != null) {
