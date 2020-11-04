@@ -28,7 +28,7 @@ Currently TVHeadEnd using HTSP is the only supported IPTV server at the moment.
 
 ## Requirements
 
-Android SDK API level 29
+Android SDK API level 26
 Android Studio
 To use the Parental Controls, OMDBApi TV-Rating API Key is also needed.
 
@@ -52,7 +52,7 @@ Be sure to describe what you were doing and what you were trying to do at the ti
 
 ## Contributing
 
-We are currently not open for contributions due to this being a university project.
+We are currently not open for contributions.
 This will change in the future.
 
 ## License
